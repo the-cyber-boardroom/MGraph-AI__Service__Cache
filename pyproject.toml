@@ -1,12 +1,12 @@
 [tool.poetry]
-name        = "mgraph_ai_service_base"
+name        = "mgraph_ai_service_cache"
 version     = "v0.4.0"
-description = "MGraph-AI__Service__Base"
+description = "MGraph-AI__Service__Cache"
 authors     = ["Dinis Cruz <dinis.cruz@owasp.org>"]
 license     = "Apache 2.0"
 readme      = "README.md"
-homepage    = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Base"
-repository  = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Base"
+homepage    = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Cache"
+repository  = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Cache"
 
 [tool.poetry.dependencies]
 python                     = "^3.12"
