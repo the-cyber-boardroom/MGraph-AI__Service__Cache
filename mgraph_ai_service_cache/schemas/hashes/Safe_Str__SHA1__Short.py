@@ -1,6 +1,7 @@
 import re
-from osbot_utils.helpers.safe_str.Safe_Str                           import Safe_Str
-from osbot_utils.helpers.safe_str.schemas.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
+
+from osbot_utils.type_safe.primitives.safe_str.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str                   import Safe_Str
 
 TYPE_SAFE_STR__GITHUB__SHA_SHORT__REGEX  = re.compile(r'^[a-fA-F0-9]{7}$')
 TYPE_SAFE_STR__GITHUB__SHA_SHORT__LENGTH = 7
@@ -18,6 +19,6 @@ class Safe_Str__SHA1__Short(Safe_Str):
     regex_mode        = Enum__Safe_Str__Regex_Mode.MATCH
     max_length        = TYPE_SAFE_STR__GITHUB__SHA_SHORT__LENGTH
     exact_length      = True
-    allow_empty       = False
+    allow_empty       = True
     trim_whitespace   = True
     strict_validation = True
