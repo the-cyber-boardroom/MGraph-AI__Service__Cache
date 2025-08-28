@@ -1,8 +1,4 @@
 from unittest                                       import TestCase
-from osbot_aws.aws.lambda_.Lambda                   import Lambda
-from osbot_utils.utils.Dev                          import pprint
-from osbot_utils.utils.Env                          import load_dotenv
-from osbot_utils.utils.Files                        import path_combine, file_exists
 from tests.deploy_aws.test_Deploy__Service__base    import test_Deploy__Service__base
 
 class test_Deploy__Service__to__dev(test_Deploy__Service__base, TestCase):

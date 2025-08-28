@@ -37,7 +37,7 @@ class test_Cache__Service(TestCase):                                            
             cls.service          = _
             _.default_bucket     = cls.test_bucket
             _.default_ttl_hours  = 12
-            _.setup()
+
         # Test data
         cls.test_namespace       = Safe_Id("test-namespace")
         cls.test_data            = { "key"   : "value" ,
