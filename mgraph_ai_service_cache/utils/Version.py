@@ -1,4 +1,4 @@
-import mgraph_ai_service_base
+import mgraph_ai_service_cache
 from osbot_utils.type_safe.primitives.safe_str.git.Safe_Str__Version import Safe_Str__Version
 from osbot_utils.type_safe.Type_Safe                                 import Type_Safe
 from osbot_utils.utils.Files                                         import file_contents, path_combine

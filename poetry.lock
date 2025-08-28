@@ -34,18 +34,18 @@ trio = ["trio (>=0.26.1)"]
 
 [[package]]
 name = "boto3"
-version = "1.40.8"
+version = "1.40.19"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.40.8-py3-none-any.whl", hash = "sha256:9f55edd8e2eb5cd86e1c972b5250f9ab0a9555f84632506a2ed131e4a82ea23a"},
-    {file = "boto3-1.40.8.tar.gz", hash = "sha256:62959010dfd3d24157f73a8183fca7619ec97fb42ac400477006f7ecb9548d06"},
+    {file = "boto3-1.40.19-py3-none-any.whl", hash = "sha256:9cdf01576fae6cb12b71fd6b793f34876feafa962cdaf3a9489253580355fc60"},
+    {file = "boto3-1.40.19.tar.gz", hash = "sha256:772f259fdef6efa752c5744e140c0371593a20a0c728cce91d67b8b58d1090e7"},
 ]
 
 [package.dependencies]
-botocore = ">=1.40.8,<1.41.0"
+botocore = ">=1.40.19,<1.41.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.13.0,<0.14.0"
 
@@ -54,14 +54,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.40.8"
+version = "1.40.19"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.40.8-py3-none-any.whl", hash = "sha256:7f0327e08d7c061aaa03e32459e56bcf6daa29cd946e95b1c06be14d61a9a94d"},
-    {file = "botocore-1.40.8.tar.gz", hash = "sha256:954fa6e36020ebf58898de80a8f864ba13b74dc26994cf20ccfff2966724b0b9"},
+    {file = "botocore-1.40.19-py3-none-any.whl", hash = "sha256:6a7c2ceaf8ed3321cf4bc15420dad4e778263d3b480c86f7fd9da982e1deaa64"},
+    {file = "botocore-1.40.19.tar.gz", hash = "sha256:becc101b3047ec4cffa6c86bab747b8312db20529ee0132fe77007092a9c9f85"},
 ]
 
 [package.dependencies]
@@ -70,7 +70,7 @@ python-dateutil = ">=2.1,<3.0.0"
 urllib3 = {version = ">=1.25.4,<2.2.0 || >2.2.0,<3", markers = "python_version >= \"3.10\""}
 
 [package.extras]
-crt = ["awscrt (==0.23.8)"]
+crt = ["awscrt (==0.27.6)"]
 
 [[package]]
 name = "certifi"
@@ -315,14 +315,14 @@ files = [
 
 [[package]]
 name = "memory-fs"
-version = "0.13.0"
+version = "0.17.0"
 description = "Memory-FS"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "memory_fs-0.13.0-py3-none-any.whl", hash = "sha256:a70f058fb411820ed18c5fc749d2816bad4df837a2edaa628f6e982b2578472f"},
-    {file = "memory_fs-0.13.0.tar.gz", hash = "sha256:b6b9e6a79771f9a07d6fa3feb59f9ca9350e0dc683ed923ed5383c4b148362c0"},
+    {file = "memory_fs-0.17.0-py3-none-any.whl", hash = "sha256:dc497ce818fa7f23ce09217f0242315004bd3c477734e8bd9b90a29334f2eba3"},
+    {file = "memory_fs-0.17.0.tar.gz", hash = "sha256:389848c179966bb08b942d5d3c3bcbc22c76c71a9296804ed20d0eb5f4090071"},
 ]
 
 [package.dependencies]
@@ -330,14 +330,14 @@ osbot-utils = "*"
 
 [[package]]
 name = "osbot-aws"
-version = "2.39.3"
+version = "2.39.4"
 description = "OWASP Security Bot - AWS"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "osbot_aws-2.39.3-py3-none-any.whl", hash = "sha256:a96916f8165c8864c8ed54a6794102921b66360776b0e88e38003e51032dafa4"},
-    {file = "osbot_aws-2.39.3.tar.gz", hash = "sha256:b8beecf53dbf19a377a7e64c6fd53b9f791082b8900866c88fbb8d2307b48dcc"},
+    {file = "osbot_aws-2.39.4-py3-none-any.whl", hash = "sha256:a02d47ed188d4d1dabf0a989f889f1e5ba7c7b688ac472d74e0a97b08acb09bc"},
+    {file = "osbot_aws-2.39.4.tar.gz", hash = "sha256:a947feb813303d006a3305396e49262eebd200ba4c6cdab17ccae2889d67ade0"},
 ]
 
 [package.dependencies]
@@ -346,14 +346,14 @@ osbot-utils = "*"
 
 [[package]]
 name = "osbot-fast-api"
-version = "0.10.0"
+version = "0.21.0"
 description = "OWASP Security Bot - Fast API"
 optional = false
 python-versions = "<4.0,>=3.11"
 groups = ["main"]
 files = [
-    {file = "osbot_fast_api-0.10.0-py3-none-any.whl", hash = "sha256:89960d661d3f54df5b714daaec2be93b9106cc31f501d8acfc81d2b63a7bf561"},
-    {file = "osbot_fast_api-0.10.0.tar.gz", hash = "sha256:f8b724f8d5c2487756ae11b89182fde0265ddfe7459c253fc39742bae2d90d42"},
+    {file = "osbot_fast_api-0.21.0-py3-none-any.whl", hash = "sha256:ec13d59a0c52120835828403502b0bfd07b87ca018106852959921a21aee2d78"},
+    {file = "osbot_fast_api-0.21.0.tar.gz", hash = "sha256:90c10427cb6cb0a47c2439471a360dd8888a4a8c9c3eb1c68d51ae69491d2ab5"},
 ]
 
 [package.dependencies]
@@ -365,14 +365,14 @@ uvicorn = "*"
 
 [[package]]
 name = "osbot-fast-api-serverless"
-version = "1.5.0"
+version = "1.15.0"
 description = "OSBot-Fast-API-Serverless"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "osbot_fast_api_serverless-1.5.0-py3-none-any.whl", hash = "sha256:cc2ed71a75db498c10db4285c2a2921a5482a844f927d7d9809d31d0a6f8fe9c"},
-    {file = "osbot_fast_api_serverless-1.5.0.tar.gz", hash = "sha256:f2cf387e7c683a8b24c18a069439d94e14b55bae9f29dbab742bca3468a41ebb"},
+    {file = "osbot_fast_api_serverless-1.15.0-py3-none-any.whl", hash = "sha256:c9c894f2996da1e810da1f12764eab7d7ecc0a4760a0ebb05dcff9f93d61bd78"},
+    {file = "osbot_fast_api_serverless-1.15.0.tar.gz", hash = "sha256:05066e924ac8a1234ec9502b1eebab63f5aa98775199dba345e58118e948a316"},
 ]
 
 [package.dependencies]
@@ -382,14 +382,14 @@ osbot-fast-api = "*"
 
 [[package]]
 name = "osbot-utils"
-version = "2.72.0"
+version = "2.84.0"
 description = "OWASP Security Bot - Utils"
 optional = false
 python-versions = "<4.0,>=3.7"
 groups = ["main"]
 files = [
-    {file = "osbot_utils-2.72.0-py3-none-any.whl", hash = "sha256:a846fd1fe0c34e0c9137e5fd5aad77d6000ad0ba8de5b9537fbd7bb51756a619"},
-    {file = "osbot_utils-2.72.0.tar.gz", hash = "sha256:8df0886de2b58f83d0f5837f8305ffc4d685b4f7cf6fcd174bad5652705971e6"},
+    {file = "osbot_utils-2.84.0-py3-none-any.whl", hash = "sha256:b8e05ad77a04a47790a381d531f7583e43fef15733404f47de0eb2fbfe8eb914"},
+    {file = "osbot_utils-2.84.0.tar.gz", hash = "sha256:ac1ab5297ed8f6e769edac9cd0fadfc3e02fd7a8e87ecef81131d523343756a4"},
 ]
 
 [[package]]
@@ -558,14 +558,14 @@ six = ">=1.5"
 
 [[package]]
 name = "requests"
-version = "2.32.4"
+version = "2.32.5"
 description = "Python HTTP for Humans."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "requests-2.32.4-py3-none-any.whl", hash = "sha256:27babd3cda2a6d50b30443204ee89830707d396671944c998b5975b031ac2b2c"},
-    {file = "requests-2.32.4.tar.gz", hash = "sha256:27d0316682c8a29834d3264820024b62a36942083d52caf2f14c0591336d3422"},
+    {file = "requests-2.32.5-py3-none-any.whl", hash = "sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6"},
+    {file = "requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf"},
 ]
 
 [package.dependencies]
@@ -653,14 +653,14 @@ files = [
 
 [[package]]
 name = "starlette"
-version = "0.47.2"
+version = "0.47.3"
 description = "The little ASGI library that shines."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "starlette-0.47.2-py3-none-any.whl", hash = "sha256:c5847e96134e5c5371ee9fac6fdf1a67336d5815e09eb2a01fdb57a351ef915b"},
-    {file = "starlette-0.47.2.tar.gz", hash = "sha256:6ae9aa5db235e4846decc1e7b79c4f346adf41e9777aebeb49dfd09bbd7023d8"},
+    {file = "starlette-0.47.3-py3-none-any.whl", hash = "sha256:89c0778ca62a76b826101e7c709e70680a1699ca7da6b44d38eb0a7e61fe4b51"},
+    {file = "starlette-0.47.3.tar.gz", hash = "sha256:6bc94f839cc176c4858894f1f8908f0ab79dfec1a6b8402f6da9be26ebea52e9"},
 ]
 
 [package.dependencies]
@@ -672,14 +672,14 @@ full = ["httpx (>=0.27.0,<0.29.0)", "itsdangerous", "jinja2", "python-multipart 
 
 [[package]]
 name = "typer"
-version = "0.16.0"
+version = "0.16.1"
 description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
 optional = false
 python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "typer-0.16.0-py3-none-any.whl", hash = "sha256:1f79bed11d4d02d4310e3c1b7ba594183bcedb0ac73b27a9e5f28f6fb5b98855"},
-    {file = "typer-0.16.0.tar.gz", hash = "sha256:af377ffaee1dbe37ae9440cb4e8f11686ea5ce4e9bae01b84ae7c63b87f1dd3b"},
+    {file = "typer-0.16.1-py3-none-any.whl", hash = "sha256:90ee01cb02d9b8395ae21ee3368421faf21fa138cb2a541ed369c08cec5237c9"},
+    {file = "typer-0.16.1.tar.gz", hash = "sha256:d358c65a464a7a90f338e3bb7ff0c74ac081449e53884b12ba658cbd72990614"},
 ]
 
 [package.dependencies]
@@ -690,14 +690,14 @@ typing-extensions = ">=3.7.4.3"
 
 [[package]]
 name = "typing-extensions"
-version = "4.14.1"
+version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "typing_extensions-4.14.1-py3-none-any.whl", hash = "sha256:d1e1e3b58374dc93031d6eda2420a48ea44a36c2b4766a4fdeb3710755731d76"},
-    {file = "typing_extensions-4.14.1.tar.gz", hash = "sha256:38b39f4aeeab64884ce9f74c94263ef78f3c22467c8724005483154c26648d36"},
+    {file = "typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"},
+    {file = "typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466"},
 ]
 
 [[package]]
