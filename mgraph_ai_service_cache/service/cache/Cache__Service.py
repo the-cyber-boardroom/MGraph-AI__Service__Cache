@@ -19,11 +19,6 @@ class Cache__Service(Type_Safe):                                                
     default_bucket   : str                           = DEFAULT__CACHE__SERVICE__BUCKET_NAME         # Default S3 bucket
     default_ttl_hours: int                           = DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS   # Default TTL in hours
 
-    def setup(self) -> 'Cache__Service':                                              # Initialize cache service
-        if not self.cache_handlers:
-            self.cache_handlers = {}
-        return self
-
     @type_safe
     def get_or_create_handler(self, namespace : Safe_Id                              # Get existing or create new cache handler
                               ) -> Cache__Handler:
@@ -36,7 +31,7 @@ class Cache__Service(Type_Safe):                                                
 
     @type_safe
     def generate_cache_hash(self, data: Any                                           # Generate deterministic hash from data
-                            ) -> Safe_Str__Hash:
+                             ) -> Safe_Str__Hash:
         if isinstance(data, dict):
             cache_key = json_to_str(data)
         else:

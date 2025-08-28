@@ -15,12 +15,7 @@ ROUTES_PATHS__CACHE                = [f'/{TAG__ROUTES_CACHE}/store'             
                                       f'/{TAG__ROUTES_CACHE}/namespaces'        ]
 class Routes__Cache(Fast_API__Routes):                                                 # FastAPI routes for cache operations
     tag           : str            = TAG__ROUTES_CACHE
-    cache_service : Cache__Service = None
-
-    def setup(self) -> 'Routes__Cache':                                               # Initialize cache service if not provided
-        if self.cache_service is None:
-            self.cache_service = Cache__Service().setup()
-        return super().setup()
+    cache_service : Cache__Service
 
     def store(self, request   : Schema__Cache__Store__Request ,                       # Store data in cache
                     namespace : Safe_Id = None
