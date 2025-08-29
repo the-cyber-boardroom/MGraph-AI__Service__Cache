@@ -8,7 +8,7 @@ from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text              
 
 class Schema__Cache__Store__Request(Type_Safe):          # Request schema for storing cache data"""
     data        : str                                    # Base64 encoded for binary data   # todo: see what type of schema we should use here
-    content_type: Safe_Str__Http__Content_Type  = None   # MIME type                        # todo: see if we need this here
-    metadata    : Dict[Safe_Id, Safe_Str__Text] = None   # Domain-specific metadata
-    tags        : List[Safe_Id]                 = None   # Tags for categorization
-    hash        : Safe_Str__Hash                = None   # Optional: provide custom hash    #todo: see if it is a good idea to ask the called to provide the hash
+    content_type: Safe_Str__Http__Content_Type           # MIME type                        # todo: see if we need this here
+    metadata    : Dict[Safe_Id, Safe_Str__Text]          # Domain-specific metadata
+    tags        : List[Safe_Id]                          # Tags for categorization
+    hash        : Safe_Str__Hash                         # provide custom hash              #todo: see if it is a good idea to ask the called to provide the hash

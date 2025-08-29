@@ -151,7 +151,7 @@ class test_Cache__Service(TestCase):                                            
             assert response.obj() == __(hash     = custom_hash                  ,
                                         cache_id = cache_id                     ,
                                         path     = f'{path_now}/{cache_id}.json',
-                                        size     =  288                         )
+                                        size     =  284                         )
 
     def test_retrieve(self):                                                         # Test retrieving data from cache
         # Store first
@@ -169,7 +169,7 @@ class test_Cache__Service(TestCase):                                            
             result = _.retrieve(retrieve_request, self.test_namespace)
             stored_at = result.get('data').get('stored_at')
             assert type(result) is dict
-            assert result == {'data'    : { 'content_type': 'None'                  ,
+            assert result == {'data'    : { 'content_type': ''                      ,
                                             'data'        : self.test_data__base_64 ,           # todo: add endpoint that just returns the data
                                             'hash'        : '1830c8ec23'            ,
                                             'metadata'    : {}                      ,           # todo: add endpoint that just returns the metadata (from the Memory_FS .metadata file). also add endpoint to return the .config() file
@@ -224,7 +224,7 @@ class test_Cache__Service(TestCase):                                            
             result    = _.retrieve(request_data_only, self.test_namespace)
             stored_at = result.get('data').get('stored_at')
 
-            assert result == {'data': { 'content_type': 'None',
+            assert result == {'data': { 'content_type': ''                      ,
                                         'data'        : self.test_data__base_64 ,
                                         'hash'        : '1830c8ec23',
                                         'metadata'    : {},
