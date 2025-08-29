@@ -1,4 +1,4 @@
-from typing                                                         import Any, Type, Optional
+from typing                                                         import Type
 from memory_fs.file_fs.File_FS                                      import File_FS
 from memory_fs.helpers.Memory_FS__Latest                            import Memory_FS__Latest
 from memory_fs.helpers.Memory_FS__Latest_Temporal                   import Memory_FS__Latest_Temporal

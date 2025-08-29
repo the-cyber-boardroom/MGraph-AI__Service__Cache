@@ -19,7 +19,6 @@ from mgraph_ai_service_cache.service.cache.Cache__Handler                       
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Request            import Schema__Cache__Store__Request
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response           import Schema__Cache__Store__Response
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Request         import Schema__Cache__Retrieve__Request
-from mgraph_ai_service_cache.schemas.hashes.Safe_Str__SHA1__Short                   import Safe_Str__SHA1__Short
 from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs
 
 
