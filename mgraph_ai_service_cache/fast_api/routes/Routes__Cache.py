@@ -9,11 +9,12 @@ from mgraph_ai_service_cache.service.cache.Cache__Service                       
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response          import Schema__Cache__Store__Response
 
 TAG__ROUTES_CACHE                  = 'cache'
-ROUTES_PATHS__CACHE                = [ f'/{TAG__ROUTES_CACHE}' + '/exists/{cache_hash}/{namespace}'         ,
+ROUTES_PATHS__CACHE                = [  f'/{TAG__ROUTES_CACHE}' + '/delete/by-id/{cache_id}/{namespace}'    ,
+                                        f'/{TAG__ROUTES_CACHE}' + '/exists/{cache_hash}/{namespace}'        ,
                                        f'/{TAG__ROUTES_CACHE}' + '/store/binary/{strategy}/{namespace}'     ,
-                                       f'/{TAG__ROUTES_CACHE}' + '/store/json/{strategy}/{namespace}'     ,
+                                       f'/{TAG__ROUTES_CACHE}' + '/store/json/{strategy}/{namespace}'       ,
                                        f'/{TAG__ROUTES_CACHE}' + '/store/string/{strategy}/{namespace}'     ,
-                                       f'/{TAG__ROUTES_CACHE}' + '/retrieve/by-id/{cache_hash}/{namespace}' ,
+                                       f'/{TAG__ROUTES_CACHE}' + '/retrieve/by-hash/{cache_hash}/{namespace}' ,
                                        f'/{TAG__ROUTES_CACHE}' + '/retrieve/by-id/{cache_id}/{namespace}'   ,
 
                                        f'/{TAG__ROUTES_CACHE}/stats'                                  ,
@@ -24,6 +25,10 @@ ROUTES_PATHS__CACHE                = [ f'/{TAG__ROUTES_CACHE}' + '/exists/{cache
 class Routes__Cache(Fast_API__Routes):                                             # FastAPI routes for cache operations
     tag           : str            = TAG__ROUTES_CACHE
     cache_service : Cache__Service
+
+    def delete__by_id__cache_id__namespace(self, cache_id: Random_Guid,
+                                                 namespace: Safe_Id = None) -> Dict[str, Any]:
+        return self.cache_service.delete_by_id(cache_id, namespace)
 
     def store__string__strategy__namespace(self, request   : Request,
                                                  strategy  : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
@@ -116,9 +121,9 @@ class Routes__Cache(Fast_API__Routes):                                          
     #                                                   namespace        = namespace     ,
     #                                                   content_encoding = 'gzip'         )
 
-    def retrieve__by_id__cache_hash__namespace(self, cache_hash      : Safe_Str__Cache_Hash                         ,  # Retrieve latest by hash
-                                                     namespace  : Safe_Id = None
-                                                ) -> Dict[str, Any]:
+    def retrieve__by_hash__cache_hash__namespace(self, cache_hash      : Safe_Str__Cache_Hash                         ,  # Retrieve latest by hash
+                                                       namespace  : Safe_Id = None
+                                                  ) -> Dict[str, Any]:
         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
         if result is None:
             return {"status": "not_found", "message": "Cache entry not found"}
@@ -195,11 +200,16 @@ class Routes__Cache(Fast_API__Routes):                                          
         self.add_route_post(self.store__binary__strategy__namespace)
 
         # Retrieval endpoints
-        self.add_route_get(self.retrieve__by_id__cache_hash__namespace) #, path="/cache/retrieve/hash/{hash}")
-        self.add_route_get(self.retrieve__by_id__cache_id__namespace  ) # , path="/cache/retrieve/id/{cache_id}")
+        self.add_route_get(self.retrieve__by_hash__cache_hash__namespace) #, path="/cache/retrieve/hash/{hash}")
+        self.add_route_get(self.retrieve__by_id__cache_id__namespace    ) # , path="/cache/retrieve/id/{cache_id}")
 
         # Utility endpoints
         #self.add_route_post(self.hash_calculate, path="/cache/hash/calculate")
-        self.add_route_get(self.exists__cache_hash__namespace   )
-        self.add_route_get(self.namespaces                      )
-        self.add_route_get(self.stats                           )
+        self.add_route_get   (self.exists__cache_hash__namespace   )
+        self.add_route_get   (self.namespaces                      )
+        self.add_route_get   (self.stats                           )
+        self.add_route_delete(self.delete__by_id__cache_id__namespace)
+
+    # todo: remove this method when the next version of OSBot-Fast-API has been installed (which uses the code below)
+    def add_route_delete(self, function):
+        return self.add_route_with_body(function, methods=['DELETE'])

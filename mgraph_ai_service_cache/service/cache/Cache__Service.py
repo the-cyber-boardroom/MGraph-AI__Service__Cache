@@ -1,9 +1,10 @@
 from typing                                                                        import Dict, Optional, Any, List, Literal
 from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json                                                        import json_to_str
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid             import Random_Guid
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id                 import Safe_Id
-from osbot_utils.utils.Misc                                                        import timestamp_now
+from osbot_utils.utils.Misc import timestamp_now, list_set
 from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                   import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Handler                          import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                     import Cache__Hash__Config
@@ -19,6 +20,81 @@ class Cache__Service(Type_Safe):                                                
     default_ttl_hours : int                           = DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS
     hash_config       : Cache__Hash__Config                                        # Hash generation config
     hash_generator    : Cache__Hash__Generator                                     # Hash generator instance
+
+    def delete_by_id(self, cache_id: Random_Guid, namespace: Safe_Id = None) -> Dict[str, Any]:
+        namespace = namespace or Safe_Id("default")
+        handler   = self.get_or_create_handler(namespace)
+
+        with handler.fs__refs_id.file__json(Safe_Id(str(cache_id))) as ref_fs:
+            if not ref_fs.exists():
+                return {"status": "not_found", "message": f"Cache ID {cache_id} not found"}
+
+            id_ref_data  = ref_fs.content()
+            all_paths    = id_ref_data.get("all_paths", {})
+            cache_hash   = id_ref_data.get("hash")
+            strategy     = id_ref_data.get("strategy")
+
+        # Track deletion results
+        deleted_paths = []
+        failed_paths  = []
+
+        # Delete data files first (use the appropriate fs based on strategy)
+        fs_data = handler.get_fs_for_strategy(strategy)
+        for path in all_paths.get("data", []):
+            try:
+                if fs_data.storage_fs.file__delete(path):
+                    deleted_paths.append(path)
+                else:
+                    failed_paths.append(path)
+            except Exception as e:
+                failed_paths.append(f"{path}: {str(e)}")
+
+        # Update hash reference (remove this cache_id from the list)
+        if cache_hash:
+            with handler.fs__refs_hash.file__json(Safe_Id(cache_hash)) as ref_fs:
+                if ref_fs.exists():
+                    refs = ref_fs.content()
+                    # Remove this cache_id from the list
+                    refs["cache_ids"] = [entry for entry in refs["cache_ids"]
+                                        if entry["id"] != str(cache_id)]
+                    refs["total_versions"] -= 1
+
+                    if refs["total_versions"] > 0:
+                        # Update the latest_id if needed
+                        if refs["latest_id"] == str(cache_id) and refs["cache_ids"]:
+                            refs["latest_id"] = refs["cache_ids"][-1]["id"]
+                        ref_fs.update(file_data=refs)
+                    else:
+                        # No more versions, delete the hash reference files
+                        # FIX: Changed from all_paths.get("refs", {}).get("hash", [])
+                        for path in all_paths.get("by_hash", []):
+                            try:
+                                if handler.fs__refs_hash.storage_fs.file__delete(path):
+                                    deleted_paths.append(path)
+                                else:
+                                    failed_paths.append(path)
+                            except Exception as e:
+                                failed_paths.append(f"{path}: {str(e)}")
+
+        # Finally, delete the ID reference files
+        # FIX: Changed from all_paths.get("refs", {}).get("id", [])
+        for path in all_paths.get("by_id", []):
+            try:
+                if handler.fs__refs_id.storage_fs.file__delete(path):
+                    deleted_paths.append(path)
+                else:
+                    failed_paths.append(path)
+            except Exception as e:
+                failed_paths.append(f"{path}: {str(e)}")
+
+        return {
+            "status"        : "success" if not failed_paths else "partial",
+            "cache_id"      : str(cache_id),
+            "deleted_count" : len(deleted_paths),
+            "failed_count"  : len(failed_paths),
+            "deleted_paths" : deleted_paths,
+            "failed_paths"  : failed_paths
+        }
 
     def get_or_create_handler(self, namespace: Safe_Id = None                      # Get existing or create new cache handler
                               ) -> Cache__Handler:
@@ -41,12 +117,14 @@ class Cache__Service(Type_Safe):                                                
         namespace = namespace or Safe_Id("default")
         handler   = self.get_or_create_handler(namespace)
         fs_data   = handler.get_fs_for_strategy(strategy)
+        all_paths = { "data": {}, "by_hash": {}, "by_id" : {}     }                                # todo: this should be an Type_Safe class
 
         if cache_key_data is dict:                                                  # if the cache_key_data is a dict
             cache_key_data = json_to_str(cache_key_data)                            #    convert it to str
+
         # Store actual data
         with fs_data.file__json(Safe_Id(str(cache_id))) as file_fs:
-            paths = file_fs.create(storage_data)
+            all_paths['data'] = file_fs.create(storage_data)
 
             # Add metadata
             metadata = { "cache_hash"       : str(cache_hash)    ,
@@ -70,22 +148,26 @@ class Cache__Service(Type_Safe):                                                
                 paths__hash_to_id =  ref_fs.update(file_data=refs)
             else:
                 refs = {"hash"           : str(cache_hash)                                     ,
-                       "cache_ids"      : [{"id": str(cache_id), "timestamp": timestamp_now()}],
-                       "latest_id"      : str(cache_id)                                        ,
-                       "total_versions" : 1                                                    }
+                        "cache_ids"      : [{"id": str(cache_id), "timestamp": timestamp_now()}],
+                        "latest_id"      : str(cache_id)                                        ,
+                        "total_versions" : 1                                                    }
                 paths__hash_to_id = ref_fs.create(file_data=refs)
+            all_paths["by_hash"] = paths__hash_to_id
 
 
         # Update ID->hash reference
         with handler.fs__refs_id.file__json(Safe_Id(str(cache_id))) as ref_fs:
-            paths__id_to_hash =  ref_fs.create({ "cache_id"  : str(cache_id)   ,
-                                                 "hash"       : str(cache_hash) ,
-                                                 "timestamp"  : timestamp_now()  })
-        paths.extend(paths__hash_to_id)                                         # todo: find a better solution to return these paths
-        paths.extend(paths__id_to_hash)                                         #       see if it is ok to merge all these in this path field
+            all_paths["by_id"] = ref_fs.paths()                                         # we need to calculate these or we would need todo an extra update call to capture these by_id files
+            paths__id_to_hash  =  ref_fs.create({ "all_paths"  : all_paths        ,
+                                                   "cache_id"   : str(cache_id)    ,
+                                                   "hash"       : str(cache_hash)  ,
+                                                   "namespace"  : str(namespace)   ,
+                                                   "strategy"   : strategy         ,
+                                                   "timestamp"  : timestamp_now()  })
+
         return Schema__Cache__Store__Response(cache_id   = cache_id     ,
                                               hash       = cache_hash   ,
-                                              paths      = paths        ,
+                                              paths      = all_paths    ,
                                               size       = file_size    )
 
     def retrieve_by_hash(self, cache_hash : Safe_Str__Cache_Hash       ,                 # Retrieve latest by hash
@@ -142,4 +224,4 @@ class Cache__Service(Type_Safe):                                                
         return self.hash_generator.from_json(data, exclude_fields)
 
     def list_namespaces(self) -> List[Safe_Id]:                                    # List all active namespaces
-        return list(self.cache_handlers.keys())
+        return list_set(self.cache_handlers)

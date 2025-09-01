@@ -3,11 +3,10 @@ from fastapi                                                                    
 from memory_fs.path_handlers.Path__Handler__Temporal                                import Path__Handler__Temporal
 from osbot_aws.testing.Temp__Random__AWS_Credentials                                import OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID, OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
 from osbot_aws.utils.AWS_Sanitization                                               import str_to_valid_s3_bucket_name
-from osbot_utils.testing.__ import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.utils.Objects import base_classes, obj
+from osbot_utils.utils.Json                                                         import json_to_str
+from osbot_utils.utils.Objects                                                      import base_classes
 from osbot_utils.utils.Misc                                                         import random_string_short
-from osbot_utils.type_safe.primitives.safe_str.cryptography.hashes.Safe_Str__Hash   import Safe_Str__Hash
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid              import Random_Guid
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id                  import Safe_Id
 from osbot_aws.AWS_Config                                                           import aws_config
@@ -55,32 +54,31 @@ class test_Routes__Cache(TestCase):
             assert _.tag                 == 'cache'
             assert type(_.cache_service) is Cache__Service
 
-    def test_store_string(self):                                                    # Test string storage endpoint
-
-        self.request.state.body = self.test_string.encode()
-
-
-        response__store = self.routes.store__string__strategy__namespace(request   = self.request       ,
-                                                        strategy  = "temporal"         ,
-                                                        namespace = self.test_namespace)
+    def test_store__string__strategy__namespace(self):                                                    # Test string storage endpoint
+        target_string           = "a different string"
+        self.request.state.body = target_string.encode()
+        response__store         = self.routes.store__string__strategy__namespace(request   = self.request       ,
+                                                                                 strategy  = "temporal"         ,
+                                                                                 namespace = self.test_namespace)
         with response__store as _:
             cache_id         = _.cache_id
             cache_id__path_1 = cache_id[0:2]
             cache_id__path_2 = cache_id[2:4]
-            cache_hash       = '36e2b79ffcdbc847'                                             # this should always be the same
-            files_created    = [f'data/temporal/{self.path_now}/{cache_id}.json'                           ,
-                                f'data/temporal/{self.path_now}/{cache_id}.json.config'                    ,
-                                f'data/temporal/{self.path_now}/{cache_id}.json.metadata'                  ,
-                                f'refs/by-hash/36/e2/{cache_hash}.json'                                    ,
-                                f'refs/by-hash/36/e2/{cache_hash}.json.config'                             ,
-                                f'refs/by-hash/36/e2/{cache_hash}.json.metadata'                           ,
-                                f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json'        ,
-                                f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json.config' ,
-                                f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json.metadata']
-            assert _.obj() == __(hash     = cache_hash    ,
-                                cache_id  = cache_id      ,
-                                paths     = files_created ,
-                                size      = 19            )
+            cache_hash       = '50c167dc0fbacd1a'                                             # this should always be the same
+            files_created    = { 'data'   : [ f'data/temporal/{self.path_now}/{cache_id}.json'                              ,
+                                              f'data/temporal/{self.path_now}/{cache_id}.json.config'                       ,
+                                              f'data/temporal/{self.path_now}/{cache_id}.json.metadata'                     ],
+                                 'by_hash': [ f'refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json'         ,
+                                              f'refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config'  ,
+                                              f'refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
+                                 'by_id'  : [ f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json'           ,
+                                              f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json.config'    ,
+                                              f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json.metadata'  ]}
+            assert _.json() == { 'hash'    : cache_hash    ,
+                                 'cache_id': cache_id      ,
+                                 'paths'   : files_created ,
+                                 'size'    : 20            }
+
             assert type(_)          is Schema__Cache__Store__Response
             assert type(_.cache_id) is Random_Guid
             assert type(_.hash)     is Safe_Str__Cache_Hash
@@ -89,68 +87,76 @@ class test_Routes__Cache(TestCase):
 
         stored_at          = response__retrieve.get('metadata').get(Safe_Id('stored_at'))
         assert type(stored_at)         is int
-        assert response__retrieve == {'data': 'test cache string',
-                                      'metadata': {Safe_Id('cache_hash'      ): '36e2b79ffcdbc847',
+        assert response__retrieve == {'data': target_string,
+                                      'metadata': {Safe_Id('cache_hash'      ): cache_hash,
                                                    Safe_Id('cache_id'        ): cache_id,
-                                                   Safe_Id('cache_key_data'  ): 'test cache string',
+                                                   Safe_Id('cache_key_data'  ): target_string,
                                                    Safe_Id('content_encoding'): None,
                                                    Safe_Id('namespace'       ): 'test-api',
                                                    Safe_Id('stored_at'       ): stored_at,
                                                    Safe_Id('strategy'        ): 'temporal'}}
+        response__delete = self.routes.delete__by_id__cache_id__namespace(cache_id=cache_id, namespace=self.test_namespace)
+        assert response__delete == { 'cache_id'     : cache_id,
+                                     'deleted_count': 9,
+                                     'deleted_paths': [f'data/temporal/{self.path_now}/{cache_id}.json'                      ,
+                                                       f'data/temporal/{self.path_now}/{cache_id}.json.config'               ,
+                                                       f'data/temporal/{self.path_now}/{cache_id}.json.metadata'             ,
+                                                       f'refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json'                           ,
+                                                       f'refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config'                    ,
+                                                       f'refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'                  ,
+                                                       f'refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json'         ,
+                                                       f'refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config'  ,
+                                                       f'refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata'],
+                                     'failed_count' : 0,
+                                     'failed_paths' : [],
+                                     'status'       : 'success'}
 
 
 
 
+    def test_store__json__strategy__namespace(self):                                                      # Test JSON storage endpoint
+        self.request.state.body = json_to_str(self.test_json).encode()
+        response__store = self.routes.store__json__strategy__namespace(request   = self.request       ,
+                                                      strategy  = "temporal"         ,
+                                                      namespace = self.test_namespace)
+        with response__store  as _:
+            cache_id = _.cache_id
+            assert type(_)          is Schema__Cache__Store__Response
+            assert type(_.cache_id) is Random_Guid
+            assert type(_.hash)     is Safe_Str__Cache_Hash
+        response__retrieve = self.routes.retrieve__by_id__cache_id__namespace(cache_id=cache_id, namespace=self.test_namespace)
+        assert response__retrieve == { 'data': {'api': 'test', 'value': 123},
+                                       'metadata': { Safe_Id('cache_hash'      ) : '96af669d785b90b6',
+                                                     Safe_Id('cache_id'        ) : cache_id,
+                                                     Safe_Id('cache_key_data'  ) : "{'api': 'test', 'value': 123}",
+                                                     Safe_Id('content_encoding') : None,
+                                                     Safe_Id('namespace'       ) : 'test-api',
+                                                     Safe_Id('stored_at'       ) : response__retrieve['metadata']['stored_at'],
+                                                     Safe_Id('strategy'        ) : 'temporal'}}
 
-    def test_store_json(self):                                                      # Test JSON storage endpoint
+    def test_retrieve__by_hash__cache_hash__namespace(self):                                                # Test retrieval by hash
         with self.routes as _:
-            response = _.store_json(data      = self.test_json,
-                                   strategy  = "temporal",
-                                   namespace = self.test_namespace)
+            self.request.state.body = self.test_string.encode()
+            response__store          = _.store__string__strategy__namespace(self.request, namespace=self.test_namespace)      # Store first
+            response__retrieve       = _.retrieve__by_hash__cache_hash__namespace(response__store.hash, self.test_namespace)       # Retrieve
 
-            assert type(response)          is Schema__Cache__Store__Response
-            assert type(response.cache_id) is Random_Guid
-            assert type(response.hash)     is Safe_Str__Hash
+            assert response__retrieve is not None
+            assert "data" in response__retrieve
+            assert response__retrieve["data"] == self.test_string
 
-    def test_store_json__with_exclusions(self):                                    # Test JSON with field exclusion
-        data_with_timestamp = {"data": "value", "timestamp": "2024-01-01"}
-
+    def test_retrieve__by_hash__cache_hash__namespace__not_found(self):                                     # Test retrieval of non-existent
         with self.routes as _:
-            response1 = _.store_json(data      = data_with_timestamp,
-                                   namespace = self.test_namespace)
-
-            response2 = _.store_json(data           = data_with_timestamp,
-                                   exclude_fields = ["timestamp"],
-                                   namespace      = self.test_namespace)
-
-            # Different hashes due to exclusion
-            assert response1.hash != response2.hash
-
-    def test_retrieve_by_hash(self):                                                # Test retrieval by hash
-        with self.routes as _:
-            # Store first
-            store_response = _.store_string(self.test_string, namespace=self.test_namespace)
-
-            # Retrieve
-            result = _.retrieve_by_hash(store_response.hash, self.test_namespace)
-
-            assert result is not None
-            assert "data" in result
-            assert result["data"] == self.test_string
-
-    def test_retrieve_by_hash__not_found(self):                                     # Test retrieval of non-existent
-        with self.routes as _:
-            result = _.retrieve_by_hash(Safe_Str__Hash("0000000000000000"), self.test_namespace)
+            result = _.retrieve__by_hash__cache_hash__namespace(Safe_Str__Cache_Hash("0000000000000000"), self.test_namespace)
 
             assert result == {"status": "not_found", "message": "Cache entry not found"}
 
-    def test_retrieve_by_id(self):                                                  # Test retrieval by cache ID
+    def test_retrieve__by_id__cache_id__namespace(self):                                                  # Test retrieval by cache ID
         with self.routes as _:
-            # Store first
-            store_response = _.store_string(self.test_string, namespace=self.test_namespace)
+            self.request.state.body = self.test_string.encode()
+            store_response = _.store__string__strategy__namespace(self.request, namespace=self.test_namespace)             # Store first
 
             # Retrieve
-            result = _.retrieve_by_id(store_response.cache_id, self.test_namespace)
+            result = _.retrieve__by_id__cache_id__namespace(store_response.cache_id, self.test_namespace)
 
             assert result is not None
             assert "data" in result
@@ -176,36 +182,36 @@ class test_Routes__Cache(TestCase):
             result = _.hash_calculate()
             assert result == {"error": "No data provided"}
 
-    def test_exists(self):                                                          # Test existence check
+    def test_exists__cache_hash__namespace(self):                                                          # Test existence check
         with self.routes as _:
-            # Store data
-            store_response = _.store_string(self.test_string, namespace=self.test_namespace)
+            self.request.state.body = self.test_string.encode()
+            store_response = _.store__string__strategy__namespace(self.request, namespace=self.test_namespace)      # Store data
 
-            # Check exists
-            result = _.exists(store_response.hash, self.test_namespace)
+            result = _.exists__cache_hash__namespace(store_response.hash, self.test_namespace)                                 # Check exists
             assert result == {"exists": True, "hash": str(store_response.hash)}
 
             # Check non-existent
-            result = _.exists(Safe_Str__Hash("0000000000000000"), self.test_namespace)
+            result = _.exists__cache_hash__namespace(Safe_Str__Cache_Hash("0000000000000000"), self.test_namespace)
             assert result == {"exists": False, "hash": "0000000000000000"}
 
     def test_namespaces(self):                                                      # Test namespace listing
         with self.routes as _:
-            # Create some namespaces
-            _.store_string("data1", namespace=Safe_Id("ns1"))
-            _.store_string("data2", namespace=Safe_Id("ns2"))
+            self.request.state.body = self.test_string.encode()
+            _.store__string__strategy__namespace(self.request, namespace=Safe_Id("ns1"))                       # Create some namespaces
+            _.store__string__strategy__namespace(self.request, namespace=Safe_Id("ns2"))
 
             result = _.namespaces()
 
             assert "namespaces" in result
-            assert "count" in result
+            assert "count"      in result
             assert result["count"] >= 2
 
     def test_stats(self):                                                           # Test statistics endpoint
+        self.request.state.body = self.test_string.encode()
         with self.routes as _:
             # Store some data
             for i in range(3):
-                _.store_string(f"data_{i}", namespace=self.test_namespace)
+                _.store__string__strategy__namespace(self.request, namespace=self.test_namespace)
 
             result = _.stats(self.test_namespace)
 

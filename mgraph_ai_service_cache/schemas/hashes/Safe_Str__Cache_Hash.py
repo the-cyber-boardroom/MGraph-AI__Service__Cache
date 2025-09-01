@@ -8,5 +8,5 @@ class Safe_Str__Cache_Hash(Safe_Str):               # Variable-length cache hash
     min_length        = 10
     max_length        = 96
     strict_validation = True
-    allow_empty       = False
+    allow_empty       = True
     trim_whitespace   = True
