@@ -162,25 +162,25 @@ class test_Routes__Cache(TestCase):
             assert "data" in result
             assert result["data"] == self.test_string
 
-    def test_hash_calculate(self):                                                  # Test hash calculation endpoint
-        with self.routes as _:
-            # From string
-            result = _.hash_calculate(data="test string")
-            assert "hash" in result
-            assert len(result["hash"]) == 16
-
-            # From JSON
-            result = _.hash_calculate(json_data={"key": "value"})
-            assert "hash" in result
-
-            # With exclusions
-            result = _.hash_calculate(json_data      = {"key": "value", "id": "123"},
-                                    exclude_fields = ["id"])
-            assert "hash" in result
-
-            # No data provided
-            result = _.hash_calculate()
-            assert result == {"error": "No data provided"}
+    # def test_hash_calculate(self):                                                  # Test hash calculation endpoint
+    #     with self.routes as _:
+    #         # From string
+    #         result = _.hash_calculate(data="test string")
+    #         assert "hash" in result
+    #         assert len(result["hash"]) == 16
+    #
+    #         # From JSON
+    #         result = _.hash_calculate(json_data={"key": "value"})
+    #         assert "hash" in result
+    #
+    #         # With exclusions
+    #         result = _.hash_calculate(json_data      = {"key": "value", "id": "123"},
+    #                                 exclude_fields = ["id"])
+    #         assert "hash" in result
+    #
+    #         # No data provided
+    #         result = _.hash_calculate()
+    #         assert result == {"error": "No data provided"}
 
     def test_exists__cache_hash__namespace(self):                                                          # Test existence check
         with self.routes as _:
@@ -213,7 +213,7 @@ class test_Routes__Cache(TestCase):
             for i in range(3):
                 _.store__string__strategy__namespace(self.request, namespace=self.test_namespace)
 
-            result = _.stats(self.test_namespace)
+            result = _.stats__namespace(self.test_namespace)
 
             assert result["namespace"] == str(self.test_namespace)
             assert result["s3_bucket"] == self.test_bucket

@@ -9,18 +9,15 @@ from mgraph_ai_service_cache.service.cache.Cache__Service                       
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response          import Schema__Cache__Store__Response
 
 TAG__ROUTES_CACHE                  = 'cache'
-ROUTES_PATHS__CACHE                = [  f'/{TAG__ROUTES_CACHE}' + '/delete/by-id/{cache_id}/{namespace}'    ,
-                                        f'/{TAG__ROUTES_CACHE}' + '/exists/{cache_hash}/{namespace}'        ,
-                                       f'/{TAG__ROUTES_CACHE}' + '/store/binary/{strategy}/{namespace}'     ,
-                                       f'/{TAG__ROUTES_CACHE}' + '/store/json/{strategy}/{namespace}'       ,
-                                       f'/{TAG__ROUTES_CACHE}' + '/store/string/{strategy}/{namespace}'     ,
-                                       f'/{TAG__ROUTES_CACHE}' + '/retrieve/by-hash/{cache_hash}/{namespace}' ,
-                                       f'/{TAG__ROUTES_CACHE}' + '/retrieve/by-id/{cache_id}/{namespace}'   ,
-
-                                       f'/{TAG__ROUTES_CACHE}/stats'                                  ,
-                                       #f'/{TAG__ROUTES_CACHE}/retrieve'                               ,
-                                       #f'/{TAG__ROUTES_CACHE}/retrieve-by-hash'                       ,
-                                       f'/{TAG__ROUTES_CACHE}/namespaces'                             ]
+ROUTES_PATHS__CACHE                = [ f'/{TAG__ROUTES_CACHE}' + '/delete/by-id/{cache_id}/{namespace}'     ,
+                                       f'/{TAG__ROUTES_CACHE}' + '/exists/{cache_hash}/{namespace}'         ,
+                                       f'/{TAG__ROUTES_CACHE}' + '/store/binary/{strategy}/{namespace}'      ,
+                                       f'/{TAG__ROUTES_CACHE}' + '/store/json/{strategy}/{namespace}'        ,
+                                       f'/{TAG__ROUTES_CACHE}' + '/store/string/{strategy}/{namespace}'      ,
+                                       f'/{TAG__ROUTES_CACHE}' + '/retrieve/by-hash/{cache_hash}/{namespace}',
+                                       f'/{TAG__ROUTES_CACHE}' + '/retrieve/by-id/{cache_id}/{namespace}'    ,
+                                       f'/{TAG__ROUTES_CACHE}' + '/stats/{namespace}'                       ,
+                                       f'/{TAG__ROUTES_CACHE}' + '/namespaces'                               ]
 
 class Routes__Cache(Fast_API__Routes):                                             # FastAPI routes for cache operations
     tag           : str            = TAG__ROUTES_CACHE
@@ -137,18 +134,18 @@ class Routes__Cache(Fast_API__Routes):                                          
             return {"status": "not_found", "message": "Cache entry not found"}
         return result
 
-    def hash_calculate(self, data          : str = None                           ,  # Calculate hash from provided data
-                             json_data      : dict = None                          ,
-                             exclude_fields : List[str] = None
-                        ) -> Dict[str, str]:
-        if data:
-            hash_value = self.cache_service.hash_from_string(data)
-        elif json_data:
-            hash_value = self.cache_service.hash_from_json(json_data, exclude_fields)
-        else:
-            return {"error": "No data provided"}
-
-        return {"hash": str(hash_value)}
+    # def hash_calculate(self, data          : str = None                           ,  # Calculate hash from provided data
+    #                          json_data      : dict = None                          ,
+    #                          exclude_fields : List[str] = None
+    #                     ) -> Dict[str, str]:
+    #     if data:
+    #         hash_value = self.cache_service.hash_from_string(data)
+    #     elif json_data:
+    #         hash_value = self.cache_service.hash_from_json(json_data, exclude_fields)
+    #     else:
+    #         return {"error": "No data provided"}
+    #
+    #     return {"hash": str(hash_value)}
 
     def exists__cache_hash__namespace(self, cache_hash      : Safe_Str__Cache_Hash                                   ,  # Check if hash exists
                                             namespace  : Safe_Id = None
@@ -165,8 +162,8 @@ class Routes__Cache(Fast_API__Routes):                                          
         namespaces = self.cache_service.list_namespaces()
         return {"namespaces": [str(ns) for ns in namespaces], "count": len(namespaces)}
 
-    def stats(self, namespace: Safe_Id = None                                      # Get cache statistics
-              ) -> Dict[str, Any]:
+    def stats__namespace(self, namespace: Safe_Id = None                                      # Get cache statistics
+                          ) -> Dict[str, Any]:
         namespace = namespace or Safe_Id("default")
         handler   = self.cache_service.get_or_create_handler(namespace)
 
@@ -207,7 +204,7 @@ class Routes__Cache(Fast_API__Routes):                                          
         #self.add_route_post(self.hash_calculate, path="/cache/hash/calculate")
         self.add_route_get   (self.exists__cache_hash__namespace   )
         self.add_route_get   (self.namespaces                      )
-        self.add_route_get   (self.stats                           )
+        self.add_route_get   (self.stats__namespace                )
         self.add_route_delete(self.delete__by_id__cache_id__namespace)
 
     # todo: remove this method when the next version of OSBot-Fast-API has been installed (which uses the code below)
