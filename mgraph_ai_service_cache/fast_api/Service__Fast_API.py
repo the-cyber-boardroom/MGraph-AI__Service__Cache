@@ -1,9 +1,10 @@
-from osbot_fast_api.api.routes.Routes__Set_Cookie import Routes__Set_Cookie
-from osbot_fast_api_serverless.fast_api.Serverless__Fast_API import Serverless__Fast_API
-from mgraph_ai_service_cache.config                           import FAST_API__TITLE
-from mgraph_ai_service_cache.fast_api.routes.Routes__Cache import Routes__Cache
-from mgraph_ai_service_cache.fast_api.routes.Routes__Info     import Routes__Info
-from mgraph_ai_service_cache.utils.Version                    import version__mgraph_ai_service_cache
+from osbot_fast_api.api.routes.Routes__Set_Cookie               import Routes__Set_Cookie
+from osbot_fast_api_serverless.fast_api.Serverless__Fast_API    import Serverless__Fast_API
+
+from mgraph_ai_service_cache.config                             import FAST_API__TITLE
+from mgraph_ai_service_cache.fast_api.routes.Routes__Cache      import Routes__Cache
+from mgraph_ai_service_cache.fast_api.routes.Routes__Info       import Routes__Info
+from mgraph_ai_service_cache.utils.Version                      import version__mgraph_ai_service_cache
 
 
 
@@ -28,5 +29,26 @@ class Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__Set_Cookie)
         self.add_routes(Routes__Cache     )
 
+    def setup_middlewares(self):
+        super().setup_middlewares()
+        self.app().add_middleware(BodyReaderMiddleware)
+        return self
+
+
+# intercept the bytes submitted here
+
+# todo: refactor this into a separate class (and maybe even to the Fast_API class), once we confirm that it works ok
+from fastapi import Request
+from starlette.middleware.base import BaseHTTPMiddleware
+class BodyReaderMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        if request.method in ["POST", "PUT", "PATCH"]:                              # Only read body for certain methods
+            body = await request.body()
+            request.state.body = body                                               # Store it in request state for later sync access
+        else:
+            request.state.body = None
+
+        response = await call_next(request)
+        return response
 
 
