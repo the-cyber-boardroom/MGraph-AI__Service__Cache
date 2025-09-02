@@ -1,16 +1,16 @@
+import base64
+import gzip
+import json
 import pytest
 import requests
 import time
 import concurrent.futures
 from unittest                                                                       import TestCase
 from typing                                                                         import Dict, Any
-from osbot_fast_api.api.Fast_API                                                    import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.utils.Fast_API_Server                                           import Fast_API_Server
-from osbot_fast_api_serverless.utils.testing.skip_tests                             import skip__if_not__in_github_actions
-from osbot_utils.utils.Env import load_dotenv, get_env, in_github_action
+from osbot_utils.utils.Env                                                          import  in_github_action
 from osbot_utils.utils.Misc                                                         import is_guid
-from tests.unit.Service__Fast_API__Test_Objs import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
-
+from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
 class test_Routes__Cache__http(TestCase):                                           # Local HTTP tests using temp FastAPI server
 
@@ -109,6 +109,32 @@ class test_Routes__Cache__http(TestCase):                                       
             'cache_id': cache_id,
             'namespace': namespace,
             'type': 'json',
+            'strategy': strategy
+        })
+
+        return result
+
+    def _store_binary(self, data: bytes, strategy: str = "temporal", namespace: str = None,
+                      content_encoding: str = None) -> Dict[str, Any]:
+        """Helper to store binary and track for cleanup"""
+        namespace = namespace or self.test_namespace
+        url = f"{self.base_url}/cache/store/binary/{strategy}/{namespace}"
+
+        headers = {**self.headers, "Content-Type": "application/octet-stream"}
+        if content_encoding:
+            headers["Content-Encoding"] = content_encoding
+
+        response = requests.post(url, data=data, headers=headers)
+        self.assertEqual(response.status_code, 200, f"Store failed: {response.text}")
+
+        result = response.json()
+        cache_id = result.get('cache_id')
+
+        # Track for cleanup
+        self.created_resources.append({
+            'cache_id': cache_id,
+            'namespace': namespace,
+            'type': 'binary',
             'strategy': strategy
         })
 
@@ -424,6 +450,339 @@ class test_Routes__Cache__http(TestCase):                                       
         # Remove from tracking
         self.created_resources [:] = [r for r in self.created_resources
                                  if r['cache_id'] not in cache_ids]
+
+
+    def test_09_binary_data_redirect_pattern(self):                                     # Test binary redirect pattern
+        """Test that binary data redirects to binary endpoint in JSON responses"""
+        test_binary = b'\x89PNG\r\n\x1a\n' + b'\x00' * 50  # Fake PNG header
+
+        try:
+            # Store binary data
+            store_result = self._store_binary(test_binary, strategy="direct")
+            cache_id = store_result['cache_id']
+            cache_hash = store_result['hash']
+
+            # Try generic endpoint - should redirect
+            generic_url = f"{self.base_url}/cache/retrieve/by-id/{cache_id}/{self.test_namespace}"
+            generic_response = requests.get(generic_url, headers=self.headers)
+
+            self.assertEqual(generic_response.status_code, 200)
+            generic_result = generic_response.json()
+
+            # Should get redirect message
+            self.assertEqual(generic_result['status'], 'binary_data')
+            self.assertEqual(generic_result['message'], 'Binary data cannot be returned in JSON response')
+            self.assertEqual(generic_result['data_type'], 'binary')
+            self.assertEqual(generic_result['size'], len(test_binary))
+            self.assertIn('binary_url', generic_result)
+            self.assertNotIn('data', generic_result)  # No actual data
+
+            # Binary endpoint should work
+            binary_url = f"{self.base_url}/cache/retrieve/binary/by-id/{cache_id}/{self.test_namespace}"
+            binary_response = requests.get(binary_url, headers=self.headers)
+
+            self.assertEqual(binary_response.status_code, 200)
+            self.assertEqual(binary_response.content, test_binary)
+            self.assertEqual(binary_response.headers['content-type'], 'application/octet-stream')
+
+        finally:
+            # Clean up
+            if 'cache_id' in locals():
+                delete_url = f"{self.base_url}/cache/delete/by-id/{cache_id}/{self.test_namespace}"
+                requests.delete(delete_url, headers=self.headers)
+                self.created_resources [:] = [r for r in self.created_resources if r['cache_id'] != cache_id]
+
+    def test_10_compressed_binary_handling(self):                                       # Test compressed binary
+        """Test storing and retrieving gzip compressed binary data"""
+        original_data = b"Test data that will be compressed" * 100
+        compressed_data = gzip.compress(original_data)
+
+        try:
+            # Store compressed binary with content-encoding
+            store_result = self._store_binary(compressed_data, strategy="temporal",
+                                             content_encoding="gzip")
+            cache_id = store_result['cache_id']
+
+            # Size should be compressed size
+            self.assertLess(store_result['size'], len(original_data))
+
+            # Binary endpoint should return decompressed data
+            binary_url = f"{self.base_url}/cache/retrieve/binary/by-id/{cache_id}/{self.test_namespace}"
+            binary_response = requests.get(binary_url, headers=self.headers)
+
+            self.assertEqual(binary_response.status_code, 200)
+            self.assertEqual(binary_response.content, original_data)  # Decompressed!
+            # Should NOT have Content-Encoding header (already decompressed)
+            self.assertNotIn('content-encoding', binary_response.headers)
+
+            # Generic endpoint should redirect
+            generic_url = f"{self.base_url}/cache/retrieve/by-id/{cache_id}/{self.test_namespace}"
+            generic_response = requests.get(generic_url, headers=self.headers)
+
+            self.assertEqual(generic_response.status_code, 200)
+            result = generic_response.json()
+            self.assertEqual(result['status'], 'binary_data')
+            self.assertEqual(result['size'], len(original_data))  # Size of decompressed
+
+        finally:
+            if 'cache_id' in locals():
+                delete_url = f"{self.base_url}/cache/delete/by-id/{cache_id}/{self.test_namespace}"
+                requests.delete(delete_url, headers=self.headers)
+                self.created_resources  [:] = [r for r in self.created_resources if r['cache_id'] != cache_id]
+
+    def test_11_compressed_json_detection(self):                                        # Test compressed JSON detection
+        """Test that compressed JSON is detected as JSON after decompression"""
+        json_data = {"users": [{"id": i, "name": f"User_{i}", "data": "x" * 50} for i in range(20)]}
+        json_string = json.dumps(json_data)
+        compressed_data = gzip.compress(json_string.encode())
+
+        try:
+            # Store as compressed binary
+            store_result = self._store_binary(compressed_data, strategy="temporal_latest",
+                                             content_encoding="gzip")
+            cache_id = store_result['cache_id']
+
+            # Generic endpoint should recognize it as JSON after decompression
+            generic_url = f"{self.base_url}/cache/retrieve/by-id/{cache_id}/{self.test_namespace}"
+            generic_response = requests.get(generic_url, headers=self.headers)
+
+            self.assertEqual(generic_response.status_code, 200)
+            result = generic_response.json()
+
+            # Should be detected as JSON and returned directly
+            self.assertEqual(result['data_type'], 'json')
+            self.assertEqual(result['data'], json_data)  # Decompressed and parsed
+            self.assertEqual(result['content_encoding'], 'gzip')
+
+            # JSON endpoint should work
+            json_url = f"{self.base_url}/cache/retrieve/json/by-id/{cache_id}/{self.test_namespace}"
+            json_response = requests.get(json_url, headers=self.headers)
+
+            self.assertEqual(json_response.status_code, 200)
+            self.assertEqual(json_response.json(), json_data)
+
+            # Binary endpoint should return as JSON bytes
+            binary_url = f"{self.base_url}/cache/retrieve/binary/by-id/{cache_id}/{self.test_namespace}"
+            binary_response = requests.get(binary_url, headers=self.headers)
+
+            self.assertEqual(binary_response.status_code, 200)
+            self.assertEqual(binary_response.content, json_string.encode())
+
+        finally:
+            if 'cache_id' in locals():
+                delete_url = f"{self.base_url}/cache/delete/by-id/{cache_id}/{self.test_namespace}"
+                requests.delete(delete_url, headers=self.headers)
+                self.created_resources  [:] = [r for r in self.created_resources if r['cache_id'] != cache_id]
+
+    def test_12_type_specific_endpoints(self):                                          # Test type-specific endpoints
+        """Test all type-specific retrieval endpoints"""
+        # Test data
+        string_data = "Test string data"
+        json_data = {"test": "data", "number": 42, "array": [1, 2, 3]}
+        binary_data = b'\x00\x01\x02\x03\x04\x05'
+
+        stored_items = []
+
+        try:
+            # Store each type
+            string_result = self._store_string(string_data, strategy="direct")
+            stored_items.append(('string', string_result['cache_id'], string_data))
+
+            json_result = self._store_json(json_data, strategy="direct")
+            stored_items.append(('json', json_result['cache_id'], json_data))
+
+            binary_result = self._store_binary(binary_data, strategy="direct")
+            stored_items.append(('binary', binary_result['cache_id'], binary_data))
+
+            # Test each type-specific endpoint
+            for data_type, cache_id, expected_data in stored_items:
+
+                # String endpoint
+                string_url = f"{self.base_url}/cache/retrieve/string/by-id/{cache_id}/{self.test_namespace}"
+                string_response = requests.get(string_url, headers=self.headers)
+
+                if data_type == 'string':
+                    self.assertEqual(string_response.status_code, 200)
+                    self.assertEqual(string_response.text, expected_data)
+                elif data_type == 'json':
+                    self.assertEqual(string_response.status_code, 200)
+                    self.assertEqual(string_response.text, json.dumps(expected_data))
+                elif data_type == 'binary':
+                    self.assertEqual(string_response.status_code, 200)
+                    # Binary should be base64 encoded when retrieved as string
+                    try:
+                        # Try to decode as UTF-8 first
+                        decoded = expected_data.decode('utf-8')
+                        self.assertEqual(string_response.text, decoded)
+                    except:
+                        # Falls back to base64
+                        expected_b64 = base64.b64encode(expected_data).decode('utf-8')
+                        self.assertEqual(string_response.text, expected_b64)
+
+                # JSON endpoint
+                json_url = f"{self.base_url}/cache/retrieve/json/by-id/{cache_id}/{self.test_namespace}"
+                json_response = requests.get(json_url, headers=self.headers)
+
+                if data_type == 'json':
+                    self.assertEqual(json_response.status_code, 200)
+                    self.assertEqual(json_response.json(), expected_data)
+                elif data_type == 'string':
+                    # String that's not valid JSON
+                    result = json_response.json()
+                    self.assertIn('error', result)
+                    self.assertEqual(result['data'], expected_data)
+                elif data_type == 'binary':
+                    # Binary returned as base64 in JSON wrapper
+                    result = json_response.json()
+                    self.assertEqual(result['data_type'], 'binary')
+                    self.assertEqual(result['encoding'], 'base64')
+                    self.assertEqual(base64.b64decode(result['data']), expected_data)
+
+                # Binary endpoint
+                binary_url = f"{self.base_url}/cache/retrieve/binary/by-id/{cache_id}/{self.test_namespace}"
+                binary_response = requests.get(binary_url, headers=self.headers)
+
+                self.assertEqual(binary_response.status_code, 200)
+                if data_type == 'string':
+                    self.assertEqual(binary_response.content, expected_data.encode())
+                elif data_type == 'json':
+                    self.assertEqual(binary_response.content, json.dumps(expected_data).encode())
+                elif data_type == 'binary':
+                    self.assertEqual(binary_response.content, expected_data)
+
+        finally:
+            # Clean up all
+            for _, cache_id, _ in stored_items:
+                delete_url = f"{self.base_url}/cache/delete/by-id/{cache_id}/{self.test_namespace}"
+                requests.delete(delete_url, headers=self.headers)
+
+            cache_ids = [item[1] for item in stored_items]
+            self.created_resources  [:] = [r for r in self.created_resources if r['cache_id'] not in cache_ids]
+
+    def test_13_hash_retrieval_endpoints(self):                                         # Test hash-based retrieval
+        """Test retrieval by hash for all types"""
+        test_data = {"key": "value", "test": True}
+
+        try:
+            # Store JSON data
+            store_result = self._store_json(test_data, strategy="temporal_versioned")
+            cache_id = store_result['cache_id']
+            cache_hash = store_result['hash']
+
+            # Generic hash endpoint
+            generic_url = f"{self.base_url}/cache/retrieve/by-hash/{cache_hash}/{self.test_namespace}"
+            generic_response = requests.get(generic_url, headers=self.headers)
+
+            self.assertEqual(generic_response.status_code, 200)
+            result = generic_response.json()
+            self.assertEqual(result['data'], test_data)
+            self.assertEqual(result['data_type'], 'json')
+
+            # Type-specific hash endpoints
+            json_url = f"{self.base_url}/cache/retrieve/json/by-hash/{cache_hash}/{self.test_namespace}"
+            json_response = requests.get(json_url, headers=self.headers)
+            self.assertEqual(json_response.json(), test_data)
+
+            string_url = f"{self.base_url}/cache/retrieve/string/by-hash/{cache_hash}/{self.test_namespace}"
+            string_response = requests.get(string_url, headers=self.headers)
+            self.assertEqual(string_response.text, json.dumps(test_data))
+
+            binary_url = f"{self.base_url}/cache/retrieve/binary/by-hash/{cache_hash}/{self.test_namespace}"
+            binary_response = requests.get(binary_url, headers=self.headers)
+            self.assertEqual(binary_response.content, json.dumps(test_data).encode())
+
+        finally:
+            if 'cache_id' in locals():
+                delete_url = f"{self.base_url}/cache/delete/by-id/{cache_id}/{self.test_namespace}"
+                requests.delete(delete_url, headers=self.headers)
+                self.created_resources  [:] = [r for r in self.created_resources if r['cache_id'] != cache_id]
+
+    def test_14_large_binary_file(self):                                                # Test large binary handling
+        """Test handling of larger binary files"""
+        # Create a 1MB binary file
+        large_binary = bytes([i % 256 for i in range(1024 * 1024)])
+
+        try:
+            # Store large binary
+            store_result = self._store_binary(large_binary, strategy="direct")
+            cache_id = store_result['cache_id']
+
+            # Should be stored successfully
+            self.assertEqual(store_result['size'], len(large_binary))
+
+            # Generic endpoint should redirect (not try to base64 encode 1MB)
+            generic_url = f"{self.base_url}/cache/retrieve/by-id/{cache_id}/{self.test_namespace}"
+            generic_response = requests.get(generic_url, headers=self.headers)
+
+            result = generic_response.json()
+            self.assertEqual(result['status'], 'binary_data')
+            self.assertEqual(result['size'], len(large_binary))
+
+            # Binary endpoint should stream it properly
+            binary_url = f"{self.base_url}/cache/retrieve/binary/by-id/{cache_id}/{self.test_namespace}"
+            binary_response = requests.get(binary_url, headers=self.headers, stream=True)
+
+            self.assertEqual(binary_response.status_code, 200)
+
+            # Read in chunks to avoid memory issues
+            received_data = b''
+            for chunk in binary_response.iter_content(chunk_size=8192):
+                received_data += chunk
+
+            self.assertEqual(len(received_data), len(large_binary))
+            self.assertEqual(received_data, large_binary)
+
+        finally:
+            if 'cache_id' in locals():
+                delete_url = f"{self.base_url}/cache/delete/by-id/{cache_id}/{self.test_namespace}"
+                requests.delete(delete_url, headers=self.headers)
+                self.created_resources  [:] = [r for r in self.created_resources if r['cache_id'] != cache_id]
+
+    def test_15_mixed_content_workflow(self):                                           # Test mixed content types
+        """Test workflow with mixed content types in same namespace"""
+        items = []
+
+        try:
+            # Store various types
+            items.append(('text', self._store_string("Hello World", strategy="direct")))
+            items.append(('json', self._store_json({"msg": "Hello"}, strategy="direct")))
+            items.append(('binary', self._store_binary(b'\x00\xFF', strategy="direct")))
+
+            # Verify namespace contains all types
+            stats_url = f"{self.base_url}/cache/stats/namespaces/{self.test_namespace}"
+            stats_response = requests.get(stats_url, headers=self.headers)
+
+            self.assertEqual(stats_response.status_code, 200)
+            stats = stats_response.json()
+            self.assertGreater(stats['direct_files'], 0)
+
+            # Verify each can be retrieved with appropriate endpoint
+            for item_type, store_result in items:
+                cache_id = store_result['cache_id']
+
+                if item_type == 'binary':
+                    # Binary should redirect in generic endpoint
+                    url = f"{self.base_url}/cache/retrieve/by-id/{cache_id}/{self.test_namespace}"
+                    response = requests.get(url, headers=self.headers)
+                    result = response.json()
+                    self.assertEqual(result['status'], 'binary_data')
+                else:
+                    # String and JSON should work normally
+                    url = f"{self.base_url}/cache/retrieve/by-id/{cache_id}/{self.test_namespace}"
+                    response = requests.get(url, headers=self.headers)
+                    self.assertEqual(response.status_code, 200)
+                    result = response.json()
+                    self.assertIn('data', result)
+
+        finally:
+            # Clean up all items
+            for _, store_result in items:
+                cache_id = store_result['cache_id']
+                delete_url = f"{self.base_url}/cache/delete/by-id/{cache_id}/{self.test_namespace}"
+                requests.delete(delete_url, headers=self.headers)
+
+            cache_ids = [r['cache_id'] for _, r in items]
+            self.created_resources  [:] = [r for r in self.created_resources if r['cache_id'] not in cache_ids]
 
     def test_99_final_cleanup_verification(self):                                   # Verify cleanup worked
         """Verify all test data has been properly cleaned up"""

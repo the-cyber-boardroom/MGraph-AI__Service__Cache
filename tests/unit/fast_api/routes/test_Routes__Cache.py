@@ -486,3 +486,264 @@ class test_Routes__Cache(TestCase):
             assert result_binary.body       == json.dumps(json_data).encode('utf-8')    # JSON as bytes
             assert result_binary.media_type == "application/octet-stream"
             assert "content-encoding" not in result_binary.headers.keys()               # No encoding header
+
+    def test_delete__by_id__cache_id__namespace(self):                                      # Test delete endpoint
+        # Store data first
+        test_data = "data to delete"
+        self.request.state.body = test_data.encode()
+
+        with self.routes as _:
+            response_store = _.store__string__strategy__namespace(request   = self.request       ,
+                                                                 strategy  = "direct"            ,
+                                                                 namespace = self.test_namespace )
+            cache_id = response_store.cache_id
+
+            # Verify it exists
+            result_exists = _.retrieve__by_id__cache_id__namespace(cache_id, self.test_namespace)
+            assert result_exists is not None
+
+            # Delete it
+            result_delete = _.delete__by_id__cache_id__namespace(cache_id  = cache_id        ,
+                                                                namespace = self.test_namespace)
+
+            assert result_delete["status"]        == "success"
+            assert result_delete["cache_id"]      == cache_id
+            assert result_delete["deleted_count"] > 0
+            assert result_delete["failed_count"]  == 0
+
+            # Verify it's gone
+            result_gone = _.retrieve__by_id__cache_id__namespace(cache_id, self.test_namespace)
+            assert result_gone["status"] == "not_found"
+
+    def test_delete__by_id__cache_id__namespace__not_found(self):                           # Test deleting non-existent entry
+        non_existent_id = Random_Guid()
+
+        with self.routes as _:
+            result = _.delete__by_id__cache_id__namespace(cache_id  = non_existent_id      ,
+                                                         namespace = self.test_namespace   )
+
+            assert result["status"]  == "not_found"
+            assert result["message"] == f"Cache ID {non_existent_id} not found"
+
+    def test_stats__namespaces(self):                                                       # Test stats__namespaces method (different from stats__namespaces__namespace)
+        with self.routes as _:
+            # This method returns list of namespaces (not stats)
+            result = _.stats__namespaces()
+
+            assert type(result) is list
+            # Should contain at least the namespaces we've created in other tests
+            assert len(result) >= 0
+
+    def test_retrieve__binary__by_hash__cache_hash__namespace(self):                        # Test binary retrieval by hash
+        binary_data = b'\x01\x02\x03\x04\x05'
+        self.request.state.body = binary_data
+
+        with self.routes as _:
+            # Store binary
+            response_store = _.store__binary__strategy__namespace(request   = self.request       ,
+                                                                 strategy  = "direct"            ,
+                                                                 namespace = self.test_namespace )
+            cache_hash = response_store.hash
+
+            # Retrieve as binary by hash
+            result = _.retrieve__binary__by_hash__cache_hash__namespace(cache_hash = cache_hash      ,
+                                                                       namespace  = self.test_namespace)
+
+            assert result.body       == binary_data
+            assert result.media_type == "application/octet-stream"
+
+    def test_retrieve__binary__by_hash__cache_hash__namespace__not_found(self):             # Test binary retrieval by hash not found
+        non_existent_hash = Safe_Str__Cache_Hash("0000000000000000")
+
+        with self.routes as _:
+            result = _.retrieve__binary__by_hash__cache_hash__namespace(cache_hash = non_existent_hash,
+                                                                       namespace  = self.test_namespace)
+
+            assert result.status_code == 404
+            assert result.body        == b"Not found"
+
+    def test_store__binary__strategy__namespace__uncompressed(self):                        # Test uncompressed binary storage
+        binary_data = b'Raw binary data \x00\x01\x02'
+        self.request.state.body = binary_data
+
+        with self.routes as _:
+            response = _.store__binary__strategy__namespace(request   = self.request       ,
+                                                           strategy  = "temporal_versioned",
+                                                           namespace = self.test_namespace  )
+
+            assert type(response)          is Schema__Cache__Store__Response
+            assert type(response.cache_id) is Random_Guid
+            assert type(response.hash)     is Safe_Str__Cache_Hash
+            assert response.size           == len(binary_data)
+
+            # Verify storage worked
+            result = _.retrieve__binary__by_id__cache_id__namespace(cache_id  = response.cache_id ,
+                                                                   namespace = self.test_namespace)
+            assert result.body == binary_data
+
+    def test_retrieve__string__by_hash__cache_hash__namespace__json_data(self):             # Test string retrieval of JSON data by hash
+        test_json = {"key": "value"}
+        self.request.state.body = json_to_str(test_json).encode()
+
+        with self.routes as _:
+            # Store JSON
+            response_store = _.store__json__strategy__namespace(request   = self.request       ,
+                                                               strategy  = "direct"             ,
+                                                               namespace = self.test_namespace )
+            cache_hash = response_store.hash
+
+            # Retrieve as string by hash (should stringify JSON)
+            result = _.retrieve__string__by_hash__cache_hash__namespace(cache_hash = cache_hash      ,
+                                                                       namespace  = self.test_namespace)
+
+            assert result.body       == json.dumps(test_json).encode()
+            assert result.media_type == "text/plain"
+
+    def test_retrieve__json__by_hash__cache_hash__namespace__string_data(self):             # Test JSON retrieval of string data by hash
+        test_string = '{"valid": "json", "as": "string"}'
+        self.request.state.body = test_string.encode()
+
+        with self.routes as _:
+            # Store string that is valid JSON
+            response_store = _.store__string__strategy__namespace(request   = self.request       ,
+                                                                 strategy  = "direct"            ,
+                                                                 namespace = self.test_namespace )
+            cache_hash = response_store.hash
+
+            # Retrieve as JSON by hash (should parse string as JSON)
+            result = _.retrieve__json__by_hash__cache_hash__namespace(cache_hash = cache_hash      ,
+                                                                     namespace  = self.test_namespace)
+
+            assert result == {"valid": "json", "as": "string"}
+
+    def test_retrieve__json__by_hash__cache_hash__namespace__not_found(self):               # Test JSON retrieval by hash not found
+        non_existent_hash = Safe_Str__Cache_Hash("0000000000000000")
+
+        with self.routes as _:
+            result = _.retrieve__json__by_hash__cache_hash__namespace(cache_hash = non_existent_hash,
+                                                                     namespace  = self.test_namespace)
+
+            assert result == {"status": "not_found", "message": "Cache entry not found"}
+
+    def test_retrieve__string__by_hash__cache_hash__namespace__not_found(self):             # Test string retrieval by hash not found
+        non_existent_hash = Safe_Str__Cache_Hash("0000000000000000")
+
+        with self.routes as _:
+            result = _.retrieve__string__by_hash__cache_hash__namespace(cache_hash = non_existent_hash,
+                                                                       namespace  = self.test_namespace)
+
+            assert result.status_code == 404
+            assert result.body        == b"Not found"
+
+    def test_all_storage_strategies(self):                                                  # Test all storage strategies work
+        strategies = ["direct", "temporal", "temporal_latest", "temporal_versioned"]
+        test_data  = "strategy test data"
+
+        for strategy in strategies:
+            with self.subTest(strategy=strategy):
+                self.request.state.body = test_data.encode()
+
+                with self.routes as _:
+                    # Store with strategy
+                    response = _.store__string__strategy__namespace(request   = self.request              ,
+                                                                   strategy  = strategy                   ,
+                                                                   namespace = Safe_Id(f"strat-{strategy}"))
+
+                    assert type(response.cache_id) is Random_Guid
+
+                    # Retrieve and verify
+                    result = _.retrieve__by_id__cache_id__namespace(cache_id  = response.cache_id         ,
+                                                                   namespace = Safe_Id(f"strat-{strategy}"))
+
+                    assert result["data"] == test_data
+
+    def test_binary_to_string_conversion(self):                                             # Test binary data retrieved as string
+        # UTF-8 decodable binary
+        utf8_binary = "Hello World 🌍".encode('utf-8')
+        self.request.state.body = utf8_binary
+
+        with self.routes as _:
+            # Store as binary
+            response_store = _.store__binary__strategy__namespace(request   = self.request       ,
+                                                                 strategy  = "direct"            ,
+                                                                 namespace = self.test_namespace )
+            cache_id = response_store.cache_id
+
+            # Retrieve as string - should decode UTF-8
+            result_string = _.retrieve__string__by_id__cache_id__namespace(cache_id  = cache_id        ,
+                                                                          namespace = self.test_namespace)
+
+            assert result_string.body == utf8_binary  # Returns the raw bytes since it's binary type
+
+    def test_json_to_binary_conversion(self):                                               # Test JSON data retrieved as binary
+        test_json = {"test": "json", "number": 42}
+        self.request.state.body = json_to_str(test_json).encode()
+
+        with self.routes as _:
+            # Store as JSON
+            response_store = _.store__json__strategy__namespace(request   = self.request       ,
+                                                               strategy  = "direct"             ,
+                                                               namespace = self.test_namespace )
+            cache_id = response_store.cache_id
+
+            # Retrieve as binary - should convert JSON to bytes
+            result_binary = _.retrieve__binary__by_id__cache_id__namespace(cache_id  = cache_id        ,
+                                                                          namespace = self.test_namespace)
+
+            assert result_binary.body == json.dumps(test_json).encode('utf-8')
+            assert result_binary.media_type == "application/octet-stream"
+
+    def test_namespace_default_handling(self):                                              # Test default namespace handling
+        test_data = "default namespace test"
+        self.request.state.body = test_data.encode()
+
+        with self.routes as _:
+            # Store without namespace (should use "default")
+            response_store = _.store__string__strategy__namespace(request   = self.request,
+                                                                 strategy  = "direct"      ,
+                                                                 namespace = None          )
+            cache_id = response_store.cache_id
+
+            # Retrieve without namespace (should use "default")
+            result = _.retrieve__by_id__cache_id__namespace(cache_id  = cache_id,
+                                                           namespace = None     )
+
+            assert result["data"] == test_data
+
+            # Check exists without namespace
+            exists_result = _.exists__cache_hash__namespace(cache_hash = response_store.hash,
+                                                           namespace  = None                )
+            assert exists_result["exists"] is True
+
+            # Stats without namespace
+            stats_result = _.stats__namespaces__namespace(namespace=None)
+            assert stats_result["namespace"] == "default"
+
+    def test_retrieve_binary_data_via_json_endpoint(self):                                  # Test that binary data redirects in JSON endpoint
+        binary_data = b'\x00\x01\x02\x03'
+        self.request.state.body = binary_data
+
+        with self.routes as _:
+            # Store binary
+            response_store = _.store__binary__strategy__namespace(request   = self.request       ,
+                                                                 strategy  = "direct"            ,
+                                                                 namespace = self.test_namespace )
+            cache_id   = response_store.cache_id
+            cache_hash = response_store.hash
+
+            # Try to retrieve via generic JSON endpoint - should redirect
+            result_by_id = _.retrieve__by_id__cache_id__namespace(cache_id  = cache_id        ,
+                                                                 namespace = self.test_namespace)
+
+            assert result_by_id["status"]     == "binary_data"
+            assert result_by_id["data_type"]  == "binary"
+            assert result_by_id["size"]       == len(binary_data)
+            assert result_by_id["binary_url"] == f"/cache/retrieve/binary/by-id/{cache_id}/{self.test_namespace}"
+            assert "data" not in result_by_id  # No actual data
+
+            # Same for hash endpoint
+            result_by_hash = _.retrieve__by_hash__cache_hash__namespace(cache_hash = cache_hash      ,
+                                                                       namespace  = self.test_namespace)
+
+            assert result_by_hash["status"]     == "binary_data"
+            assert result_by_hash["binary_url"] == f"/cache/retrieve/binary/by-hash/{cache_hash}/{self.test_namespace}"

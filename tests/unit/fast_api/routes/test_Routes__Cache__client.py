@@ -1,3 +1,4 @@
+import base64
 import gzip
 import json
 from unittest                                                                       import TestCase
@@ -404,3 +405,280 @@ class test_Routes__Cache__client(TestCase):                                     
                 assert json.loads(response.text) == test_json
             elif 'binary' in endpoint:
                 assert json.loads(response.content.decode()) == test_json
+
+    def test__cache__retrieve__string__by_id(self):                                     # Test string-specific retrieval via HTTP
+        # Store string data
+        response_store = self.client.post(f'/cache/store/string/direct/{self.test_namespace}',
+                                         content = self.test_string                           ,
+                                         headers = {"Content-Type": "text/plain"}             )
+
+        assert response_store.status_code == 200
+        cache_id = response_store.json()['cache_id']
+
+        # Retrieve as string
+        response = self.client.get(f'/cache/retrieve/string/by-id/{cache_id}/{self.test_namespace}')
+
+        assert response.status_code      == 200
+        assert response.text              == self.test_string
+        assert response.headers['content-type'] == 'text/plain; charset=utf-8'
+
+    def test__cache__retrieve__json__by_id(self):                                       # Test JSON-specific retrieval via HTTP
+        # Store JSON data
+        response_store = self.client.post(f'/cache/store/json/direct/{self.test_namespace}',
+                                         json = self.test_json                               )
+
+        assert response_store.status_code == 200
+        cache_id = response_store.json()['cache_id']
+
+        # Retrieve as JSON
+        response = self.client.get(f'/cache/retrieve/json/by-id/{cache_id}/{self.test_namespace}')
+
+        assert response.status_code == 200
+        assert response.json()       == self.test_json
+        assert 'application/json' in response.headers['content-type']
+
+    def test__cache__retrieve__binary__by_hash(self):                                   # Test binary retrieval by hash via HTTP
+        test_binary = b'\x01\x02\x03\x04\x05'
+
+        # Store binary
+        response_store = self.client.post(f'/cache/store/binary/temporal/{self.test_namespace}',
+                                         content = test_binary                                  ,
+                                         headers = {"Content-Type": "application/octet-stream"})
+
+        assert response_store.status_code == 200
+        cache_hash = response_store.json()['hash']
+
+        # Retrieve as binary by hash
+        response = self.client.get(f'/cache/retrieve/binary/by-hash/{cache_hash}/{self.test_namespace}')
+
+        assert response.status_code == 200
+        assert response.content     == test_binary
+        assert response.headers['content-type'] == 'application/octet-stream'
+
+    def test__cache__retrieve__string__by_hash(self):                                   # Test string retrieval by hash via HTTP
+        # Store string
+        response_store = self.client.post(f'/cache/store/string/temporal_latest/{self.test_namespace}',
+                                         content = self.test_string                                   ,
+                                         headers = {"Content-Type": "text/plain"}                     )
+
+        assert response_store.status_code == 200
+        cache_hash = response_store.json()['hash']
+
+        # Retrieve as string by hash
+        response = self.client.get(f'/cache/retrieve/string/by-hash/{cache_hash}/{self.test_namespace}')
+
+        assert response.status_code == 200
+        assert response.text         == self.test_string
+        assert 'text/plain' in response.headers['content-type']
+
+    def test__cache__retrieve__json__by_hash(self):                                     # Test JSON retrieval by hash via HTTP
+        # Store JSON
+        response_store = self.client.post(f'/cache/store/json/temporal_versioned/{self.test_namespace}',
+                                         json = self.test_json                                         )
+
+        assert response_store.status_code == 200
+        cache_hash = response_store.json()['hash']
+
+        # Retrieve as JSON by hash
+        response = self.client.get(f'/cache/retrieve/json/by-hash/{cache_hash}/{self.test_namespace}')
+
+        assert response.status_code == 200
+        assert response.json()       == self.test_json
+        assert 'application/json' in response.headers['content-type']
+
+    def test__cache__delete__not_found(self):                                           # Test delete non-existent via HTTP
+        non_existent_id = Random_Guid()
+
+        response = self.client.delete(f'/cache/delete/by-id/{non_existent_id}/{self.test_namespace}')
+
+        assert response.status_code == 200
+        result = response.json()
+        assert result['status']  == 'not_found'
+        assert result['message'] == f'Cache ID {non_existent_id} not found'
+
+    def test__cache__exists__by_hash__not_found(self):                                  # Test exists check for non-existent hash
+        non_existent_hash = "0000000000000000"
+
+        response = self.client.get(f'/cache/exists/{non_existent_hash}/{self.test_namespace}')
+
+        assert response.status_code == 200
+        result = response.json()
+        assert result == {"exists": False, "hash": non_existent_hash}
+
+    def test__cache__retrieve__404_responses(self):                                     # Test 404 responses for type-specific endpoints
+        non_existent_id   = Random_Guid()
+        non_existent_hash = "0000000000000000"
+
+        # String endpoints should return 404
+        response_string_id = self.client.get(f'/cache/retrieve/string/by-id/{non_existent_id}/{self.test_namespace}')
+        assert response_string_id.status_code == 404
+
+        response_string_hash = self.client.get(f'/cache/retrieve/string/by-hash/{non_existent_hash}/{self.test_namespace}')
+        assert response_string_hash.status_code == 404
+
+        # JSON endpoints should return JSON error
+        response_json_id = self.client.get(f'/cache/retrieve/json/by-id/{non_existent_id}/{self.test_namespace}')
+        assert response_json_id.status_code == 200
+        assert response_json_id.json() == {"status": "not_found", "message": "Cache entry not found"}
+
+        response_json_hash = self.client.get(f'/cache/retrieve/json/by-hash/{non_existent_hash}/{self.test_namespace}')
+        assert response_json_hash.status_code == 200
+        assert response_json_hash.json() == {"status": "not_found", "message": "Cache entry not found"}
+
+        # Binary endpoints should return 404
+        response_binary_id = self.client.get(f'/cache/retrieve/binary/by-id/{non_existent_id}/{self.test_namespace}')
+        assert response_binary_id.status_code == 404
+
+        response_binary_hash = self.client.get(f'/cache/retrieve/binary/by-hash/{non_existent_hash}/{self.test_namespace}')
+        assert response_binary_hash.status_code == 404
+
+    def test__cache__cross_type_retrieval(self):                                        # Test retrieving data as different types
+        # Store string that is valid JSON
+        valid_json_string = '{"valid": "json"}'
+        response_store = self.client.post(f'/cache/store/string/direct/{self.test_namespace}',
+                                         content = valid_json_string                          ,
+                                         headers = {"Content-Type": "text/plain"}             )
+
+        assert response_store.status_code == 200
+        cache_id = response_store.json()['cache_id']
+
+        # Retrieve as string - returns as-is
+        response_string = self.client.get(f'/cache/retrieve/string/by-id/{cache_id}/{self.test_namespace}')
+        assert response_string.status_code == 200
+        assert response_string.text        == valid_json_string
+
+        # Retrieve as JSON - should parse it
+        response_json = self.client.get(f'/cache/retrieve/json/by-id/{cache_id}/{self.test_namespace}')
+        assert response_json.status_code == 200
+        assert response_json.json()      == {"valid": "json"}
+
+        # Retrieve as binary - should convert to bytes
+        response_binary = self.client.get(f'/cache/retrieve/binary/by-id/{cache_id}/{self.test_namespace}')
+        assert response_binary.status_code == 200
+        assert response_binary.content     == valid_json_string.encode('utf-8')
+
+    def test__cache__json_stored_retrieved_as_string(self):                             # Test JSON data retrieved as string
+        # Store JSON
+        response_store = self.client.post(f'/cache/store/json/direct/{self.test_namespace}',
+                                         json = self.test_json                             )
+
+        assert response_store.status_code == 200
+        cache_id = response_store.json()['cache_id']
+
+        # Retrieve as string - should stringify JSON
+        response = self.client.get(f'/cache/retrieve/string/by-id/{cache_id}/{self.test_namespace}')
+
+        assert response.status_code == 200
+        assert json.loads(response.text) == self.test_json  # Can parse back to original JSON
+
+    def test__cache__binary_retrieved_as_string_base64(self):                           # Test non-UTF8 binary retrieved as string
+        # Non-UTF8 binary data
+        non_utf8_binary = b'\xff\xfe\x00\x01\x02\x03'
+
+        response_store = self.client.post(f'/cache/store/binary/direct/{self.test_namespace}',
+                                         content = non_utf8_binary                            ,
+                                         headers = {"Content-Type": "application/octet-stream"})
+
+        assert response_store.status_code == 200
+        cache_id = response_store.json()['cache_id']
+
+        # Retrieve as string - should return base64
+        response = self.client.get(f'/cache/retrieve/string/by-id/{cache_id}/{self.test_namespace}')
+
+        assert response.status_code == 200
+        # Should be base64 encoded since it can't be decoded as UTF-8
+        assert response.text == base64.b64encode(non_utf8_binary).decode('utf-8')
+
+    def test__cache__binary_retrieved_as_json(self):                                    # Test binary data retrieved as JSON
+        test_binary = b'\x00\x01\x02\x03'
+
+        response_store = self.client.post(f'/cache/store/binary/direct/{self.test_namespace}',
+                                         content = test_binary                               ,
+                                         headers = {"Content-Type": "application/octet-stream"})
+
+        assert response_store.status_code == 200
+        cache_id = response_store.json()['cache_id']
+
+        # Retrieve as JSON - should return base64 wrapper
+        response = self.client.get(f'/cache/retrieve/json/by-id/{cache_id}/{self.test_namespace}')
+
+        assert response.status_code == 200
+        result = response.json()
+
+        assert result == {"data_type": "binary"                                ,
+                         "encoding" : "base64"                                ,
+                         "data"     : base64.b64encode(test_binary).decode('utf-8')}
+
+    def test__cache__default_namespace(self):                                           # Test operations without namespace (uses default)
+        # Store without namespace
+        response_store = self.client.post('/cache/store/string/direct/default',
+                                         content = "default namespace test"   ,
+                                         headers = {"Content-Type": "text/plain"})
+
+        assert response_store.status_code == 200
+        cache_id   = response_store.json()['cache_id']
+        cache_hash = response_store.json()['hash']
+
+        # Retrieve without explicit namespace
+        response_retrieve = self.client.get(f'/cache/retrieve/by-id/{cache_id}/default')
+        assert response_retrieve.status_code == 200
+        assert response_retrieve.json()['data'] == "default namespace test"
+
+        # Check exists
+        response_exists = self.client.get(f'/cache/exists/{cache_hash}/default')
+        assert response_exists.status_code == 200
+        assert response_exists.json()['exists'] is True
+
+        # Stats for default namespace
+        response_stats = self.client.get('/cache/stats/namespaces/default')
+        assert response_stats.status_code == 200
+        assert response_stats.json()['namespace'] == 'default'
+
+    def test__cache__stats__namespaces(self):                                           # Test stats/namespaces endpoint (list version)
+        # Create some namespaces
+        for ns in ["stats-ns-1", "stats-ns-2"]:
+            response = self.client.post(f'/cache/store/string/direct/{ns}',
+                                       content = f"data for {ns}"          ,
+                                       headers = {"Content-Type": "text/plain"})
+            assert response.status_code == 200
+
+        # Get namespace list via stats endpoint
+        response = self.client.get('/cache/stats/namespaces')
+
+        assert response.status_code == 200
+        result = response.json()
+        assert type(result) is list
+        assert "stats-ns-1" in result
+        assert "stats-ns-2" in result
+
+    def test__cache__binary_redirect_message(self):                                     # Test binary data redirect message detail
+        test_binary = b'Some binary data here'
+
+        # Store binary
+        response_store = self.client.post(f'/cache/store/binary/direct/{self.test_namespace}',
+                                         content = test_binary                                ,
+                                         headers = {"Content-Type": "application/octet-stream"})
+
+        assert response_store.status_code == 200
+        cache_id   = response_store.json()['cache_id']
+        cache_hash = response_store.json()['hash']
+
+        # Try generic retrieval by ID - should redirect
+        response_by_id = self.client.get(f'/cache/retrieve/by-id/{cache_id}/{self.test_namespace}')
+        assert response_by_id.status_code == 200
+
+        result_by_id = response_by_id.json()
+        assert result_by_id == {"status"     : "binary_data"                                                      ,
+                               "message"    : "Binary data cannot be returned in JSON response"                  ,
+                               "data_type"  : "binary"                                                           ,
+                               "size"       : len(test_binary)                                                   ,
+                               "metadata"   : result_by_id['metadata']                                           ,
+                               "binary_url" : f"/cache/retrieve/binary/by-id/{cache_id}/{self.test_namespace}"   }
+
+        # Try generic retrieval by hash - should redirect
+        response_by_hash = self.client.get(f'/cache/retrieve/by-hash/{cache_hash}/{self.test_namespace}')
+        assert response_by_hash.status_code == 200
+
+        result_by_hash = response_by_hash.json()
+        assert result_by_hash["status"]     == "binary_data"
+        assert result_by_hash["binary_url"] == f"/cache/retrieve/binary/by-hash/{cache_hash}/{self.test_namespace}"
