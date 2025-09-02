@@ -16,7 +16,8 @@ ROUTES_PATHS__CACHE                = [ f'/{TAG__ROUTES_CACHE}' + '/delete/by-id/
                                        f'/{TAG__ROUTES_CACHE}' + '/store/string/{strategy}/{namespace}'      ,
                                        f'/{TAG__ROUTES_CACHE}' + '/retrieve/by-hash/{cache_hash}/{namespace}',
                                        f'/{TAG__ROUTES_CACHE}' + '/retrieve/by-id/{cache_id}/{namespace}'    ,
-                                       f'/{TAG__ROUTES_CACHE}' + '/stats/{namespace}'                       ,
+                                       f'/{TAG__ROUTES_CACHE}' + '/stats/namespaces/{namespace}'             ,
+                                       f'/{TAG__ROUTES_CACHE}' + '/stats/namespaces'                         ,
                                        f'/{TAG__ROUTES_CACHE}' + '/namespaces'                               ]
 
 class Routes__Cache(Fast_API__Routes):                                             # FastAPI routes for cache operations
@@ -162,28 +163,27 @@ class Routes__Cache(Fast_API__Routes):                                          
         namespaces = self.cache_service.list_namespaces()
         return {"namespaces": [str(ns) for ns in namespaces], "count": len(namespaces)}
 
-    def stats__namespace(self, namespace: Safe_Id = None                                      # Get cache statistics
-                          ) -> Dict[str, Any]:
+    def stats__namespaces__namespace(self, namespace: Safe_Id = None) -> Dict[str, Any]:       # Get cache statistics
         namespace = namespace or Safe_Id("default")
-        handler   = self.cache_service.get_or_create_handler(namespace)
 
         try:
-            # Count files in each strategy
-            stats = {"namespace"     : str(namespace)       ,
-                    "s3_bucket"     : handler.s3__bucket   ,
-                    "s3_prefix"     : handler.s3__prefix   ,
-                    "ttl_hours"     : handler.cache_ttl_hours}
+            # Get file counts using shared method
+            counts_data = self.cache_service.get_namespace_file_counts(namespace)
+            handler = counts_data['handler']
 
-            # Add file counts for each strategy
-            for strategy in ["direct", "temporal", "temporal_latest", "temporal_versioned"]:
-                fs = handler.get_fs_for_strategy(strategy)
-                if fs and fs.storage_fs:
-                    file_count = len(fs.storage_fs.files__paths())
-                    stats[f"{strategy}_files"] = file_count
+            # Build stats response
+            stats = { "namespace": str(namespace)         ,
+                      "s3_bucket": handler.s3__bucket     ,
+                      "s3_prefix": handler.s3__prefix     ,
+                      "ttl_hours": handler.cache_ttl_hours,
+                      **counts_data['file_counts'        ]}  # Spread all the file counts
 
             return stats
         except Exception as e:
             return {"error": str(e), "namespace": str(namespace)}
+
+    def stats__namespaces(self):
+        return self.cache_service.list_namespaces()
 
     def setup_routes(self):                                                        # Configure FastAPI routes
         # String endpoints
@@ -204,7 +204,8 @@ class Routes__Cache(Fast_API__Routes):                                          
         #self.add_route_post(self.hash_calculate, path="/cache/hash/calculate")
         self.add_route_get   (self.exists__cache_hash__namespace   )
         self.add_route_get   (self.namespaces                      )
-        self.add_route_get   (self.stats__namespace                )
+        self.add_route_get   (self.stats__namespaces__namespace    )
+        self.add_route_get   (self.stats__namespaces               )
         self.add_route_delete(self.delete__by_id__cache_id__namespace)
 
     # todo: remove this method when the next version of OSBot-Fast-API has been installed (which uses the code below)

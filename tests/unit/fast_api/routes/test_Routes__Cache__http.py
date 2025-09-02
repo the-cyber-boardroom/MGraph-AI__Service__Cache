@@ -312,7 +312,7 @@ class test_Routes__Cache__http(TestCase):                                       
     def test_06_stats_endpoint(self):                                               # Test statistics tracking
         """Test stats endpoint tracks entries correctly"""
         # Get initial stats
-        stats_url = f"{self.base_url}/cache/stats/{self.test_namespace}"
+        stats_url = f"{self.base_url}/cache/stats/namespaces/{self.test_namespace}"
         initial_response = requests.get(stats_url, headers=self.headers)
 
         if initial_response.status_code == 200:

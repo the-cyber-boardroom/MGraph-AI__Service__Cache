@@ -213,7 +213,7 @@ class test_Routes__Cache(TestCase):
             for i in range(3):
                 _.store__string__strategy__namespace(self.request, namespace=self.test_namespace)
 
-            result = _.stats__namespace(self.test_namespace)
+            result = _.stats__namespaces__namespace(self.test_namespace)
 
             assert result["namespace"] == str(self.test_namespace)
             assert result["s3_bucket"] == self.test_bucket

@@ -96,6 +96,65 @@ class Cache__Service(Type_Safe):                                                
             "failed_paths"  : failed_paths
         }
 
+    def get_all_namespaces_stats(self) -> Dict[str, Any]:       # Get file counts for all active namespaces
+        all_stats = {}
+
+        for namespace in self.cache_handlers.keys():
+            counts_data = self.get_namespace_file_counts(namespace)
+            all_stats[str(namespace)] = {
+                'total_files': counts_data['total_files'],
+                'file_counts': counts_data['file_counts']
+            }
+
+        return {
+            'namespaces': all_stats,
+            'total_namespaces': len(self.cache_handlers),
+            'grand_total_files': sum(ns['total_files'] for ns in all_stats.values())
+        }
+    def get_namespace_file_counts(self, namespace: Safe_Id = None) -> Dict[str, Any]:       # Get file counts for all strategies in a namespace
+        namespace = namespace or Safe_Id("default")
+        handler = self.get_or_create_handler(namespace)
+
+        file_counts = {}
+        total_files = 0
+
+        # todo: review the performance implications of this on large namespaces
+        for strategy in ["direct", "temporal", "temporal_latest", "temporal_versioned"]:    # Count files in each data strategy
+            try:
+                fs = handler.get_fs_for_strategy(strategy)
+                if fs and fs.storage_fs:
+                    count = len(fs.storage_fs.files__paths())
+                    file_counts[f"{strategy}_files"] = count
+                    total_files += count
+                else:
+                    file_counts[f"{strategy}_files"] = 0
+            except Exception:
+                file_counts[f"{strategy}_files"] = 0
+
+        # Count reference store files
+        try:
+            refs_hash_count = len(handler.fs__refs_hash.storage_fs.files__paths())
+            file_counts['refs_hash_files'] = refs_hash_count
+            total_files += refs_hash_count
+        except Exception:
+            file_counts['refs_hash_files'] = 0
+
+        try:
+            refs_id_count = len(handler.fs__refs_id.storage_fs.files__paths())
+            file_counts['refs_id_files'] = refs_id_count
+            total_files += refs_id_count
+        except Exception:
+            file_counts['refs_id_files'] = 0
+
+        file_counts['total_files'] = total_files
+
+        return {
+            'namespace': str(namespace),
+            'handler': handler,
+            'file_counts': file_counts,
+            'total_files': total_files
+        }
+
     def get_or_create_handler(self, namespace: Safe_Id = None                      # Get existing or create new cache handler
                               ) -> Cache__Handler:
         namespace = namespace or Safe_Id("default")

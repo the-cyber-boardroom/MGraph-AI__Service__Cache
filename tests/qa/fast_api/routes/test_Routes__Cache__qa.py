@@ -18,6 +18,8 @@ class test_Routes__Cache__qa(TestCase):                                         
     def setUpClass(cls):
         load_dotenv()
         cls.base_url  = get_env(ENV_VAR__MGRAPH__SERVICE__CACHE__TEST_SERVER)
+        if not cls.base_url:
+            pytest.skip("No base url set")
         cls.key_name  = get_env(ENV_VAR__FAST_API__AUTH__API_KEY__NAME )
         cls.key_value = get_env(ENV_VAR__FAST_API__AUTH__API_KEY__VALUE)
         cls.auth_key  = {cls.key_name: cls.key_value }
@@ -26,7 +28,8 @@ class test_Routes__Cache__qa(TestCase):                                         
         cls.headers  = { "Content-Type": "application/json",
                          **cls.auth_key                    }
         cls.created_resources = []                                      # Track all created resources for cleanup
-        cls.test_namespace = f"qa-test-{int(time.time())}"              # Test namespace with timestamp to avoid conflicts
+        #cls.test_namespace = f"qa-test-{int(time.time())}"              # Test namespace with timestamp to avoid conflicts
+        cls.test_namespace = f'qa-test'                                  # todo: fix bug that we are not removing the namespace
 
     @classmethod
     def tearDownClass(cls):                                                         # Clean up all created resources
@@ -56,7 +59,6 @@ class test_Routes__Cache__qa(TestCase):                                         
         url = f"{self.base_url}/cache/store/string/{strategy}/{namespace}"
 
         response = requests.post(url, data=data, headers={"Content-Type": "text/plain", **self.auth_key})
-        pprint(response.json())
         self.assertEqual(response.status_code, 200, f"Store failed: {response.text}")
 
         result = response.json()
@@ -150,7 +152,7 @@ class test_Routes__Cache__qa(TestCase):                                         
         self.assertEqual(verify_result['status'], 'not_found')
 
         # Remove from tracking since we manually deleted
-        self.created_resources = [r for r in self.created_resources if r['cache_id'] != cache_id]
+        self.created_resources [:] = [r for r in self.created_resources if r['cache_id'] != cache_id]
 
     def test_03_multiple_strategies(self):                                          # Test all storage strategies
         """Test different storage strategies and clean up properly"""
@@ -190,50 +192,52 @@ class test_Routes__Cache__qa(TestCase):                                         
                 self.assertEqual(delete_response.status_code, 200)
 
                 # Remove from tracking
-                self.created_resources = [r for r in self.created_resources
-                                         if r['cache_id'] != item['cache_id']]
+                self.created_resources [:] = [r for r in self.created_resources
+                                              if r['cache_id'] != item['cache_id']]
 
-    def test_04_json_storage_and_hash_calculation(self):                           # Test JSON operations
-        """Test JSON storage, hash calculation, and cleanup"""
-        test_json = {
-            "test": "qa_data",
-            "timestamp": time.time(),
-            "nested": {"level": 2, "data": "nested_value"}
-        }
+    # todo: add this back when we add back the method to calculate the hash
+    # def test_04_json_storage_and_hash_calculation(self):                           # Test JSON operations
+    #     """Test JSON storage, hash calculation, and cleanup"""
+    #     test_json = {
+    #         "test": "qa_data",
+    #         "timestamp": time.time(),
+    #         "nested": {"level": 2, "data": "nested_value"}
+    #     }
+    #
+    #     # 1. Calculate hash first
+    #     hash_url = f"{self.base_url}/cache/hash/calculate"
+    #     hash_response = requests.post(hash_url, json={"json_data": test_json}, headers=self.headers)
+    #
+    #     self.assertEqual(hash_response.status_code, 200)
+    #     calculated_hash = hash_response.json()['hash']
+    #
+    #     # 2. Store JSON
+    #     store_result = self._store_json(test_json)
+    #     cache_id = store_result['cache_id']
+    #     stored_hash = store_result['hash']
+    #
+    #     # Hashes should match
+    #     self.assertEqual(stored_hash, calculated_hash)
+    #
+    #     # 3. Retrieve and verify
+    #     retrieve_url = f"{self.base_url}/cache/retrieve/by-id/{cache_id}/{self.test_namespace}"
+    #     retrieve_response = requests.get(retrieve_url, headers=self.headers)
+    #
+    #     self.assertEqual(retrieve_response.status_code, 200)
+    #     retrieve_result = retrieve_response.json()
+    #     self.assertEqual(retrieve_result['data'], test_json)
+    #
+    #     # 4. Clean up
+    #     delete_url = f"{self.base_url}/cache/delete/by-id/{cache_id}/{self.test_namespace}"
+    #     delete_response = requests.delete(delete_url, headers=self.headers)
+    #
+    #     self.assertEqual(delete_response.status_code, 200)
+    #     self.assertEqual(delete_response.json()['status'], 'success')
+    #
+    #     # Remove from tracking
+    #     self.created_resources [:] = [r for r in self.created_resources if r['cache_id'] != cache_id]
 
-        # 1. Calculate hash first
-        hash_url = f"{self.base_url}/cache/hash/calculate"
-        hash_response = requests.post(hash_url, json={"json_data": test_json}, headers=self.headers)
-
-        self.assertEqual(hash_response.status_code, 200)
-        calculated_hash = hash_response.json()['hash']
-
-        # 2. Store JSON
-        store_result = self._store_json(test_json)
-        cache_id = store_result['cache_id']
-        stored_hash = store_result['hash']
-
-        # Hashes should match
-        self.assertEqual(stored_hash, calculated_hash)
-
-        # 3. Retrieve and verify
-        retrieve_url = f"{self.base_url}/cache/retrieve/by-id/{cache_id}/{self.test_namespace}"
-        retrieve_response = requests.get(retrieve_url, headers=self.headers)
-
-        self.assertEqual(retrieve_response.status_code, 200)
-        retrieve_result = retrieve_response.json()
-        self.assertEqual(retrieve_result['data'], test_json)
-
-        # 4. Clean up
-        delete_url = f"{self.base_url}/cache/delete/by-id/{cache_id}/{self.test_namespace}"
-        delete_response = requests.delete(delete_url, headers=self.headers)
-
-        self.assertEqual(delete_response.status_code, 200)
-        self.assertEqual(delete_response.json()['status'], 'success')
-
-        # Remove from tracking
-        self.created_resources = [r for r in self.created_resources if r['cache_id'] != cache_id]
-
+    @pytest.mark.skip(reason="this test also created new namespaces, which we are not deleting at the moment")
     def test_05_namespace_isolation(self):                                          # Test namespace isolation
         """Test that namespaces properly isolate data"""
         ns1 = f"qa-ns1-{int(time.time())}"
@@ -279,8 +283,8 @@ class test_Routes__Cache__qa(TestCase):                                         
                 requests.delete(delete_url, headers=self.headers)
 
             # Remove from tracking
-            self.created_resources = [r for r in self.created_resources
-                                     if r['cache_id'] not in [cache_id1, cache_id2]]
+            self.created_resources [:] = [r for r in self.created_resources
+                                          if r['cache_id'] not in [cache_id1, cache_id2]]
 
     def test_06_stats_endpoint(self):                                               # Test statistics tracking
         """Test stats endpoint tracks entries correctly"""
