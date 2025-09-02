@@ -1,3 +1,4 @@
+import pytest
 import requests
 import time
 import concurrent.futures
@@ -8,19 +9,24 @@ from osbot_fast_api.utils.Fast_API_Server                                       
 from osbot_fast_api_serverless.utils.testing.skip_tests                             import skip__if_not__in_github_actions
 from osbot_utils.utils.Env                                                          import load_dotenv, get_env
 from osbot_utils.utils.Misc                                                         import is_guid
-from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs
+from tests.unit.Service__Fast_API__Test_Objs import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
 
 class test_Routes__Cache__http(TestCase):                                           # Local HTTP tests using temp FastAPI server
 
     @classmethod
     def setUpClass(cls):
-        skip__if_not__in_github_actions()
-        load_dotenv()
+        #skip__if_not__in_github_actions()
+
+        #load_dotenv()
+        cls.key_name      = TEST_API_KEY__NAME #get_env(ENV_VAR__FAST_API__AUTH__API_KEY__NAME )
+        cls.key_value     = TEST_API_KEY__VALUE #get_env(ENV_VAR__FAST_API__AUTH__API_KEY__VALUE)
+        cls.auth_headers  = {cls.key_name: cls.key_value }
+        if not cls.key_name or not cls.key_value:
+            pytest.skip("No Auth key name or key value provided")
         cls.service__fast_api = setup__service_fast_api_test_objs().fast_api
         cls.service__app      = cls.service__fast_api.app()
         cls.fast_api_server   = Fast_API_Server(app=cls.service__app)
-        cls.auth_headers      = {get_env(ENV_VAR__FAST_API__AUTH__API_KEY__NAME): get_env(ENV_VAR__FAST_API__AUTH__API_KEY__VALUE)}
         cls.fast_api_server.start()
 
         cls.base_url = cls.fast_api_server.url()
