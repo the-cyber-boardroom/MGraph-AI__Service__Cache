@@ -1,12 +1,9 @@
-from os import getenv
-
 import pytest
 import requests
 import time
 from unittest                                   import TestCase
 from typing                                     import Dict, Any
 from osbot_fast_api.schemas.consts__Fast_API    import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
-from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Env                      import get_env, load_dotenv
 from osbot_utils.utils.Misc                     import is_guid
 
@@ -16,6 +13,7 @@ class test_Routes__Cache__qa(TestCase):                                         
 
     @classmethod
     def setUpClass(cls):
+        pytest.skip("Needs manual trigger")
         load_dotenv()
         cls.base_url  = get_env(ENV_VAR__MGRAPH__SERVICE__CACHE__TEST_SERVER)
         if not cls.base_url:
@@ -289,7 +287,7 @@ class test_Routes__Cache__qa(TestCase):                                         
     def test_06_stats_endpoint(self):                                               # Test statistics tracking
         """Test stats endpoint tracks entries correctly"""
         # Get initial stats
-        stats_url = f"{self.base_url}/cache/stats/{self.test_namespace}"
+        stats_url = f"{self.base_url}/cache/stats/namespaces/{self.test_namespace}"
         initial_response = requests.get(stats_url, headers=self.headers)
 
         if initial_response.status_code == 200:
@@ -328,8 +326,8 @@ class test_Routes__Cache__qa(TestCase):                                         
                 requests.delete(delete_url, headers=self.headers)
 
             # Remove from tracking
-            self.created_resources = [r for r in self.created_resources
-                                     if r['cache_id'] not in created_ids]
+            self.created_resources [:] = [r for r in self.created_resources
+                                          if r['cache_id'] not in created_ids]
 
     def test_07_error_handling(self):                                               # Test error conditions
         """Test API error handling without creating persistent data"""
@@ -399,8 +397,8 @@ class test_Routes__Cache__qa(TestCase):                                         
             requests.delete(delete_url, headers=self.headers)
 
         # Remove from tracking
-        self.created_resources = [r for r in self.created_resources
-                                 if r['cache_id'] not in cache_ids]
+        self.created_resources [:] = [r for r in self.created_resources
+                                      if r['cache_id'] not in cache_ids]
 
     def test_99_final_cleanup_verification(self):                                   # Verify cleanup worked
         """Verify all test data has been properly cleaned up"""

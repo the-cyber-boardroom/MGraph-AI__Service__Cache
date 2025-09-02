@@ -1,3 +1,5 @@
+import gzip
+import json
 import pytest
 from unittest                                                                       import TestCase
 from memory_fs.path_handlers.Path__Handler__Temporal                                import Path__Handler__Temporal
@@ -177,23 +179,26 @@ class test_Cache__Service(TestCase):                                            
 
         with self.service as _:
             _.store_with_strategy(cache_key_data = test_data,
-                                storage_data   = test_data,
-                                cache_hash     = cache_hash,
-                                cache_id       = cache_id,
-                                strategy       = "temporal",
-                                namespace      = self.test_namespace)
+                                  storage_data   = test_data,
+                                  cache_hash     = cache_hash,
+                                  cache_id       = cache_id,
+                                  strategy       = "temporal",
+                                  namespace      = self.test_namespace)
 
             # Retrieve by hash
             result    = _.retrieve_by_hash(cache_hash, self.test_namespace)
             stored_at = result.get('metadata').get('stored_at')
-            assert result == {'data': 'retrieve by hash test',
-                              'metadata': {Safe_Id('cache_hash'      ): 'ef11cf6a121a582a',
-                                           Safe_Id('cache_id'        ): cache_id,
-                                           Safe_Id('cache_key_data'  ): 'retrieve by hash test',
-                                           Safe_Id('content_encoding'): None,
-                                           Safe_Id('namespace'       ): 'test-namespace',
-                                           Safe_Id('stored_at'       ): stored_at,
-                                           Safe_Id('strategy'        ): 'temporal'}}
+            assert result == { 'content_encoding': None,
+                               'data'            : 'retrieve by hash test',
+                               'data_type'       : 'string',
+                               'metadata': {'cache_hash'      : 'ef11cf6a121a582a',
+                                            'cache_id'        : cache_id,
+                                            'cache_key_data'  : 'retrieve by hash test',
+                                            'content_encoding': None,
+                                            'file_type'       : 'json',
+                                            'namespace'       : 'test-namespace',
+                                            'stored_at'       : stored_at,
+                                            'strategy'        : 'temporal'}}
             assert result is not None
             assert "data" in result
             assert result["data"] == test_data
@@ -211,7 +216,7 @@ class test_Cache__Service(TestCase):                                            
         test_data     = "retrieve by id test"
         cache_hash    = self.service.hash_from_string(test_data)
         cache_id      = Random_Guid()
-        cache_hash    = '042347b98515ab7f'
+        #cache_hash    = '042347b98515ab7f'
         deleted_paths = [f'data/direct/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
                          f'data/direct/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
                          f'data/direct/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata',
@@ -231,6 +236,18 @@ class test_Cache__Service(TestCase):                                            
 
             result__retrieve = _.retrieve_by_id(cache_id, self.test_namespace)          # Retrieve by ID
             result__delete   = _.delete_by_id(cache_id, self.test_namespace)            # Delete by ID
+
+            assert result__retrieve == { 'content_encoding': None,
+                                         'data'            : 'retrieve by id test',
+                                         'data_type'       : 'string',
+                                         'metadata'        : { 'cache_hash'      : '042347b98515ab7f',
+                                                               'cache_id'        : cache_id,
+                                                               'cache_key_data'  : 'retrieve by id test',
+                                                               'content_encoding': None,
+                                                               'file_type'       : 'json',
+                                                               'namespace'       : 'test-namespace',
+                                                               'stored_at'       : result__retrieve['metadata']['stored_at'],
+                                                               'strategy'        : 'direct'}}
 
             assert result__retrieve                           is not None
             assert result__retrieve["data"]                   == test_data
@@ -380,9 +397,10 @@ class test_Cache__Service(TestCase):                                            
                      'by_id'  : [f'refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
                                  f'refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
                                  f'refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata'],
-                     'data'   : [f'data/temporal/2025/09/01/23/{cache_id}.json',
-                                 f'data/temporal/2025/09/01/23/{cache_id}.json.config',
-                                 f'data/temporal/2025/09/01/23/{cache_id}.json.metadata']}
+                     'data'   : [f'data/temporal/{self.path_now}/{cache_id}.json',
+                                 f'data/temporal/{self.path_now}/{cache_id}.json.config',
+                                 f'data/temporal/{self.path_now}/{cache_id}.json.metadata']}
+        content_paths = [f'data/temporal/{self.path_now}/{cache_id}.json']
         with self.service as _:
             # Store data
             _.store_with_strategy(cache_key_data = test_data,
@@ -397,12 +415,14 @@ class test_Cache__Service(TestCase):                                            
             with handler.fs__refs_id.file__json(Safe_Id(str(cache_id))) as ref_fs:
                 id_ref_data = ref_fs.content()
                 all_paths = id_ref_data["all_paths"]
-                assert id_ref_data == { 'all_paths' : all_paths              ,
-                                        'cache_id'  : cache_id               ,
-                                        'hash'      : 'c703026d3a59fe62'     ,
-                                        'namespace' : 'test-namespace'       ,
-                                        'strategy'  : 'temporal'             ,
-                                        'timestamp' : id_ref_data['timestamp']}
+                assert id_ref_data == { 'all_paths'     : all_paths              ,
+                                        'cache_id'      : cache_id               ,
+                                        'content_paths' : content_paths          ,
+                                        'file_type'     : 'json'                 ,
+                                        'hash'          : 'c703026d3a59fe62'     ,
+                                        'namespace'     : 'test-namespace'       ,
+                                        'strategy'      : 'temporal'             ,
+                                        'timestamp'     : id_ref_data['timestamp']}
 
     def test__retrieve_by_hash(self):                                               # Test retrieval by hash
         # Store data first
@@ -447,18 +467,21 @@ class test_Cache__Service(TestCase):                                            
 
             # Retrieve with different options
             result_full = _.retrieve_by_id(cache_id, self.test_namespace)
-            stored_at   = result_full.get('metadata').get(Safe_Id('stored_at'))
+            stored_at   = result_full.get('metadata').get('stored_at')
             assert result_full is not None
             assert type(result_full ) is dict
             assert type(stored_at   ) is int
-            assert result_full == {'data'    : self.test_data_json                                  ,
-                                   'metadata': {Safe_Id('cache_hash'      ): '1e2ff1555748f789'     ,
-                                                Safe_Id('cache_id'        ): cache_id               ,
-                                                Safe_Id('cache_key_data'  ): self.test_data_string  ,
-                                                Safe_Id('content_encoding'): None                   ,
-                                                Safe_Id('namespace'       ): self.test_namespace    ,
-                                                Safe_Id('stored_at'       ): stored_at              ,
-                                                Safe_Id('strategy'        ): 'temporal'             }}
+            assert result_full == { 'content_encoding': None                                         ,
+                                    'data'            : self.test_data_json                          ,
+                                    'data_type'       : 'json'                                       ,
+                                    'metadata'        : { 'cache_hash'      : '1e2ff1555748f789'      ,
+                                                          'cache_id'        : cache_id                ,
+                                                          'cache_key_data'  : self.test_data_string   ,
+                                                          'content_encoding': None                    ,
+                                                          'file_type'       : 'json'                  ,
+                                                          'namespace'       : self.test_namespace     ,
+                                                          'stored_at'       : stored_at               ,
+                                                          'strategy'        : 'temporal'              }}
 
 
     def test__multiple_namespaces_isolated(self):                                  # Test namespace isolation
@@ -610,5 +633,293 @@ class test_Cache__Service(TestCase):                                            
                     cache_hash     = cache_hash,
                     cache_id       = cache_id,
                     strategy       = "invalid_strategy",
-                    namespace      = self.test_namespace
-                )
+                    namespace      = self.test_namespace)
+
+
+
+    def test_store_and_retrieve_binary_data(self):                                      # Test binary data storage and retrieval
+        binary_data = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR' + b'\x00' * 100            # Create test binary data (fake PNG header)
+
+        with self.service as _:
+            cache_hash = _.hash_from_bytes(binary_data)
+            cache_id   = Random_Guid()
+            cache_id_path = f"{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}"
+            #cache_hash = '667eea27e9ab1776'
+            # Store binary data
+            response = _.store_with_strategy(cache_key_data = str(cache_hash)  ,        # Use hash as key for binary
+                                             storage_data   = binary_data      ,
+                                             cache_hash     = cache_hash       ,
+                                             cache_id       = cache_id         ,
+                                             strategy       = "direct"         ,
+                                             namespace      = self.test_namespace)
+            assert response.json()   == {'cache_id': cache_id,
+                                         'hash'    : cache_hash,
+                                         'paths': {'by_hash': [ 'refs/by-hash/66/7e/667eea27e9ab1776.json',
+                                                                'refs/by-hash/66/7e/667eea27e9ab1776.json.config',
+                                                                'refs/by-hash/66/7e/667eea27e9ab1776.json.metadata'],
+                                                   'by_id'  : [ f'refs/by-id/{cache_id_path}.json',
+                                                                f'refs/by-id/{cache_id_path}.json.config',
+                                                                f'refs/by-id/{cache_id_path}.json.metadata'],
+                                                   'data'   : [ f'data/direct/{cache_id_path}.bin',
+                                                                f'data/direct/{cache_id_path}.bin.config',
+                                                                f'data/direct/{cache_id_path}.bin.metadata']},
+                                         'size': 116}
+            assert response.cache_id == cache_id
+            assert response.hash     == cache_hash
+            assert response.size     > 100                                              # Binary data has size
+
+            # Retrieve and verify
+            result = _.retrieve_by_id(cache_id, self.test_namespace)
+
+            assert result is not None
+            assert result["data_type"]       == "binary"                                # Correctly identified as binary
+            assert result["data"]            == binary_data                             # Data preserved exactly
+            assert result["content_encoding"] is None                                   # No compression
+            assert type(result["data"])       is bytes                                   # Remains as bytes
+
+    def test_store_and_retrieve_compressed_binary(self):                                # Test compressed binary storage
+        # Create and compress test data
+        original_data   = b"This is test data that will be compressed" * 100            # Make it large enough to compress well
+        compressed_data = gzip.compress(original_data)
+
+        with self.service as _:
+            # Hash should be of the original data
+            cache_hash = _.hash_from_bytes(original_data)
+            cache_id   = Random_Guid()
+
+            # Store compressed data with encoding flag
+            response = _.store_with_strategy(cache_key_data   = str(cache_hash)        ,
+                                             storage_data     = compressed_data       ,
+                                             cache_hash       = cache_hash             ,
+                                             cache_id         = cache_id               ,
+                                             strategy         = "temporal"             ,
+                                             namespace        = self.test_namespace    ,
+                                             content_encoding = "gzip"                 )
+
+            assert response.cache_id == cache_id
+            assert response.size     < len(original_data)                               # Compressed size is smaller
+
+            # Retrieve - should auto-decompress
+            result    = _.retrieve_by_id(cache_id, self.test_namespace)
+            stored_at = result.get('metadata').get('stored_at')
+
+            assert result == {'content_encoding': 'gzip'                              ,
+                             'data'            : original_data                        ,  # Automatically decompressed
+                             'data_type'       : 'binary'                             ,
+                             'metadata'        : { 'cache_hash'      : str(cache_hash)  ,
+                                                   'cache_id'        : str(cache_id)    ,
+                                                   'cache_key_data'  : str(cache_hash)  ,
+                                                   'content_encoding': 'gzip'           ,
+                                                   'file_type'       : 'binary'         ,
+                                                   'namespace'       : 'test-namespace' ,
+                                                   'stored_at'       : stored_at        ,
+                                                   'strategy'        : 'temporal'       }}
+
+    def test_store_and_retrieve_compressed_json(self):                                                      # Test compressed JSON storage
+        json_data = {"users": [{"id": i, "name": f"User_{i}", "data": "x" * 100} for i in range(50)]}       # Create large JSON data
+        json_string     = json.dumps(json_data)
+        compressed_data = gzip.compress(json_string.encode())
+
+        with self.service as _:
+            cache_hash = _.hash_from_json(json_data)
+            cache_id   = Random_Guid()
+
+            # Store compressed JSON
+            response = _.store_with_strategy(cache_key_data   = str(cache_hash)        ,
+                                             storage_data     = compressed_data       ,
+                                             cache_hash       = cache_hash             ,
+                                             cache_id         = cache_id               ,
+                                             strategy         = "temporal_latest"      ,
+                                             namespace        = self.test_namespace    ,
+                                             content_encoding = "gzip"                 )
+
+            assert response.cache_id == cache_id
+
+            # Retrieve - should auto-decompress and parse as JSON
+            result = _.retrieve_by_id(cache_id, self.test_namespace)
+
+            assert result["content_encoding"] == "gzip"
+            assert result["data_type"]        == "json"                                 # Recognized as JSON after decompression
+            assert result["data"]             == json_data                              # Fully reconstructed JSON
+            assert type(result["data"])       is dict                                   # Parsed as dict
+            assert len(result["data"]["users"]) == 50                                   # All data preserved
+
+    def test_retrieve_with_data_type_detection(self):                                   # Test data type detection logic
+        test_cases = [
+            ("string_data", "test string", "string"),
+            ("json_data", {"key": "value", "num": 123}, "json"),
+            ("binary_data", b"\x00\x01\x02\x03", "binary"),
+            ("list_data", ["item1", "item2"], "json"),                                  # Lists are JSON
+        ]
+
+        for description, data, expected_type in test_cases:
+            with self.subTest(description):
+                cache_id = Random_Guid()
+
+                # Determine cache_hash based on data type
+                if isinstance(data, bytes):
+                    cache_hash = self.service.hash_from_bytes(data)
+                elif isinstance(data, str):
+                    cache_hash = self.service.hash_from_string(data)
+                else:
+                    cache_hash = self.service.hash_from_json(data)
+
+                with self.service as _:
+                    _.store_with_strategy(cache_key_data = str(cache_hash)             ,
+                                          storage_data   = data                         ,
+                                          cache_hash     = cache_hash                   ,
+                                          cache_id       = cache_id                     ,
+                                          strategy       = "direct"                     ,
+                                          namespace      = self.test_namespace          )
+
+                    result = _.retrieve_by_id(cache_id, self.test_namespace)
+
+                    assert result["data_type"] == expected_type
+                    assert result["data"]       == data
+
+    def test_retrieve_handles_missing_content_encoding(self):                          # Test backward compatibility
+        # Store data without content_encoding (simulating old data)
+        test_data  = "backward compatible data"
+        cache_hash = self.service.hash_from_string(test_data)
+        cache_id   = Random_Guid()
+
+        with self.service as _:
+            _.store_with_strategy(cache_key_data = test_data                          ,
+                                  storage_data   = test_data                          ,
+                                  cache_hash     = cache_hash                         ,
+                                  cache_id       = cache_id                           ,
+                                  strategy       = "temporal"                         ,
+                                  namespace      = self.test_namespace                )
+
+            # Retrieve should handle missing content_encoding gracefully
+            result = _.retrieve_by_id(cache_id, self.test_namespace)
+
+            assert result["content_encoding"] is None
+            assert result["data_type"]        == "string"
+            assert result["data"]             == test_data
+
+    def test_retrieve_by_hash_with_binary_data(self):                                  # Test hash retrieval with binary
+        binary_data = b"Binary test data for hash retrieval"
+
+        with self.service as _:
+            cache_hash = _.hash_from_bytes(binary_data)
+            cache_id   = Random_Guid()
+
+            # Store binary data
+            _.store_with_strategy(cache_key_data = str(cache_hash)                    ,
+                                  storage_data   = binary_data                        ,
+                                  cache_hash     = cache_hash                         ,
+                                  cache_id       = cache_id                           ,
+                                  strategy       = "temporal_latest"                  ,
+                                  namespace      = self.test_namespace                )
+
+            # Retrieve by hash
+            result = _.retrieve_by_hash(cache_hash, self.test_namespace)
+
+            assert result is not None
+            assert result["data_type"] == "binary"
+            assert result["data"]      == binary_data
+            assert type(result["data"]) is bytes
+
+    def test_multiple_versions_with_different_encodings(self):                         # Test versioning with mixed encodings
+        base_data = {"version": 1, "data": "test"}
+        cache_hash = self.service.hash_from_json(base_data)
+
+        with self.service as _:
+            # Store v1: uncompressed
+            cache_id_v1 = Random_Guid()
+            _.store_with_strategy(cache_key_data = json_to_str(base_data)             ,
+                                  storage_data   = base_data                          ,
+                                  cache_hash     = cache_hash                         ,
+                                  cache_id       = cache_id_v1                        ,
+                                  strategy       = "temporal_versioned"               ,
+                                  namespace      = self.test_namespace                )
+
+            # Store v2: compressed (same hash, different storage)
+            cache_id_v2     = Random_Guid()
+            compressed_data = gzip.compress(json_to_str(base_data).encode())
+            _.store_with_strategy(cache_key_data   = json_to_str(base_data)           ,
+                                  storage_data     = compressed_data                  ,
+                                  cache_hash       = cache_hash                       ,
+                                  cache_id         = cache_id_v2                      ,
+                                  strategy         = "temporal_versioned"             ,
+                                  namespace        = self.test_namespace              ,
+                                  content_encoding = "gzip"                           )
+
+            # Retrieve by hash should get latest (v2, compressed)
+            result_latest = _.retrieve_by_hash(cache_hash, self.test_namespace)
+            assert result_latest["data"]             == base_data
+            assert result_latest["content_encoding"] == "gzip"
+            assert result_latest["data_type"]        == "json"
+
+            # Direct retrieval of v1 (uncompressed)
+            result_v1 = _.retrieve_by_id(cache_id_v1, self.test_namespace)
+            assert result_v1["data"]             == base_data
+            assert result_v1["content_encoding"] is None
+            assert result_v1["data_type"]        == "json"
+
+
+    def test_binary_data_with_all_strategies(self):                                    # Test binary across all strategies
+        strategies = ["direct", "temporal", "temporal_latest", "temporal_versioned"]
+        binary_data = b"Test binary \x00\x01\x02 data"
+
+        for strategy in strategies:
+            with self.subTest(strategy=strategy):
+                cache_hash = self.service.hash_from_bytes(binary_data)
+                cache_id   = Random_Guid()
+                namespace  = Safe_Id(f"binary-{strategy}")
+
+                with self.service as _:
+                    # Store binary data with strategy
+                    response = _.store_with_strategy(cache_key_data = str(cache_hash) ,
+                                                     storage_data   = binary_data     ,
+                                                     cache_hash     = cache_hash      ,
+                                                     cache_id       = cache_id        ,
+                                                     strategy       = strategy        ,
+                                                     namespace      = namespace       )
+
+                    assert response.cache_id == cache_id
+
+                    # Retrieve and verify
+                    result = _.retrieve_by_id(cache_id, namespace)
+                    assert result["data"]      == binary_data
+                    assert result["data_type"] == "binary"
+
+                    # Clean up
+                    _.delete_by_id(cache_id, namespace)
+
+    def test_edge_cases_in_data_type_detection(self):                                  # Test edge cases for type detection
+        edge_cases = [("empty_string"   , "", "string"),
+                      ("empty_dict"     , {}, "json"),
+                      ("empty_list"     , [], "json"),
+                      ("null_bytes"     , b"\x00", "binary"),
+                      ("unicode_string" , "Hello 世界 🌍", "string"),
+                      ("nested_json"    , {"a": {"b": {"c": "d"}}}, "json"),
+                      ("large_binary"   , b"x" * 10000, "binary")]
+
+        for description, data, expected_type in edge_cases:
+            with self.subTest(description):
+                if isinstance(data, bytes):
+                    cache_hash = self.service.hash_from_bytes(data)
+                elif isinstance(data, str):
+                    cache_hash = self.service.hash_from_string(data)
+                else:
+                    cache_hash = self.service.hash_from_json(data)
+
+                cache_id = Random_Guid()
+
+                with self.service as _:
+                    _.store_with_strategy(cache_key_data = str(cache_hash)            ,
+                                         storage_data   = data                        ,
+                                         cache_hash     = cache_hash                  ,
+                                         cache_id       = cache_id                    ,
+                                         strategy       = "direct"                    ,
+                                         namespace      = self.test_namespace         )
+
+                    result = _.retrieve_by_id(cache_id, self.test_namespace)
+
+                    assert result["data_type"] == expected_type
+                    assert result["data"]       == data
+
+                    # Clean up
+                    _.delete_by_id(cache_id, self.test_namespace)

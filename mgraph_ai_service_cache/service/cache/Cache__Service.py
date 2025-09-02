@@ -1,10 +1,11 @@
+import gzip
+import json
 from typing                                                                        import Dict, Optional, Any, List, Literal
 from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json                                                        import json_to_str
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid             import Random_Guid
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id                 import Safe_Id
-from osbot_utils.utils.Misc import timestamp_now, list_set
+from osbot_utils.utils.Misc                                                        import timestamp_now, list_set
 from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                   import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Handler                          import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                     import Cache__Hash__Config
@@ -176,14 +177,23 @@ class Cache__Service(Type_Safe):                                                
         namespace = namespace or Safe_Id("default")
         handler   = self.get_or_create_handler(namespace)
         fs_data   = handler.get_fs_for_strategy(strategy)
-        all_paths = { "data": {}, "by_hash": {}, "by_id" : {}     }                                # todo: this should be an Type_Safe class
+        all_paths = { "data": [], "by_hash": [], "by_id" : []     }
 
-        if cache_key_data is dict:                                                  # if the cache_key_data is a dict
-            cache_key_data = json_to_str(cache_key_data)                            #    convert it to str
+        if isinstance(cache_key_data, dict):
+            cache_key_data = json_to_str(cache_key_data)
+
+        # Determine file type based on storage data
+        if isinstance(storage_data, bytes):
+            file_fs = fs_data.file__binary(Safe_Id(str(cache_id)))
+            file_type = "binary"
+        else:
+            file_fs = fs_data.file__json(Safe_Id(str(cache_id)))
+            file_type = "json"
 
         # Store actual data
-        with fs_data.file__json(Safe_Id(str(cache_id))) as file_fs:
-            all_paths['data'] = file_fs.create(storage_data)
+        with file_fs:
+            all_paths['data']  = file_fs.create(storage_data)
+            content_file_paths = file_fs.file_fs__paths().paths__content()          # get the file paths for the content files
 
             # Add metadata
             metadata = { "cache_hash"       : str(cache_hash)    ,
@@ -192,15 +202,15 @@ class Cache__Service(Type_Safe):                                                
                          "content_encoding" : content_encoding   ,
                          "stored_at"        : timestamp_now()    ,
                          "strategy"         : strategy           ,
-                         "namespace"        : str(namespace)     }
+                         "namespace"        : str(namespace)     ,
+                         "file_type"        : file_type          }
             file_fs.metadata__update(metadata)
             file_size = file_fs.metadata().content__size
 
-        # tood: move this update xrefs into different folder
         # Update hash->ID reference
         with handler.fs__refs_hash.file__json(Safe_Id(cache_hash)) as ref_fs:
             if ref_fs.exists():
-                refs = ref_fs.content() # todo: we should be using a Type_Safe class here
+                refs = ref_fs.content()
                 refs["cache_ids"     ].append({"id": str(cache_id), "timestamp": timestamp_now()})
                 refs["latest_id"     ] = str(cache_id)
                 refs["total_versions"] += 1
@@ -213,30 +223,31 @@ class Cache__Service(Type_Safe):                                                
                 paths__hash_to_id = ref_fs.create(file_data=refs)
             all_paths["by_hash"] = paths__hash_to_id
 
-
-        # Update ID->hash reference
+        # Update ID->hash reference WITH content path and file type
         with handler.fs__refs_id.file__json(Safe_Id(str(cache_id))) as ref_fs:
-            all_paths["by_id"] = ref_fs.paths()                                         # we need to calculate these or we would need todo an extra update call to capture these by_id files
-            paths__id_to_hash  =  ref_fs.create({ "all_paths"  : all_paths        ,
-                                                   "cache_id"   : str(cache_id)    ,
-                                                   "hash"       : str(cache_hash)  ,
-                                                   "namespace"  : str(namespace)   ,
-                                                   "strategy"   : strategy         ,
-                                                   "timestamp"  : timestamp_now()  })
+            all_paths["by_id"] = ref_fs.paths()
+            paths__id_to_hash  =  ref_fs.create({ "all_paths"        : all_paths          ,
+                                                   "cache_id"         : str(cache_id)     ,
+                                                   "hash"             : str(cache_hash)   ,
+                                                   "namespace"        : str(namespace)    ,
+                                                   "strategy"         : strategy          ,
+                                                   "content_paths"    : content_file_paths,
+                                                   "file_type"        : file_type         ,
+                                                   "timestamp"        : timestamp_now()   })
 
         return Schema__Cache__Store__Response(cache_id   = cache_id     ,
                                               hash       = cache_hash   ,
                                               paths      = all_paths    ,
                                               size       = file_size    )
 
-    def retrieve_by_hash(self, cache_hash : Safe_Str__Cache_Hash       ,                 # Retrieve latest by hash
-                              namespace   : Safe_Id = None
-                         ) -> Optional[Dict[str, Any]]:
+
+    def retrieve_by_hash(self, cache_hash : Safe_Str__Cache_Hash,
+                               namespace  : Safe_Id = None
+                          ) -> Optional[Dict[str, Any]]:                        # Retrieve latest by hash"""
         namespace = namespace or Safe_Id("default")
         handler   = self.get_or_create_handler(namespace)
 
-        # Get hash->ID mapping
-        with handler.fs__refs_hash.file__json(Safe_Id(cache_hash)) as ref_fs:
+        with handler.fs__refs_hash.file__json(Safe_Id(cache_hash)) as ref_fs:   # Get hash->ID mapping
             if not ref_fs.exists():
                 return None
             refs = ref_fs.content()
@@ -245,31 +256,93 @@ class Cache__Service(Type_Safe):                                                
         if not latest_id:
             return None
 
-        # Get data using cache ID
-        return self.retrieve_by_id(Random_Guid(latest_id), namespace)
+        return self.retrieve_by_id(Random_Guid(latest_id), namespace)           # Delegate to retrieve_by_id which handles the path lookup
 
-    def retrieve_by_id(self, cache_id : Random_Guid              ,                 # Retrieve by cache ID
+    def retrieve_by_id(self, cache_id : Random_Guid,
                             namespace : Safe_Id = None
                        ) -> Optional[Dict[str, Any]]:
+        """Retrieve by cache ID using direct path from reference"""
         namespace = namespace or Safe_Id("default")
         handler   = self.get_or_create_handler(namespace)
 
-        # Get ID->hash mapping to find strategy
-        with handler.fs__refs_id.file__json(Safe_Id(str(cache_id))) as ref_fs:
+        # Get ID reference with content path
+        with handler.fs__refs_id.file__json(Safe_Id(cache_id)) as ref_fs:
             if not ref_fs.exists():
                 return None
-            ref_data = ref_fs.content()                         # todo: review the use of this variable since it not currently being used at the moment
+            ref_data = ref_fs.content()
 
-        # Try each strategy to find the data
-        for strategy in ["direct", "temporal", "temporal_latest", "temporal_versioned"]:
-            fs_data = handler.get_fs_for_strategy(strategy)
-            with fs_data.file__json(Safe_Id(str(cache_id))) as file_fs:
-                if file_fs.exists():
-                    data     = file_fs.content()
-                    metadata = file_fs.metadata()
-                    return {"data": data, "metadata": metadata.data if metadata else {}}
+        content_paths = ref_data.get("content_paths", [])
+        file_type     = ref_data.get("file_type", "json")
+
+        if not content_paths:
+            return None
+
+        # Get the storage backend
+        storage = handler.fs__refs_id.storage_fs
+
+        # Read the content file directly (first path is the main content)
+        content_path = content_paths[0] if content_paths else None
+
+        if content_path and storage.file__exists(content_path):
+            if file_type == "binary":
+                data = storage.file__bytes(content_path)
+            else:
+                data = storage.file__json(content_path)
+
+            # Read metadata
+            metadata_path = content_path + '.metadata'              # todo: review this usage since we should have a much better way to do this using Memory_FS
+            metadata_data = {}
+
+            if storage.file__exists(metadata_path):
+                metadata_raw = storage.file__json(metadata_path)
+                # Convert metadata keys to Safe_Id for consistency
+                metadata_data = metadata_raw.get('data')            # todo: use native Memory_FS methods here (and we should be using a Type_Safe class here)
+
+            # Get content encoding from metadata
+            content_encoding = metadata_data.get('content_encoding')
+
+            # Handle decompression if needed
+            if content_encoding == 'gzip' and isinstance(data, bytes):
+                data = gzip.decompress(data)
+                # After decompression, determine if it's JSON or remains binary
+                try:                                            # todo: we should know this from the metadata/config
+                    data = json.loads(data.decode('utf-8'))
+                    data_type = "json"
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    data_type = "binary"
+            else:
+                data_type = self._determine_data_type(data)
+
+            return {
+                "data": data,
+                "metadata": metadata_data,
+                "data_type": data_type,
+                "content_encoding": content_encoding
+            }
 
         return None
+
+    def _is_binary_data(self, metadata) -> bool:
+        """Check if stored data is binary based on metadata"""
+        if not metadata:
+            return False
+
+        # Check for content encoding or binary indicators
+        content_encoding = metadata.data.get(Safe_Id('content_encoding'))
+        if content_encoding:
+            return True
+
+        # Could add more checks here based on content_type if we store it
+        return False
+
+    def _determine_data_type(self, data) -> str:
+        """Determine the type of data (string, json, binary)"""
+        if isinstance(data, bytes):
+            return "binary"
+        elif isinstance(data, dict) or isinstance(data, list):
+            return "json"
+        else:
+            return "string"
 
     def hash_from_string(self, data: str) -> Safe_Str__Cache_Hash:                       # Calculate hash from string
         return self.hash_generator.from_string(data)
