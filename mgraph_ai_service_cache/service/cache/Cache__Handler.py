@@ -3,7 +3,7 @@ from memory_fs.Memory_FS                                                        
 from memory_fs.helpers.Memory_FS__Temporal                                        import Memory_FS__Temporal
 from memory_fs.helpers.Memory_FS__Latest_Temporal                                 import Memory_FS__Latest_Temporal
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path    import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
 from mgraph_ai_service_cache.service.storage.Storage_FS__S3                       import Storage_FS__S3
 from mgraph_ai_service_cache.service.storage.Path__Handler__Hash_Sharded          import Path__Handler__Hash_Sharded
 

@@ -5,7 +5,7 @@ from unittest                                                                   
 from memory_fs.path_handlers.Path__Handler__Temporal                                import Path__Handler__Temporal
 from osbot_aws.testing.Temp__Random__AWS_Credentials                                import OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID, OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
 from osbot_aws.AWS_Config                                                           import aws_config
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid              import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.utils.Env                                                          import in_github_action
 from osbot_utils.utils.Misc                                                         import is_guid
 from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                    import Safe_Str__Cache_Hash
@@ -281,7 +281,7 @@ class test_Routes__Cache__client(TestCase):                                     
         if in_github_action():
             assert delete_result['deleted_count'] == 9
         else:
-            assert delete_result['deleted_count'] == 6                      # todo: figure out why this is 6 instead of 9, the refs/by-cache/ are not being deleted
+            assert delete_result['deleted_count'] == 9                      # todo: figure out why this is 6 instead of 9, the refs/by-cache/ are not being deleted
         # from osbot_utils.utils.Dev import pprint
         # pprint(delete_result)
 

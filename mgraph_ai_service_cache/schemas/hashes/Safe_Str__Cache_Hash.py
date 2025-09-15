@@ -1,6 +1,6 @@
 import re
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str                   import Safe_Str
-from osbot_utils.type_safe.primitives.safe_str.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
+from osbot_utils.type_safe.primitives.core.Safe_Str                         import Safe_Str
+from osbot_utils.type_safe.primitives.core.enums.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
 
 class Safe_Str__Cache_Hash(Safe_Str):               # Variable-length cache hash (10-96 chars)
     regex             = re.compile(r'^[a-f0-9]{10,96}$')

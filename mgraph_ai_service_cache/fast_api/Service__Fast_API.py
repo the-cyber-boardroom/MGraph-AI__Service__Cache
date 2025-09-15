@@ -28,6 +28,7 @@ class Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__Info      )
         self.add_routes(Routes__Set_Cookie)
         self.add_routes(Routes__Cache     )
+        self.add_routes(Routes__Cache     )
 
     def setup_middlewares(self):
         super().setup_middlewares()

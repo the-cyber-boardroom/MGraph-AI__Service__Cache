@@ -6,10 +6,10 @@ from memory_fs.path_handlers.Path__Handler__Temporal                            
 from osbot_aws.testing.Temp__Random__AWS_Credentials                                import OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID, OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
 from osbot_aws.utils.AWS_Sanitization                                               import str_to_valid_s3_bucket_name
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path      import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid              import Random_Guid
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id                  import Safe_Id
-from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text                  import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text        import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
 from osbot_utils.utils.Json                                                         import json_to_str
 from osbot_utils.utils.Misc                                                         import random_string_short, str_to_base64
@@ -44,7 +44,7 @@ class test_Cache__Service(TestCase):                                            
         cls.test_data_string     = "test cache data"
         cls.test_data_json       = {"key": "value", "number": 123, "nested": {"inner": "data"}}
         cls.test_data__base_64   = str_to_base64(json_to_str(cls.test_data_json))
-        cls.test_metadata        = {Safe_Id("author"): Safe_Str__Text("test-user"),
+        cls.test_metadata        = {Safe_Id("author" ): Safe_Str__Text("test-user"),
                                     Safe_Id("version"): Safe_Str__Text("1.0")}
         cls.test_tags            = [Safe_Id("test"), Safe_Id("cache")]
         cls.path_now             = Path__Handler__Temporal().path_now()                      # get the current temporal path from the handler

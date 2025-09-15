@@ -3,8 +3,8 @@ from unittest                                                                   
 from osbot_utils.type_safe.Type_Safe import Type_Safe
 from osbot_utils.utils.Objects                                                  import base_classes, __
 from memory_fs.path_handlers.Path__Handler                                      import Path__Handler
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path  import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id              import Safe_Id
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path  import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id              import Safe_Id
 from mgraph_ai_service_cache.service.storage.Path__Handler__Hash_Sharded        import Path__Handler__Hash_Sharded
 
 class test_Path__Handler__Hash_Sharded(TestCase):

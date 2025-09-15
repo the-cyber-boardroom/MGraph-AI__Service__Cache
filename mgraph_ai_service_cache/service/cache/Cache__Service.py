@@ -3,8 +3,8 @@ import json
 from typing                                                                        import Dict, Optional, Any, List, Literal
 from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
 from osbot_utils.utils.Json                                                        import json_to_str
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid             import Random_Guid
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id                 import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid             import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                 import Safe_Id
 from osbot_utils.utils.Misc                                                        import timestamp_now, list_set
 from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                   import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Handler                          import Cache__Handler
