@@ -62,7 +62,8 @@ class test_Routes__Cache(TestCase):
     def test_store__string__strategy__namespace(self):                                                    # Test string storage endpoint
         target_string           = "a different string"
         self.request.state.body = target_string.encode()
-        response__store         = self.routes.store__string__strategy__namespace(request   = self.request       ,
+        response__store         = self.routes.store__string__strategy__namespace(#request   = self.request       ,
+                                                                                 data = target_string ,
                                                                                  strategy  = "temporal"         ,
                                                                                  namespace = self.test_namespace)
         with response__store as _:
@@ -124,9 +125,9 @@ class test_Routes__Cache(TestCase):
 
     def test_store__json__strategy__namespace(self):                                                      # Test JSON storage endpoint
         self.request.state.body = json_to_str(self.test_json).encode()
-        response__store = self.routes.store__json__strategy__namespace(request   = self.request       ,
-                                                      strategy  = "temporal"         ,
-                                                      namespace = self.test_namespace)
+        response__store = self.routes.store__json__strategy__namespace(data = self.test_json          ,  #request   = self.request       ,
+                                                                       strategy  = "temporal"         ,
+                                                                       namespace = self.test_namespace)
         with response__store  as _:
             cache_id = _.cache_id
             assert type(_)          is Schema__Cache__Store__Response
@@ -147,9 +148,9 @@ class test_Routes__Cache(TestCase):
 
     def test_retrieve__by_hash__cache_hash__namespace(self):                                                # Test retrieval by hash
         with self.routes as _:
-            self.request.state.body = self.test_string.encode()
-            response__store          = _.store__string__strategy__namespace(self.request, namespace=self.test_namespace)      # Store first
-            response__retrieve       = _.retrieve__by_hash__cache_hash__namespace(response__store.hash, self.test_namespace)       # Retrieve
+            #self.request.state.body = self.test_string.encode()
+            response__store          = _.store__string__strategy__namespace      (data= self.test_string, namespace=self.test_namespace)      # Store first
+            response__retrieve       = _.retrieve__by_hash__cache_hash__namespace(response__store.hash  , self.test_namespace)       # Retrieve
 
             assert response__retrieve is not None
             assert "data" in response__retrieve
@@ -163,8 +164,8 @@ class test_Routes__Cache(TestCase):
 
     def test_retrieve__by_id__cache_id__namespace(self):                                                  # Test retrieval by cache ID
         with self.routes as _:
-            self.request.state.body = self.test_string.encode()
-            store_response = _.store__string__strategy__namespace(self.request, namespace=self.test_namespace)             # Store first
+            #self.request.state.body = self.test_string.encode()
+            store_response = _.store__string__strategy__namespace(data=self.test_string, namespace=self.test_namespace)             # Store first
 
             # Retrieve
             result = _.retrieve__by_id__cache_id__namespace(store_response.cache_id, self.test_namespace)
@@ -195,8 +196,8 @@ class test_Routes__Cache(TestCase):
 
     def test_exists__cache_hash__namespace(self):                                                          # Test existence check
         with self.routes as _:
-            self.request.state.body = self.test_string.encode()
-            store_response = _.store__string__strategy__namespace(self.request, namespace=self.test_namespace)      # Store data
+            #self.request.state.body = self.test_string.encode()
+            store_response = _.store__string__strategy__namespace(data = self.test_string, namespace=self.test_namespace)      # Store data
 
             result = _.exists__cache_hash__namespace(store_response.hash, self.test_namespace)                                 # Check exists
             assert result == {"exists": True, "hash": str(store_response.hash)}
@@ -207,9 +208,9 @@ class test_Routes__Cache(TestCase):
 
     def test_namespaces(self):                                                      # Test namespace listing
         with self.routes as _:
-            self.request.state.body = self.test_string.encode()
-            _.store__string__strategy__namespace(self.request, namespace=Safe_Id("ns1"))                       # Create some namespaces
-            _.store__string__strategy__namespace(self.request, namespace=Safe_Id("ns2"))
+            #self.request.state.body = self.test_string.encode()
+            _.store__string__strategy__namespace(data=self.test_string, namespace=Safe_Id("ns1"))                       # Create some namespaces
+            _.store__string__strategy__namespace(data=self.test_string, namespace=Safe_Id("ns2"))
 
             result = _.namespaces()
 
@@ -218,11 +219,11 @@ class test_Routes__Cache(TestCase):
             assert result["count"] >= 2
 
     def test_stats(self):                                                           # Test statistics endpoint
-        self.request.state.body = self.test_string.encode()
+        #self.request.state.body = self.test_string.encode()
         with self.routes as _:
             # Store some data
             for i in range(3):
-                _.store__string__strategy__namespace(self.request, namespace=self.test_namespace)
+                _.store__string__strategy__namespace(data=self.test_string, namespace=self.test_namespace)
 
             result = _.stats__namespaces__namespace(self.test_namespace)
 
@@ -236,13 +237,14 @@ class test_Routes__Cache(TestCase):
     def test_store_and_retrieve_binary_via_routes(self):                                # Test binary through route endpoints
         # Create test binary data
         binary_data = b'\x89PNG\r\n\x1a\n' + b'\x00' * 100                            # Fake PNG header
-        self.request.state.body = binary_data
+        #self.request.state.body = binary_data
 
         with self.routes as _:
             # Store binary
-            response_store = _.store__binary__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "direct"            ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__binary__strategy__namespace(body      = binary_data         ,
+                                                                  request   = self.request        ,
+                                                                  strategy  = "direct"            ,
+                                                                  namespace = self.test_namespace )
 
             cache_id   = response_store.cache_id
             cache_hash = response_store.hash
@@ -270,9 +272,9 @@ class test_Routes__Cache(TestCase):
 
         with self.routes as _:
             # Store string
-            response_store = _.store__string__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "temporal"          ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__string__strategy__namespace(data      = test_string         , #request   = self.request       ,
+                                                                  strategy  = "temporal"          ,
+                                                                  namespace = self.test_namespace )
             cache_id = response_store.cache_id
 
             # Retrieve as string
@@ -288,9 +290,9 @@ class test_Routes__Cache(TestCase):
 
         with self.routes as _:
             # Store JSON
-            response_store = _.store__json__strategy__namespace(request   = self.request       ,
-                                                               strategy  = "temporal"          ,
-                                                               namespace = self.test_namespace )
+            response_store = _.store__json__strategy__namespace(data      = test_json           ,  # request   = self.request       ,
+                                                                strategy  = "temporal"          ,
+                                                                namespace = self.test_namespace )
             cache_id = response_store.cache_id
 
             # Retrieve as JSON
@@ -305,9 +307,9 @@ class test_Routes__Cache(TestCase):
 
         with self.routes as _:
             # Store JSON
-            response_store = _.store__json__strategy__namespace(request   = self.request       ,
-                                                               strategy  = "direct"             ,
-                                                               namespace = self.test_namespace )
+            response_store = _.store__json__strategy__namespace(data      = test_data            , #request   = self.request       ,
+                                                                strategy  = "direct"             ,
+                                                                namespace = self.test_namespace )
             cache_hash = response_store.hash
 
             # Retrieve as JSON by hash
@@ -331,9 +333,9 @@ class test_Routes__Cache(TestCase):
         self.request.state.body = test_string.encode()
 
         with self.routes as _:
-            response_store = _.store__string__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "direct"            ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__string__strategy__namespace(data      = test_string         , #request   = self.request       ,
+                                                                  strategy  = "direct"            ,
+                                                                  namespace = self.test_namespace )
             cache_id = response_store.cache_id
 
             # Retrieve as string (native type)
@@ -382,11 +384,12 @@ class test_Routes__Cache(TestCase):
         with self.routes as _:
             # Store binary that looks like text
             text_like_binary = b"This looks like text but is binary"
-            self.request.state.body = text_like_binary
+            #self.request.state.body = text_like_binary
 
-            response_store = _.store__binary__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "direct"            ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__binary__strategy__namespace(request   = self.request        ,
+                                                                  body      = text_like_binary    ,
+                                                                  strategy  = "direct"            ,
+                                                                  namespace = self.test_namespace )
             cache_id = response_store.cache_id
 
             # Should not be able to retrieve it directly
@@ -401,12 +404,13 @@ class test_Routes__Cache(TestCase):
     def test_binary_base64_fallback_for_non_utf8(self):                                 # Test base64 encoding for non-UTF8 binary
         # Binary data that can't be decoded as UTF-8
         non_utf8_binary = b'\xff\xfe\x00\x01\x02\x03'
-        self.request.state.body = non_utf8_binary
+        #self.request.state.body = non_utf8_binary
 
         with self.routes as _:
-            response_store = _.store__binary__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "direct"            ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__binary__strategy__namespace(request  = self.request         ,
+                                                                  body     = non_utf8_binary      , # request   = self.request       ,
+                                                                  strategy  = "direct"            ,
+                                                                  namespace = self.test_namespace )
             cache_id = response_store.cache_id
 
             # Retrieve as string should fallback to base64
@@ -428,13 +432,14 @@ class test_Routes__Cache(TestCase):
         self.request    = Request(scope={ "type": "http",
                                           "method": "POST",
                                           "headers": [  (b"content-encoding", b"gzip")]})
-        self.request.state.body = compressed_data
+        #self.request.state.body = compressed_data
 
         with self.routes as _:
             # Store compressed binary
-            response_store = _.store__binary__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "temporal"          ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__binary__strategy__namespace(request   = self.request        ,
+                                                                  body      = compressed_data     ,
+                                                                  strategy  = "temporal"          ,
+                                                                  namespace = self.test_namespace )
 
             cache_id = response_store.cache_id
 
@@ -458,13 +463,14 @@ class test_Routes__Cache(TestCase):
         self.request    = Request(scope={ "type": "http",
                                           "method": "POST",
                                           "headers": [  (b"content-encoding", b"gzip")]})
-        self.request.state.body = compressed_data
+        #self.request.state.body = compressed_data
 
         with self.routes as _:
             # Store as compressed binary
-            response_store = _.store__binary__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "temporal_latest"   ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__binary__strategy__namespace(request   = self.request        ,
+                                                                  body      = compressed_data     ,
+                                                                  strategy  = "temporal_latest"   ,
+                                                                  namespace = self.test_namespace )
             cache_id = response_store.cache_id
 
             # Generic retrieve should detect JSON after decompression
@@ -493,9 +499,9 @@ class test_Routes__Cache(TestCase):
         self.request.state.body = test_data.encode()
 
         with self.routes as _:
-            response_store = _.store__string__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "direct"            ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__string__strategy__namespace(data      = test_data           , # request   = self.request       ,
+                                                                  strategy  = "direct"            ,
+                                                                  namespace = self.test_namespace )
             cache_id = response_store.cache_id
 
             # Verify it exists
@@ -536,13 +542,14 @@ class test_Routes__Cache(TestCase):
 
     def test_retrieve__binary__by_hash__cache_hash__namespace(self):                        # Test binary retrieval by hash
         binary_data = b'\x01\x02\x03\x04\x05'
-        self.request.state.body = binary_data
+        #self.request.state.body = binary_data
 
         with self.routes as _:
             # Store binary
-            response_store = _.store__binary__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "direct"            ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__binary__strategy__namespace(request   = self.request        ,
+                                                                  body      = binary_data         ,
+                                                                  strategy  = "direct"            ,
+                                                                  namespace = self.test_namespace )
             cache_hash = response_store.hash
 
             # Retrieve as binary by hash
@@ -567,9 +574,10 @@ class test_Routes__Cache(TestCase):
         self.request.state.body = binary_data
 
         with self.routes as _:
-            response = _.store__binary__strategy__namespace(request   = self.request       ,
-                                                           strategy  = "temporal_versioned",
-                                                           namespace = self.test_namespace  )
+            response = _.store__binary__strategy__namespace(request   = self.request        ,
+                                                            body      = binary_data         ,
+                                                            strategy  = "temporal_versioned",
+                                                            namespace = self.test_namespace )
 
             assert type(response)          is Schema__Cache__Store__Response
             assert type(response.cache_id) is Random_Guid
@@ -583,13 +591,13 @@ class test_Routes__Cache(TestCase):
 
     def test_retrieve__string__by_hash__cache_hash__namespace__json_data(self):             # Test string retrieval of JSON data by hash
         test_json = {"key": "value"}
-        self.request.state.body = json_to_str(test_json).encode()
+        #self.request.state.body = json_to_str(test_json).encode()
 
         with self.routes as _:
             # Store JSON
-            response_store = _.store__json__strategy__namespace(request   = self.request       ,
-                                                               strategy  = "direct"             ,
-                                                               namespace = self.test_namespace )
+            response_store = _.store__json__strategy__namespace(data      = test_json            ,
+                                                                strategy  = "direct"             ,
+                                                                namespace = self.test_namespace )
             cache_hash = response_store.hash
 
             # Retrieve as string by hash (should stringify JSON)
@@ -605,9 +613,9 @@ class test_Routes__Cache(TestCase):
 
         with self.routes as _:
             # Store string that is valid JSON
-            response_store = _.store__string__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "direct"            ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__string__strategy__namespace(data      = test_string         , #request   = self.request       ,
+                                                                  strategy  = "direct"            ,
+                                                                  namespace = self.test_namespace )
             cache_hash = response_store.hash
 
             # Retrieve as JSON by hash (should parse string as JSON)
@@ -641,13 +649,13 @@ class test_Routes__Cache(TestCase):
 
         for strategy in strategies:
             with self.subTest(strategy=strategy):
-                self.request.state.body = test_data.encode()
+                #self.request.state.body = test_data.encode()
 
                 with self.routes as _:
                     # Store with strategy
-                    response = _.store__string__strategy__namespace(request   = self.request              ,
-                                                                   strategy  = strategy                   ,
-                                                                   namespace = Safe_Id(f"strat-{strategy}"))
+                    response = _.store__string__strategy__namespace(data      = test_data                  , #  request   = self.request              ,
+                                                                    strategy  = strategy                   ,
+                                                                    namespace = Safe_Id(f"strat-{strategy}"))
 
                     assert type(response.cache_id) is Random_Guid
 
@@ -660,13 +668,14 @@ class test_Routes__Cache(TestCase):
     def test_binary_to_string_conversion(self):                                             # Test binary data retrieved as string
         # UTF-8 decodable binary
         utf8_binary = "Hello World 🌍".encode('utf-8')
-        self.request.state.body = utf8_binary
+        #self.request.state.body = utf8_binary
 
         with self.routes as _:
             # Store as binary
-            response_store = _.store__binary__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "direct"            ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__binary__strategy__namespace(request   = self.request        ,
+                                                                  body      = utf8_binary         ,
+                                                                  strategy  = "direct"            ,
+                                                                  namespace = self.test_namespace )
             cache_id = response_store.cache_id
 
             # Retrieve as string - should decode UTF-8
@@ -681,9 +690,9 @@ class test_Routes__Cache(TestCase):
 
         with self.routes as _:
             # Store as JSON
-            response_store = _.store__json__strategy__namespace(request   = self.request       ,
-                                                               strategy  = "direct"             ,
-                                                               namespace = self.test_namespace )
+            response_store = _.store__json__strategy__namespace(data      =  test_json          ,
+                                                                strategy  = "direct"            ,
+                                                                namespace = self.test_namespace )
             cache_id = response_store.cache_id
 
             # Retrieve as binary - should convert JSON to bytes
@@ -699,9 +708,9 @@ class test_Routes__Cache(TestCase):
 
         with self.routes as _:
             # Store without namespace (should use "default")
-            response_store = _.store__string__strategy__namespace(request   = self.request,
-                                                                 strategy  = "direct"      ,
-                                                                 namespace = None          )
+            response_store = _.store__string__strategy__namespace(data      = test_data ,
+                                                                  strategy  = "direct"  ,
+                                                                  namespace = None      )
             cache_id = response_store.cache_id
 
             # Retrieve without namespace (should use "default")
@@ -721,13 +730,14 @@ class test_Routes__Cache(TestCase):
 
     def test_retrieve_binary_data_via_json_endpoint(self):                                  # Test that binary data redirects in JSON endpoint
         binary_data = b'\x00\x01\x02\x03'
-        self.request.state.body = binary_data
+        #self.request.state.body = binary_data
 
         with self.routes as _:
             # Store binary
-            response_store = _.store__binary__strategy__namespace(request   = self.request       ,
-                                                                 strategy  = "direct"            ,
-                                                                 namespace = self.test_namespace )
+            response_store = _.store__binary__strategy__namespace(request  = self.request         ,
+                                                                  body      = binary_data         ,
+                                                                  strategy  = "direct"            ,
+                                                                  namespace = self.test_namespace )
             cache_id   = response_store.cache_id
             cache_hash = response_store.hash
 

@@ -6,6 +6,7 @@ from memory_fs.path_handlers.Path__Handler__Temporal                            
 from osbot_aws.testing.Temp__Random__AWS_Credentials                                import OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID, OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
 from osbot_aws.AWS_Config                                                           import aws_config
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Env                                                          import in_github_action
 from osbot_utils.utils.Misc                                                         import is_guid
 from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                    import Safe_Str__Cache_Hash
@@ -535,9 +536,9 @@ class test_Routes__Cache__client(TestCase):                                     
     def test__cache__cross_type_retrieval(self):                                        # Test retrieving data as different types
         # Store string that is valid JSON
         valid_json_string = '{"valid": "json"}'
-        response_store = self.client.post(f'/cache/store/string/direct/{self.test_namespace}',
-                                         content = valid_json_string                          ,
-                                         headers = {"Content-Type": "text/plain"}             )
+        response_store    = self.client.post(f'/cache/store/string/direct/{self.test_namespace}',
+                                             content = valid_json_string                        ,
+                                             headers = {"Content-Type": "text/plain"}           )
 
         assert response_store.status_code == 200
         cache_id = response_store.json()['cache_id']

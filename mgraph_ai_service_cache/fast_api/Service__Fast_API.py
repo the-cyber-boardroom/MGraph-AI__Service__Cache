@@ -1,9 +1,9 @@
 from osbot_fast_api.api.routes.Routes__Set_Cookie               import Routes__Set_Cookie
 from osbot_fast_api_serverless.fast_api.Serverless__Fast_API    import Serverless__Fast_API
-
 from mgraph_ai_service_cache.config                             import FAST_API__TITLE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Cache      import Routes__Cache
 from mgraph_ai_service_cache.fast_api.routes.Routes__Info       import Routes__Info
+from mgraph_ai_service_cache.fast_api.routes.Routes__Store      import Routes__Store
 from mgraph_ai_service_cache.utils.Version                      import version__mgraph_ai_service_cache
 
 
@@ -25,9 +25,9 @@ class Service__Fast_API(Serverless__Fast_API):
         return self
 
     def setup_routes(self):
+        self.add_routes(Routes__Store     )
         self.add_routes(Routes__Info      )
         self.add_routes(Routes__Set_Cookie)
-        self.add_routes(Routes__Cache     )
         self.add_routes(Routes__Cache     )
 
     def setup_middlewares(self):

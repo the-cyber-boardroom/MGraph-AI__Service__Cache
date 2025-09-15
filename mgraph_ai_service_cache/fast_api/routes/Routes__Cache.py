@@ -1,7 +1,7 @@
 import base64
 import json
 from typing                                                                        import Dict, Any, Literal
-from fastapi                                                                       import Request, Response
+from fastapi import Request, Response, Body
 from osbot_fast_api.api.routes.Fast_API__Routes                                    import Fast_API__Routes
 from osbot_utils.utils.Json                                                        import str_to_json
 from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                   import Safe_Str__Cache_Hash
@@ -36,12 +36,13 @@ class Routes__Cache(Fast_API__Routes):                                          
                                                  namespace: Safe_Id = None) -> Dict[str, Any]:
         return self.cache_service.delete_by_id(cache_id, namespace)
 
-    def store__string__strategy__namespace(self, request   : Request,
+    def store__string__strategy__namespace(self, #request   : Request,
+                                                 data: str = Body(...)      ,
                                                  strategy  : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
                                                  namespace : Safe_Id = None
                                             ) -> Schema__Cache__Store__Response:
-        data = request.state.body.decode()
 
+        #data = request.state.body.decode()
         cache_hash = self.cache_service.hash_from_string(data)
         cache_id   = Random_Guid()
 
@@ -52,15 +53,15 @@ class Routes__Cache(Fast_API__Routes):                                          
                                                       strategy       = strategy  ,
                                                       namespace      = namespace )
 
-    def store__json__strategy__namespace(self, request   : Request,
-                                               #exclude_fields  : List[str] = None                         ,
+    def store__json__strategy__namespace(self, data            : dict                                                                               ,
                                                strategy        : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
                                                namespace       : Safe_Id = None
                    ) -> Schema__Cache__Store__Response:
         #exclude_fields = []
         # Calculate hash from filtered JSON
         #cache_key_json = {k: v for k, v in data.items() if k not in (exclude_fields or [])}
-        data           = str_to_json(request.state.body.decode())
+        #data           = str_to_json(request.state.body.decode())
+        #data           = str_to_json(data)
         cache_hash     = self.cache_service.hash_from_json(data)
         cache_id       = Random_Guid()
 
@@ -73,11 +74,12 @@ class Routes__Cache(Fast_API__Routes):                                          
                                                       namespace      = namespace    )
 
 
-    def store__binary__strategy__namespace(self, request: Request,
-                                                 strategy: Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
+    def store__binary__strategy__namespace(self, request  : Request                                                  , # todo: see if we really need this (since this is mainly used to handle gzip )
+                                                 body     : bytes = Body(..., media_type="application/octet-stream") ,
+                                                 strategy : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
                                                  namespace: Safe_Id = None
                                          ) -> Schema__Cache__Store__Response:               # Store raw binary data with hash calculation
-        body = request.state.body
+        #body = request.state.body
 
         # Check if compressed
         content_encoding = request.headers.get('content-encoding')
