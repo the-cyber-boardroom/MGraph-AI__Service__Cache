@@ -1,21 +1,22 @@
-from typing                                                                        import Literal
-from fastapi                                                                       import Request, Body
-from osbot_fast_api.api.routes.Fast_API__Routes                                    import Fast_API__Routes
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                         import Safe_Str__Fast_API__Route__Tag
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid              import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                  import Safe_Id
-from mgraph_ai_service_cache.service.cache.Cache__Service                          import Cache__Service
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response          import Schema__Cache__Store__Response
+from typing                                                                import Literal
+from fastapi                                                               import Request, Body
+from osbot_fast_api.api.routes.Fast_API__Routes                            import Fast_API__Routes
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix              import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                 import Safe_Str__Fast_API__Route__Tag
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid      import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id          import Safe_Id
+from mgraph_ai_service_cache.service.cache.Cache__Service                  import Cache__Service
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response  import Schema__Cache__Store__Response
 
 TAG__ROUTES_STORE                  = 'store'
 PREFIX__ROUTES_STORE               = '/{namespace}/{strategy}'
-ROUTES_PATHS__STORE                = [ f'{PREFIX__ROUTES_STORE}' + '/store/binary' ,
-                                       f'{PREFIX__ROUTES_STORE}' + '/store/json'   ,
-                                       f'{PREFIX__ROUTES_STORE}' + '/store/string' ]
+ROUTES_PATHS__STORE                = [ f'{PREFIX__ROUTES_STORE}/{TAG__ROUTES_STORE}/' + 'binary' ,
+                                       f'{PREFIX__ROUTES_STORE}/{TAG__ROUTES_STORE}/' + 'json'   ,
+                                       f'{PREFIX__ROUTES_STORE}/{TAG__ROUTES_STORE}/' + 'string' ]
 
 class Routes__Store(Fast_API__Routes):                                             # FastAPI routes for cache operations
     tag           : Safe_Str__Fast_API__Route__Tag  = TAG__ROUTES_STORE
-    prefix        : Safe_Str__Fast_API__Route__Tag  = PREFIX__ROUTES_STORE
+    prefix        : Safe_Str__Fast_API__Route__Prefix  = PREFIX__ROUTES_STORE
     cache_service : Cache__Service
 
     def store__string(self, data      : str = Body(...)                                                                    ,
@@ -50,10 +51,10 @@ class Routes__Store(Fast_API__Routes):                                          
 
 
     def store__binary(self, request  : Request                                                    ,
-                                            body     : bytes = Body(..., media_type="application/octet-stream")   ,
-                                            strategy: Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
-                                            namespace: Safe_Id = None
-                                       ) -> Schema__Cache__Store__Response:               # Store raw binary data with hash calculation
+                            body     : bytes = Body(..., media_type="application/octet-stream")   ,
+                            strategy: Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
+                            namespace: Safe_Id = None
+                       ) -> Schema__Cache__Store__Response:               # Store raw binary data with hash calculation
         # Check if compressed
         content_encoding = request.headers.get('content-encoding')
         if content_encoding == 'gzip':

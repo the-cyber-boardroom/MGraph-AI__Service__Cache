@@ -1,16 +1,16 @@
 import gzip
 import json
-from typing                                                                        import Dict, Optional, Any, List, Literal
-from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
-from osbot_utils.utils.Json                                                        import json_to_str
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid             import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                 import Safe_Id
-from osbot_utils.utils.Misc                                                        import timestamp_now, list_set
-from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                   import Safe_Str__Cache_Hash
-from mgraph_ai_service_cache.service.cache.Cache__Handler                          import Cache__Handler
-from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                     import Cache__Hash__Config
-from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator                  import Cache__Hash__Generator
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response          import Schema__Cache__Store__Response
+from typing                                                                 import Dict, Optional, Any, List, Literal
+from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
+from osbot_utils.utils.Json                                                 import json_to_str
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid       import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id           import Safe_Id
+from osbot_utils.utils.Misc                                                 import timestamp_now, list_set
+from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash            import Safe_Str__Cache_Hash
+from mgraph_ai_service_cache.service.cache.Cache__Handler                   import Cache__Handler
+from mgraph_ai_service_cache.service.cache.Cache__Hash__Config              import Cache__Hash__Config
+from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator           import Cache__Hash__Generator
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response   import Schema__Cache__Store__Response
 
 DEFAULT__CACHE__SERVICE__BUCKET_NAME        = "mgraph-ai-cache"
 DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS  = 24
@@ -259,9 +259,8 @@ class Cache__Service(Type_Safe):                                                
         return self.retrieve_by_id(Random_Guid(latest_id), namespace)           # Delegate to retrieve_by_id which handles the path lookup
 
     def retrieve_by_id(self, cache_id : Random_Guid,
-                            namespace : Safe_Id = None
-                       ) -> Optional[Dict[str, Any]]:
-        """Retrieve by cache ID using direct path from reference"""
+                             namespace : Safe_Id = None
+                        ) -> Optional[Dict[str, Any]]:                  #  Retrieve by cache ID using direct path from reference
         namespace = namespace or Safe_Id("default")
         handler   = self.get_or_create_handler(namespace)
 
@@ -313,12 +312,10 @@ class Cache__Service(Type_Safe):                                                
             else:
                 data_type = self._determine_data_type(data)
 
-            return {
-                "data": data,
-                "metadata": metadata_data,
-                "data_type": data_type,
-                "content_encoding": content_encoding
-            }
+            return { "data"            : data             ,                 # convert to Type_Safe class
+                     "metadata"        : metadata_data    ,
+                     "data_type"       : data_type        ,
+                     "content_encoding": content_encoding }
 
         return None
 

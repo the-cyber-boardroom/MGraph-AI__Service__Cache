@@ -124,7 +124,7 @@ class test_Routes__Cache(TestCase):
 
 
     def test_store__json__strategy__namespace(self):                                                      # Test JSON storage endpoint
-        self.request.state.body = json_to_str(self.test_json).encode()
+        #self.request.state.body = json_to_str(self.test_json).encode()
         response__store = self.routes.store__json__strategy__namespace(data = self.test_json          ,  #request   = self.request       ,
                                                                        strategy  = "temporal"         ,
                                                                        namespace = self.test_namespace)

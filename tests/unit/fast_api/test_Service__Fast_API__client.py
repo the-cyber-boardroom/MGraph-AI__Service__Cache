@@ -9,6 +9,7 @@ from osbot_fast_api_serverless.utils.testing.skip_tests               import ski
 from mgraph_ai_service_cache.fast_api.Service__Fast_API               import Service__Fast_API
 from mgraph_ai_service_cache.fast_api.routes.Routes__Cache            import ROUTES_PATHS__CACHE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Info             import ROUTES_PATHS__INFO, ROUTES_INFO__HEALTH__RETURN_VALUE
+from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve         import ROUTES_PATHS__RETRIEVE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Store            import ROUTES_PATHS__STORE
 from tests.unit.Service__Fast_API__Test_Objs                          import setup__service_fast_api_test_objs, Service__Fast_API__Test_Objs, TEST_API_KEY__NAME
 
@@ -61,4 +62,5 @@ class test_Service__Fast_API__client(TestCase):
         assert self.fast_api.routes_paths() == sorted(ROUTES_PATHS__INFO           +
                                                       EXPECTED_ROUTES__SET_COOKIE  +
                                                       ROUTES_PATHS__CACHE          +
-                                                      ROUTES_PATHS__STORE          )
+                                                      ROUTES_PATHS__STORE          +
+                                                      ROUTES_PATHS__RETRIEVE       )
