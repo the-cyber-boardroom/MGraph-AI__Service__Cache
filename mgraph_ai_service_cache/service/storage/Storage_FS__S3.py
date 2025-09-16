@@ -1,9 +1,10 @@
-from typing                                                                     import List, Optional
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path  import Safe_Str__File__Path
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
-from osbot_utils.utils.Json                                                     import bytes_to_json, json_to_bytes
-from osbot_aws.aws.s3.S3                                                        import S3
-from memory_fs.storage_fs.Storage_FS                                            import Storage_FS
+from typing                                                                       import List, Optional
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                    import type_safe
+from osbot_utils.utils.Files                                                      import path_combine_safe
+from osbot_utils.utils.Json                                                       import bytes_to_json, json_to_bytes
+from osbot_aws.aws.s3.S3                                                          import S3
+from memory_fs.storage_fs.Storage_FS                                              import Storage_FS
 
 
 class Storage_FS__S3(Storage_FS):
@@ -182,19 +183,23 @@ class Storage_FS__S3(Storage_FS):
                     return last_modified.isoformat()
         return None
 
-    def folder_list(self, parent_folder='', return_full_path=False):
+    def folder__folders(self, parent_folder='', return_full_path=False):
         kwargs = dict(s3_bucket        = self.s3_bucket  ,
                       parent_folder    = parent_folder   ,
                       return_full_path = return_full_path)
         return self.s3.folder_list(**kwargs)
 
+    def folder__files__all(self, parent_folder: str):
+        kwargs = dict(bucket    = self.s3_bucket  ,
+                      prefix    = parent_folder   )
+        return self.s3.find_files(**kwargs)
 
     def folder__files(self, folder_path: str,                                          # List files in a specific folder
                             return_full_path: bool = False
                       ) -> List[Safe_Str__File__Path]:
         # Combine prefix with folder path
         if self.s3_prefix:
-            full_prefix = f"{self.s3_prefix}/{folder_path}"
+            full_prefix = path_combine_safe(self.s3_prefix, folder_path)
         else:
             full_prefix = folder_path
         

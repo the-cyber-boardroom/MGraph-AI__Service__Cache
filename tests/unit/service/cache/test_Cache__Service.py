@@ -21,7 +21,7 @@ from mgraph_ai_service_cache.service.cache.Cache__Handler                       
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                      import Cache__Hash__Config
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator                   import Cache__Hash__Generator
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response           import Schema__Cache__Store__Response
-from mgraph_ai_service_cache.service.storage.Storage_FS__S3 import Storage_FS__S3
+from mgraph_ai_service_cache.service.storage.Storage_FS__S3                         import Storage_FS__S3
 from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs
 
 
