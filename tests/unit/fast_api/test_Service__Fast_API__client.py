@@ -8,7 +8,7 @@ from osbot_utils.utils.Env                                            import get
 from starlette.testclient                                             import TestClient
 from osbot_fast_api_serverless.utils.testing.skip_tests               import skip__if_not__in_github_actions
 from mgraph_ai_service_cache.fast_api.Service__Fast_API               import Service__Fast_API
-from mgraph_ai_service_cache.fast_api.routes.Routes__Cache            import ROUTES_PATHS__CACHE
+#from mgraph_ai_service_cache.fast_api.routes.Routes__Cache            import ROUTES_PATHS__CACHE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Delete           import ROUTES_PATHS__DELETE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Exists           import ROUTES_PATHS__EXISTS
 from mgraph_ai_service_cache.fast_api.routes.Routes__Info             import ROUTES_PATHS__INFO, ROUTES_INFO__HEALTH__RETURN_VALUE
@@ -67,7 +67,7 @@ class test_Service__Fast_API__client(TestCase):
         routes_paths = []
         raw_paths    = (ROUTES_PATHS__INFO           +
                         EXPECTED_ROUTES__SET_COOKIE  +
-                        ROUTES_PATHS__CACHE          +
+                        #ROUTES_PATHS__CACHE          +
                         ROUTES_PATHS__STORE          +
                         ROUTES_PATHS__RETRIEVE       +
                         ROUTES_PATHS__EXISTS         +
