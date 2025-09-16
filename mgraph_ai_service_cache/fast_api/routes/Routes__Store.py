@@ -1,12 +1,15 @@
-from typing                                                                import Literal
-from fastapi                                                               import Request, Body
-from osbot_fast_api.api.routes.Fast_API__Routes                            import Fast_API__Routes
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix              import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                 import Safe_Str__Fast_API__Route__Tag
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid      import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id          import Safe_Id
-from mgraph_ai_service_cache.service.cache.Cache__Service                  import Cache__Service
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response  import Schema__Cache__Store__Response
+from enum import Enum
+from typing                                                                 import Literal
+from fastapi                                                                import Request, Body
+from osbot_fast_api.api.routes.Fast_API__Routes                             import Fast_API__Routes
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix               import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                  import Safe_Str__Fast_API__Route__Tag
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid       import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id           import Safe_Id
+from mgraph_ai_service_cache.schemas.cache.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service            import DEFAULT_CACHE__STORE__STRATEGY, DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache.service.cache.Cache__Service                   import Cache__Service
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response   import Schema__Cache__Store__Response
 
 TAG__ROUTES_STORE                  = 'store'
 PREFIX__ROUTES_STORE               = '/{namespace}/{strategy}'
@@ -19,9 +22,9 @@ class Routes__Store(Fast_API__Routes):                                          
     prefix        : Safe_Str__Fast_API__Route__Prefix  = PREFIX__ROUTES_STORE
     cache_service : Cache__Service
 
-    def store__string(self, data      : str = Body(...)                                                                    ,
-                            strategy  : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
-                            namespace : Safe_Id = None
+    def store__string(self, data      : str = Body(...)                                        ,
+                            strategy  : Enum__Cache__Store__Strategy = DEFAULT_CACHE__STORE__STRATEGY,          # todo: see the best way to handle/document this, since on Swagger this default value is not shown (because it on a path, but will be good to double check if we can set it anyway)
+                            namespace : Safe_Id                      = None
                        ) -> Schema__Cache__Store__Response:
 
         cache_hash = self.cache_service.hash_from_string(data)
@@ -34,10 +37,10 @@ class Routes__Store(Fast_API__Routes):                                          
                                                       strategy       = strategy  ,
                                                       namespace      = namespace )
 
-    def store__json(self, data            : dict                                                                               ,
-                                          strategy        : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
-                                          namespace       : Safe_Id = None
-                                     ) -> Schema__Cache__Store__Response:
+    def store__json(self, data      : dict                                                         ,
+                          strategy  : Enum__Cache__Store__Strategy = DEFAULT_CACHE__STORE__STRATEGY,
+                          namespace : Safe_Id                      = None
+                     ) -> Schema__Cache__Store__Response:
         cache_hash     = self.cache_service.hash_from_json(data)
         cache_id       = Random_Guid()
 

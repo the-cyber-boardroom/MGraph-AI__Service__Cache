@@ -4,6 +4,9 @@ from memory_fs.helpers.Memory_FS__Temporal                                      
 from memory_fs.helpers.Memory_FS__Latest_Temporal                                 import Memory_FS__Latest_Temporal
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+
+from mgraph_ai_service_cache.schemas.cache.Enum__Cache__Store__Strategy import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.service.storage.Path__Handler__Semantic_File         import Path__Handler__Semantic_File
 from mgraph_ai_service_cache.service.storage.Storage_FS__S3                       import Storage_FS__S3
 from mgraph_ai_service_cache.service.storage.Path__Handler__Hash_Sharded          import Path__Handler__Hash_Sharded
 
@@ -12,6 +15,7 @@ from mgraph_ai_service_cache.service.storage.Path__Handler__Hash_Sharded        
 CACHE__HANDLER__PREFIX_PATH__FS__REFS_ID                            = 'refs/by-id'
 CACHE__HANDLER__PREFIX_PATH__FS__REFS_HASH                          = 'refs/by-hash'
 CACHE__HANDLER__PREFIX_PATH__FS__DATA_DIRECT                        = 'data/direct'
+CACHE__HANDLER__PREFIX_PATH__FS__DATA_SEMANTIC_FILE                 = 'data/semantic-file'
 CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL                      = 'data/temporal'
 CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_LATEST               = 'data/temporal-latest'
 CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_VERSIONED            = 'data/temporal-versioned'
@@ -32,7 +36,8 @@ class Cache__Handler(Type_Safe):                                                
     fs__data_direct             : Memory_FS                   = None                   # Direct to hash location
     fs__data_temporal           : Memory_FS__Temporal         = None                   # Temporal organization
     fs__data_temporal_latest    : Memory_FS__Latest_Temporal  = None                   # Temporal + latest
-    fs__data_temporal_versioned : Memory_FS                = None                   # Temporal + latest + versions
+    fs__data_temporal_versioned : Memory_FS                   = None                   # Temporal + latest + versions
+    fs__data_semantic_file      : Memory_FS                   = None                   # For Semantic Files
 
     # Reference stores (always needed)
     fs__refs_hash           : Memory_FS                   = None                    # Hash->ID mappings
@@ -80,10 +85,16 @@ class Cache__Handler(Type_Safe):                                                
             _.add_handler__versioned(prefix_path = Safe_Str__File__Path(CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_VERSIONED_VERSIONS))
             self.fs__data_temporal_versioned = _
 
+        # Semantic File
+        with Memory_FS() as _:                                                                          # Direct strategy
+            kwargs__fs__data_direct = dict(prefix_path = CACHE__HANDLER__PREFIX_PATH__FS__DATA_SEMANTIC_FILE)
+            _.storage_fs = self.s3__storage
+            _.add_handler(Path__Handler__Semantic_File(**kwargs__fs__data_direct))
+            self.fs__data_semantic_file = _
         return self
 
-    def get_fs_for_strategy(self, strategy: Literal["direct", "temporal", "temporal_latest", "temporal_versioned"]
-                            ) -> Memory_FS:                                                                         # Return appropriate Memory_FS for strategy
+    def get_fs_for_strategy(self, strategy: Enum__Cache__Store__Strategy
+                             ) -> Memory_FS:                                                                         # Return appropriate Memory_FS for strategy
         if strategy == "direct":
             return self.fs__data_direct
         elif strategy == "temporal":
@@ -92,5 +103,7 @@ class Cache__Handler(Type_Safe):                                                
             return self.fs__data_temporal_latest
         elif strategy == "temporal_versioned":
             return self.fs__data_temporal_versioned
+        elif strategy == "semantic_file":
+            return self.fs__data_semantic_file
         else:
             raise ValueError(f"Unknown strategy: {strategy}")
