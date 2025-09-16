@@ -1,5 +1,5 @@
 from fastapi                                                                      import Response
-from typing                                                                       import List
+from typing                                                                       import List, Dict, Any
 from osbot_fast_api.api.decorators.route_path                                     import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                   import Fast_API__Routes
 from osbot_utils.decorators.methods.cache_on_self                                 import cache_on_self
@@ -18,10 +18,11 @@ ROUTES_PATHS__STORAGE = [ f'/{TAG__ROUTES_STORAGE}/bucket-name'                 
                           f'/{TAG__ROUTES_STORAGE}/file/json/{{path:path}}'              ,  # File contents (as json)
                           f'/{TAG__ROUTES_STORAGE}/files/parent-path'                    ,  # Files Parent Path
                           f'/{TAG__ROUTES_STORAGE}/files/all/{{path:path}}'              ,  # Files All Path
-                          f'/{TAG__ROUTES_STORAGE}/folders'                              ]  # Folders]
+                          f'/{TAG__ROUTES_STORAGE}/folders'                              ,  # Folders
+                          f'/{TAG__ROUTES_STORAGE}/{{path:path}}'                        ]  # File Delete
 
 # todo: move to different Fast_API server/endpoint and add admin authorization
-class Routes__Storage(Fast_API__Routes):
+class Routes__Admin__Storage(Fast_API__Routes):
     tag           : str          = TAG__ROUTES_STORAGE
     cache_service : Cache__Service
 
@@ -82,13 +83,18 @@ class Routes__Storage(Fast_API__Routes):
         folders = self.storage_fs().folder__folders(parent_folder=path, return_full_path=return_full_path)
         return folders
 
+    @route_path('/{path:path}')
+    def delete__file(self, path : Safe_Str__File__Path) -> Dict[str, Any]:
+        return self.cache_service.storage_fs().file__delete(path)
 
 
     def setup_routes(self):
-        self.add_route_get(self.bucket_name             )
-        self.add_route_get(self.file__exists            )
-        self.add_route_get(self.file__bytes             )
-        self.add_route_get(self.file__json              )
-        self.add_route_get(self.files__parent_path      )
-        self.add_route_get(self.files__all__path        )
-        self.add_route_get(self.folders                 )
+        self.add_route_get   (self.bucket_name             )
+        self.add_route_get   (self.file__exists            )
+        self.add_route_get   (self.file__bytes             )
+        self.add_route_get   (self.file__json              )
+        self.add_route_get   (self.files__parent_path      )
+        self.add_route_get   (self.files__all__path        )
+        self.add_route_get   (self.folders                 )
+
+        self.add_route_delete(self.delete__file    )

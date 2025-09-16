@@ -14,7 +14,7 @@ from mgraph_ai_service_cache.fast_api.routes.Routes__Info             import ROU
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace        import ROUTES_PATHS__NAMESPACE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve         import ROUTES_PATHS__RETRIEVE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Server           import ROUTES_PATHS__SERVER
-from mgraph_ai_service_cache.fast_api.routes.Routes__Storage          import ROUTES_PATHS__STORAGE
+from mgraph_ai_service_cache.fast_api.routes.Routes__Admin__Storage   import ROUTES_PATHS__STORAGE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Store            import ROUTES_PATHS__STORE
 from tests.unit.Service__Fast_API__Test_Objs                          import setup__service_fast_api_test_objs, Service__Fast_API__Test_Objs, TEST_API_KEY__NAME
 

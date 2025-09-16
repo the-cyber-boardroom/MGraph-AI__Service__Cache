@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing                                                             import Dict, Any
 from osbot_fast_api.api.routes.Fast_API__Routes                         import Fast_API__Routes
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix           import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag              import Safe_Str__Fast_API__Route__Tag
@@ -21,6 +21,7 @@ class Routes__Delete(Fast_API__Routes):
                                namespace: Safe_Id = None
                           ) -> Dict[str, Any]:
         return self.cache_service.delete_by_id(cache_id, namespace)
+
 
     def setup_routes(self):
         self.add_route_delete(self.delete__cache_id)
