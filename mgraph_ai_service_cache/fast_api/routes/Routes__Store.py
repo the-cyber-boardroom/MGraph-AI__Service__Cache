@@ -7,16 +7,16 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id               
 from mgraph_ai_service_cache.service.cache.Cache__Service                          import Cache__Service
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response          import Schema__Cache__Store__Response
 
-TAG__ROUTES_STORE                  = 'store'
-ROUTES_PATHS__STORE                = [ f'/{TAG__ROUTES_STORE}' + '/{strategy}/{namespace}/binary' ,
-                                       f'/{TAG__ROUTES_STORE}' + '/{strategy}/{namespace}/json'   ,
-                                       f'/{TAG__ROUTES_STORE}' + '/{strategy}/{namespace}/string' ]
+TAG__ROUTES_STORE                  = 'store/{strategy}/{namespace}'
+ROUTES_PATHS__STORE                = [ f'/{TAG__ROUTES_STORE}' + '/as/binary' ,
+                                       f'/{TAG__ROUTES_STORE}' + '/as/json'   ,
+                                       f'/{TAG__ROUTES_STORE}' + '/as/string' ]
 
 class Routes__Store(Fast_API__Routes):                                             # FastAPI routes for cache operations
     tag           : Safe_Str__Fast_API__Route__Tag  = TAG__ROUTES_STORE
     cache_service : Cache__Service
 
-    def __strategy__namespace__string(self, data: str = Body(...)                                                                          ,
+    def as__string(self, data: str = Body(...)                                                                          ,
                                           strategy  : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
                                           namespace : Safe_Id = None
                                      ) -> Schema__Cache__Store__Response:
@@ -31,7 +31,7 @@ class Routes__Store(Fast_API__Routes):                                          
                                                       strategy       = strategy  ,
                                                       namespace      = namespace )
 
-    def __strategy__namespace__json(self, data            : dict                                                                               ,
+    def as__json(self, data            : dict                                                                               ,
                                           strategy        : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
                                           namespace       : Safe_Id = None
                                      ) -> Schema__Cache__Store__Response:
@@ -47,7 +47,7 @@ class Routes__Store(Fast_API__Routes):                                          
                                                       namespace      = namespace    )
 
 
-    def __strategy__namespace__binary(self, request  : Request                                                    ,
+    def as__binary(self, request  : Request                                                    ,
                                             body     : bytes = Body(..., media_type="application/octet-stream")   ,
                                             strategy: Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
                                             namespace: Safe_Id = None
@@ -77,6 +77,6 @@ class Routes__Store(Fast_API__Routes):                                          
 
 
     def setup_routes(self):                                                     # Configure FastAPI routes
-        self.add_route_post(self.__strategy__namespace__string )                # String endpoints
-        self.add_route_post(self.__strategy__namespace__json   )                # JSON endpoints
-        self.add_route_post(self.__strategy__namespace__binary )                # Binary endpoints
+        self.add_route_post(self.as__string )                                   # String endpoints
+        self.add_route_post(self.as__json   )                                   # JSON endpoints
+        self.add_route_post(self.as__binary )                                   # Binary endpoints
