@@ -80,10 +80,11 @@ class test_Routes__Cache(TestCase):
                                  'by_id'  : [ f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json'           ,
                                               f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json.config'    ,
                                               f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json.metadata'  ]}
-            assert _.json() == { 'hash'    : cache_hash    ,
-                                 'cache_id': cache_id      ,
-                                 'paths'   : files_created ,
-                                 'size'    : 20            }
+            assert _.json() == { 'hash'     : cache_hash    ,
+                                 'cache_id' : cache_id      ,
+                                 'namespace': 'test-api'    ,
+                                 'paths'    : files_created ,
+                                 'size'     : 20            }
 
             assert type(_)          is Schema__Cache__Store__Response
             assert type(_.cache_id) is Random_Guid

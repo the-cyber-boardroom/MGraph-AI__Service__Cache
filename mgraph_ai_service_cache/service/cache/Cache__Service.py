@@ -237,6 +237,7 @@ class Cache__Service(Type_Safe):                                                
 
         return Schema__Cache__Store__Response(cache_id   = cache_id     ,
                                               hash       = cache_hash   ,
+                                              namespace  = namespace    ,
                                               paths      = all_paths    ,
                                               size       = file_size    )
 

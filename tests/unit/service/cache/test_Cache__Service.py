@@ -652,18 +652,19 @@ class test_Cache__Service(TestCase):                                            
                                              cache_id       = cache_id         ,
                                              strategy       = "direct"         ,
                                              namespace      = self.test_namespace)
-            assert response.json()   == {'cache_id': cache_id,
-                                         'hash'    : cache_hash,
-                                         'paths': {'by_hash': [ 'refs/by-hash/66/7e/667eea27e9ab1776.json',
-                                                                'refs/by-hash/66/7e/667eea27e9ab1776.json.config',
-                                                                'refs/by-hash/66/7e/667eea27e9ab1776.json.metadata'],
-                                                   'by_id'  : [ f'refs/by-id/{cache_id_path}.json',
-                                                                f'refs/by-id/{cache_id_path}.json.config',
-                                                                f'refs/by-id/{cache_id_path}.json.metadata'],
-                                                   'data'   : [ f'data/direct/{cache_id_path}.bin',
-                                                                f'data/direct/{cache_id_path}.bin.config',
-                                                                f'data/direct/{cache_id_path}.bin.metadata']},
-                                         'size': 116}
+            assert response.json()   == {'cache_id' : cache_id,
+                                         'hash'     : cache_hash,
+                                         'namespace': 'test-namespace',
+                                         'paths'    : {'by_hash': [ 'refs/by-hash/66/7e/667eea27e9ab1776.json',
+                                                                    'refs/by-hash/66/7e/667eea27e9ab1776.json.config',
+                                                                    'refs/by-hash/66/7e/667eea27e9ab1776.json.metadata'],
+                                                       'by_id'  : [ f'refs/by-id/{cache_id_path}.json',
+                                                                    f'refs/by-id/{cache_id_path}.json.config',
+                                                                    f'refs/by-id/{cache_id_path}.json.metadata'],
+                                                       'data'   : [ f'data/direct/{cache_id_path}.bin',
+                                                                    f'data/direct/{cache_id_path}.bin.config',
+                                                                    f'data/direct/{cache_id_path}.bin.metadata']},
+                                         'size'     : 116   }
             assert response.cache_id == cache_id
             assert response.hash     == cache_hash
             assert response.size     > 100                                              # Binary data has size
