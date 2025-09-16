@@ -15,6 +15,7 @@ from mgraph_ai_service_cache.fast_api.routes.Routes__Info             import ROU
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace        import ROUTES_PATHS__NAMESPACE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve         import ROUTES_PATHS__RETRIEVE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Server           import ROUTES_PATHS__SERVER
+from mgraph_ai_service_cache.fast_api.routes.Routes__Storage import ROUTES_PATHS__STORAGE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Store            import ROUTES_PATHS__STORE
 from tests.unit.Service__Fast_API__Test_Objs                          import setup__service_fast_api_test_objs, Service__Fast_API__Test_Objs, TEST_API_KEY__NAME
 
@@ -73,7 +74,8 @@ class test_Service__Fast_API__client(TestCase):
                         ROUTES_PATHS__EXISTS         +
                         ROUTES_PATHS__DELETE         +
                         ROUTES_PATHS__NAMESPACE      +
-                        ROUTES_PATHS__SERVER         )
+                        ROUTES_PATHS__SERVER         +
+                        ROUTES_PATHS__STORAGE        )
         for raw_path in raw_paths:
             routes_paths.append(Safe_Str__Fast_API__Route__Prefix(raw_path))
         assert self.fast_api.routes_paths() == sorted(routes_paths)                     # this creates a better diff

@@ -1,6 +1,8 @@
 import gzip
 import json
 from typing                                                                 import Dict, Optional, Any, List, Literal
+
+from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
 from osbot_utils.utils.Json                                                 import json_to_str
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid       import Random_Guid
@@ -11,6 +13,7 @@ from mgraph_ai_service_cache.service.cache.Cache__Handler                   impo
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config              import Cache__Hash__Config
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator           import Cache__Hash__Generator
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response   import Schema__Cache__Store__Response
+from mgraph_ai_service_cache.service.storage.Storage_FS__S3 import Storage_FS__S3
 
 DEFAULT__CACHE__SERVICE__BUCKET_NAME        = "mgraph-ai-cache"
 DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS  = 24
@@ -165,6 +168,10 @@ class Cache__Service(Type_Safe):                                                
                                      cache_ttl_hours = self.default_ttl_hours).setup()
             self.cache_handlers[namespace] = handler
         return self.cache_handlers[namespace]
+
+    @cache_on_self
+    def storage_fs(self) -> Storage_FS__S3:
+        return Storage_FS__S3(s3_bucket=self.default_bucket).setup()
 
     def store_with_strategy(self, cache_key_data   : Any                          ,  # Store data with clear separation
                                   storage_data     : Any                          ,

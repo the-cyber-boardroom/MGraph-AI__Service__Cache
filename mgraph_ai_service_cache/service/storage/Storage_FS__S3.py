@@ -181,7 +181,14 @@ class Storage_FS__S3(Storage_FS):
                 if last_modified:
                     return last_modified.isoformat()
         return None
-    
+
+    def folder_list(self, parent_folder='', return_full_path=False):
+        kwargs = dict(s3_bucket        = self.s3_bucket  ,
+                      parent_folder    = parent_folder   ,
+                      return_full_path = return_full_path)
+        return self.s3.folder_list(**kwargs)
+
+
     def folder__files(self, folder_path: str,                                          # List files in a specific folder
                             return_full_path: bool = False
                       ) -> List[Safe_Str__File__Path]:
@@ -192,11 +199,9 @@ class Storage_FS__S3(Storage_FS):
             full_prefix = folder_path
         
         # Use S3's folder_files method
-        files = self.s3.folder_files(
-            s3_bucket=self.s3_bucket,
-            parent_folder=full_prefix,
-            return_full_path=True  # Always get full path from S3
-        )
+        files = self.s3.folder_files(s3_bucket        =  self.s3_bucket,
+                                     parent_folder    = full_prefix    ,
+                                     return_full_path = True           ) # Always get full path from S3
         
         # Convert to Safe_Str__File__Path objects
         paths = []

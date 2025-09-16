@@ -21,6 +21,7 @@ from mgraph_ai_service_cache.service.cache.Cache__Handler                       
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                      import Cache__Hash__Config
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator                   import Cache__Hash__Generator
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response           import Schema__Cache__Store__Response
+from mgraph_ai_service_cache.service.storage.Storage_FS__S3 import Storage_FS__S3
 from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs
 
 
@@ -423,6 +424,11 @@ class test_Cache__Service(TestCase):                                            
                                         'namespace'     : 'test-namespace'       ,
                                         'strategy'      : 'temporal'             ,
                                         'timestamp'     : id_ref_data['timestamp']}
+
+    def test_storage_fs(self):
+        with self.service.storage_fs() as _:
+            assert type(_) is Storage_FS__S3
+            assert _.s3_bucket == self.service.default_bucket
 
     def test__retrieve_by_hash(self):                                               # Test retrieval by hash
         # Store data first

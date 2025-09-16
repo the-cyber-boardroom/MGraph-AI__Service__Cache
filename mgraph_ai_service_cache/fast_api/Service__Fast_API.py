@@ -8,6 +8,7 @@ from mgraph_ai_service_cache.fast_api.routes.Routes__Info       import Routes__I
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace  import Routes__Namespace
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve   import Routes__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.Routes__Server     import Routes__Server
+from mgraph_ai_service_cache.fast_api.routes.Routes__Storage import Routes__Storage
 from mgraph_ai_service_cache.fast_api.routes.Routes__Store      import Routes__Store
 from mgraph_ai_service_cache.utils.Version                      import version__mgraph_ai_service_cache
 
@@ -36,6 +37,7 @@ class Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__Delete    )
         self.add_routes(Routes__Namespace )
         self.add_routes(Routes__Server    )
+        self.add_routes(Routes__Storage   )
         self.add_routes(Routes__Info      )
         self.add_routes(Routes__Set_Cookie)
         #self.add_routes(Routes__Cache     )         # to remove one all methods have been refactored out
