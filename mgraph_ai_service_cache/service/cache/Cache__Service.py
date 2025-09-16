@@ -1,19 +1,23 @@
 import gzip
 import json
 from typing                                                                 import Dict, Optional, Any, List, Literal
-
-from osbot_utils.decorators.methods.cache_on_self import cache_on_self
+from osbot_utils.decorators.methods.cache_on_self                           import cache_on_self
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+from osbot_utils.utils.Files import file_extension, file_name_without_extension
+from osbot_utils.utils.Http import url_join_safe
 from osbot_utils.utils.Json                                                 import json_to_str
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid       import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id           import Safe_Id
 from osbot_utils.utils.Misc                                                 import timestamp_now, list_set
+
+from mgraph_ai_service_cache.schemas.cache.Enum__Cache__Store__Strategy import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash            import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Handler                   import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config              import Cache__Hash__Config
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator           import Cache__Hash__Generator
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response   import Schema__Cache__Store__Response
-from mgraph_ai_service_cache.service.storage.Storage_FS__S3 import Storage_FS__S3
+from mgraph_ai_service_cache.service.storage.Storage_FS__S3                 import Storage_FS__S3
 
 DEFAULT__CACHE__SERVICE__BUCKET_NAME        = "mgraph-ai-cache"
 DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS  = 24
@@ -104,7 +108,7 @@ class Cache__Service(Type_Safe):                                                
         all_stats = {}
 
         for namespace in self.cache_handlers.keys():
-            counts_data = self.get_namespace_file_counts(namespace)
+            counts_data = self.get_namespace__file_counts(namespace)
             all_stats[str(namespace)] = {
                 'total_files': counts_data['total_files'],
                 'file_counts': counts_data['file_counts']
@@ -115,7 +119,28 @@ class Cache__Service(Type_Safe):                                                
             'total_namespaces': len(self.cache_handlers),
             'grand_total_files': sum(ns['total_files'] for ns in all_stats.values())
         }
-    def get_namespace_file_counts(self, namespace: Safe_Id = None) -> Dict[str, Any]:       # Get file counts for all strategies in a namespace
+
+    def get_namespace__file_hashes(self, namespace: Safe_Id ) -> Dict[str, Any]:
+        file_hashes = []
+        parent_folder = url_join_safe(str(namespace), "refs/by-hash")
+
+        for file_path in self.storage_fs().folder__files__all(parent_folder=parent_folder):
+            if file_extension(file_path) == '.json':
+                file_id = file_name_without_extension(file_path)
+                file_hashes.append(file_id)
+        return file_hashes
+
+    def get_namespace__file_ids(self, namespace: Safe_Id ) -> Dict[str, Any]:
+        file_ids = []
+        parent_folder = url_join_safe(str(namespace), "refs/by-id")
+
+        for file_path in self.storage_fs().folder__files__all(parent_folder=parent_folder):
+            if file_extension(file_path) == '.json':
+                file_id = file_name_without_extension(file_path)
+                file_ids.append(file_id)
+        return file_ids
+
+    def get_namespace__file_counts(self, namespace: Safe_Id = None) -> Dict[str, Any]:       # Get file counts for all strategies in a namespace
         namespace = namespace or Safe_Id("default")
         handler = self.get_or_create_handler(namespace)
 
@@ -173,28 +198,31 @@ class Cache__Service(Type_Safe):                                                
     def storage_fs(self) -> Storage_FS__S3:
         return Storage_FS__S3(s3_bucket=self.default_bucket).setup()
 
-    def store_with_strategy(self, cache_key_data   : Any                          ,  # Store data with clear separation
-                                  storage_data     : Any                          ,
-                                  cache_hash       : Safe_Str__Cache_Hash         ,
-                                  cache_id         : Random_Guid                  ,
-                                  strategy         : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"],
-                                  namespace        : Safe_Id = None               ,
-                                  content_encoding : str = None
+    def store_with_strategy(self, storage_data     : Any                                   ,
+                                  cache_hash       : Safe_Str__Cache_Hash                  ,
+                                  strategy         : Enum__Cache__Store__Strategy          ,
+                                  cache_id         : Random_Guid                  = None                       ,
+                                  cache_key        : Safe_Str__File__Path         = None   ,  # Allow extra key/path to be provided (used by some path_handlers)
+                                  file_id          : Safe_Id                      = None   ,
+                                  namespace        : Safe_Id                      = None   ,
+                                  content_encoding : Safe_Id                      = None
                             ) -> Schema__Cache__Store__Response:
+        if not cache_hash:
+            raise ValueError("in Cache__Service.store_with_strategy, the cache_hash must be provided")                      # todo: see if it makes sense for use to calculate the hash here
+
+        cache_id  = cache_id or Random_Guid()
         namespace = namespace or Safe_Id("default")
         handler   = self.get_or_create_handler(namespace)
         fs_data   = handler.get_fs_for_strategy(strategy)
         all_paths = { "data": [], "by_hash": [], "by_id" : []     }
 
-        if isinstance(cache_key_data, dict):
-            cache_key_data = json_to_str(cache_key_data)
-
-        # Determine file type based on storage data
-        if isinstance(storage_data, bytes):
-            file_fs = fs_data.file__binary(Safe_Id(str(cache_id)))
+        file_id   =  Safe_Id  (file_id or cache_id )                    # if not provided use the cache_id as file_id (needs casting to Safe_Id)
+        file_key  = Safe_Str__File__Path(cache_key)                     # use cache_key as file_key
+        if isinstance(storage_data, bytes):                             # Determine file type based on storage data
+            file_fs = fs_data.file__binary(file_id=file_id, file_key=file_key)
             file_type = "binary"
         else:
-            file_fs = fs_data.file__json(Safe_Id(str(cache_id)))
+            file_fs = fs_data.file__json(file_id=file_id, file_key=file_key)
             file_type = "json"
 
         # Store actual data
@@ -204,7 +232,7 @@ class Cache__Service(Type_Safe):                                                
 
             # Add metadata
             metadata = { "cache_hash"       : str(cache_hash)    ,
-                         "cache_key_data"   : str(cache_key_data),
+                         "cache_key"        : str(cache_key)     ,
                          "cache_id"         : str(cache_id)      ,
                          "content_encoding" : content_encoding   ,
                          "stored_at"        : timestamp_now()    ,
@@ -326,6 +354,17 @@ class Cache__Service(Type_Safe):                                                
                      "content_encoding": content_encoding }
 
         return None
+
+    def retrieve_by_id__config(self, cache_id  : Random_Guid,
+                                     namespace : Safe_Id    = None
+                                ) -> Optional[Dict[str, Any]]:                      #   Retrieve by cache ID using direct path from reference
+        namespace = namespace or Safe_Id("default")
+        handler   = self.get_or_create_handler(namespace)
+
+        with handler.fs__refs_id.file__json(Safe_Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
+            if not ref_fs.exists():
+                return None
+            return ref_fs.content()
 
     def _is_binary_data(self, metadata) -> bool:
         """Check if stored data is binary based on metadata"""

@@ -76,8 +76,7 @@ class test_Routes__Exists(TestCase):
             cache_id   = Random_Guid()
 
             # Store the data
-            self.cache_service.store_with_strategy(cache_key_data = test_data         ,
-                                                   storage_data   = test_data         ,
+            self.cache_service.store_with_strategy(storage_data   = test_data         ,
                                                    cache_hash     = cache_hash        ,
                                                    cache_id       = cache_id          ,
                                                    strategy       = "direct"          ,
@@ -114,8 +113,7 @@ class test_Routes__Exists(TestCase):
             cache_hash = self.cache_service.hash_from_string(test_data)
             cache_id   = Random_Guid()
 
-            self.cache_service.store_with_strategy(cache_key_data = test_data   ,
-                                                   storage_data   = test_data   ,
+            self.cache_service.store_with_strategy(storage_data   = test_data   ,
                                                    cache_hash     = cache_hash  ,
                                                    cache_id       = cache_id    ,
                                                    strategy       = "direct"    ,
@@ -140,8 +138,7 @@ class test_Routes__Exists(TestCase):
             cache_id2  = Random_Guid()
 
             # Store in ns1
-            self.cache_service.store_with_strategy(cache_key_data = test_data  ,
-                                                   storage_data   = test_data  ,
+            self.cache_service.store_with_strategy(storage_data   = test_data  ,
                                                    cache_hash     = cache_hash ,
                                                    cache_id       = cache_id1  ,
                                                    strategy       = "direct"   ,
@@ -158,8 +155,7 @@ class test_Routes__Exists(TestCase):
             assert result_ns2["exists"] is False
 
             # Now store in ns2
-            self.cache_service.store_with_strategy(cache_key_data = test_data  ,
-                                                   storage_data   = test_data  ,
+            self.cache_service.store_with_strategy(storage_data   = test_data  ,
                                                    cache_hash     = cache_hash ,
                                                    cache_id       = cache_id2  ,
                                                    strategy       = "direct"   ,
@@ -225,14 +221,11 @@ class test_Routes__Exists(TestCase):
             assert check_before["exists"] is False
 
             # Store data
-            store_result = self.cache_service.store_with_strategy(
-                cache_key_data = test_data ,
-                storage_data   = test_data ,
-                cache_hash     = cache_hash,
-                cache_id       = cache_id  ,
-                strategy       = "temporal",
-                namespace      = namespace
-            )
+            store_result = self.cache_service.store_with_strategy(storage_data   = test_data ,
+                                                                  cache_hash     = cache_hash,
+                                                                  cache_id       = cache_id  ,
+                                                                  strategy       = "temporal",
+                                                                  namespace      = namespace )
             assert store_result.cache_id == cache_id
 
             # Now exists

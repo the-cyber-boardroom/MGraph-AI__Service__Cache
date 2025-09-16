@@ -1,7 +1,7 @@
 from typing                                                                       import List, Optional
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                    import type_safe
-from osbot_utils.utils.Files                                                      import path_combine_safe
+from osbot_utils.utils.Http                                                       import url_join_safe
 from osbot_utils.utils.Json                                                       import bytes_to_json, json_to_bytes
 from osbot_aws.aws.s3.S3                                                          import S3
 from memory_fs.storage_fs.Storage_FS                                              import Storage_FS
@@ -48,6 +48,14 @@ class Storage_FS__S3(Storage_FS):
         s3_key = self._get_s3_key(path)
         if self.file__exists(path):
             return self.s3.file_bytes(bucket=self.s3_bucket, key=s3_key)
+        return None
+
+    @type_safe
+    def file__json(self, path: Safe_Str__File__Path                                   # Read file content as bytes from S3
+                    ) -> Optional[bytes]:
+        file_bytes = self.file__bytes(path)
+        if file_bytes:
+            return bytes_to_json(file_bytes)
         return None
     
     @type_safe
@@ -199,7 +207,7 @@ class Storage_FS__S3(Storage_FS):
                       ) -> List[Safe_Str__File__Path]:
         # Combine prefix with folder path
         if self.s3_prefix:
-            full_prefix = path_combine_safe(self.s3_prefix, folder_path)
+            full_prefix = url_join_safe(str(self.s3_prefix), str(folder_path))
         else:
             full_prefix = folder_path
         

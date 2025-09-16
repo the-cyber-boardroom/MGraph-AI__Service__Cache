@@ -2,20 +2,22 @@ import gzip
 import json
 from unittest                                                                       import TestCase
 from fastapi                                                                        import Request
+from osbot_utils.utils.Dev import pprint
+
 from memory_fs.path_handlers.Path__Handler__Temporal                                import Path__Handler__Temporal
 from osbot_aws.testing.Temp__Random__AWS_Credentials                                import OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID, OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
 from osbot_aws.utils.AWS_Sanitization                                               import str_to_valid_s3_bucket_name
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Objects                                                      import base_classes
 from osbot_utils.utils.Misc                                                         import random_string_short
 from osbot_aws.AWS_Config                                                           import aws_config
 from osbot_fast_api.api.routes.Fast_API__Routes                                     import Fast_API__Routes
-
-from mgraph_ai_service_cache.fast_api.routes.Routes__Delete import Routes__Delete
-from mgraph_ai_service_cache.fast_api.routes.Routes__Store import Routes__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                         import Routes__Delete
+from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace import Routes__Namespace
+from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve import Routes__Retrieve
+from mgraph_ai_service_cache.fast_api.routes.Routes__Store                          import Routes__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                    import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response           import Schema__Cache__Store__Response
@@ -31,9 +33,11 @@ class test_Routes__Store(TestCase):
         assert aws_config.account_id()  == OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID
         assert aws_config.region_name() == OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
 
-        cls.cache_service  = Cache__Service(default_bucket=cls.test_bucket)
-        cls.routes         = Routes__Store (cache_service=cls.cache_service)
-        cls.routes_delete  = Routes__Delete(cache_service=cls.cache_service)
+        cls.cache_service    = Cache__Service   (default_bucket=cls.test_bucket)
+        cls.routes           = Routes__Store    (cache_service=cls.cache_service)
+        cls.routes_delete    = Routes__Delete   (cache_service=cls.cache_service)
+        cls.routes_retrieve  = Routes__Retrieve (cache_service=cls.cache_service)
+        cls.routes_namespace = Routes__Namespace(cache_service=cls.cache_service)
 
         # Test data
         cls.test_namespace = Safe_Id("test-store-api")
@@ -288,13 +292,26 @@ class test_Routes__Store(TestCase):
     def test_store_string_in_advanced_path(self):
         from mgraph_ai_service_cache.fast_api.routes.Routes__Delete import Routes__Delete
         an_string = "this is a string"
-        with self.routes as _:
-            response__store = _.store__string(data = an_string, strategy = Enum__Cache__Store__Strategy.SEMANTIC_FILE)
-            cache_id        = response__store.cache_id
-        response__delete = self.routes_delete.delete__cache_id(cache_id=cache_id, namespace = 'default')
+        cache_key = 'aaa/bbb'
+        file_id   = 'page-structure'
+        namespace = 'default'
+        kwargs    = dict(data      = an_string                                 ,
+                         strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE,
+                         cache_key = cache_key                                ,
+                         file_id   = file_id                                  )
 
+        response__store            = self.routes          .store__string__cache_key   (**kwargs)
+        cache_id                   = response__store.cache_id
+        cache_hash                 = response__store.hash
+        response__details          = self.routes_retrieve  .retrieve__details__all__cache_id(cache_id=cache_id, namespace = namespace)
+        response__namespace_ids    = self.routes_namespace.file_ids                         (namespace=namespace)
+        response__namespace_hashes = self.routes_namespace.file_hashes                      (namespace=namespace)
+        response__delete           = self.routes_delete   .delete__cache_id                 (cache_id=cache_id, namespace = namespace)
         #response__store.print()
-
+        #pprint(response__details)
+        #response__store.print()
+        assert cache_id     in response__namespace_ids
+        assert cache_hash   in response__namespace_hashes
         assert response__delete.get('deleted_count') == 9
 
 

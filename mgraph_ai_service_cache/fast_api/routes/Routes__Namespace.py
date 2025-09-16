@@ -7,7 +7,9 @@ from mgraph_ai_service_cache.service.cache.Cache__Service           import Cache
 
 TAG__ROUTES_NAMESPACE                  = 'namespace'
 PREFIX__ROUTES_NAMESPACE               = '/{namespace}'
-ROUTES_PATHS__NAMESPACE                = [ PREFIX__ROUTES_NAMESPACE + '/stats']
+ROUTES_PATHS__NAMESPACE                = [ PREFIX__ROUTES_NAMESPACE + '/file-hashes',
+                                           PREFIX__ROUTES_NAMESPACE + '/file-ids'   ,
+                                           PREFIX__ROUTES_NAMESPACE + '/stats'      ]
 
 
 class Routes__Namespace(Fast_API__Routes):
@@ -15,14 +17,18 @@ class Routes__Namespace(Fast_API__Routes):
     prefix        : Safe_Str__Fast_API__Route__Prefix  =  PREFIX__ROUTES_NAMESPACE
     cache_service : Cache__Service
 
+    def file_hashes(self, namespace: Safe_Id = None):
+        return self.cache_service.get_namespace__file_hashes(namespace=namespace)
 
+    def file_ids(self, namespace: Safe_Id = None):
+        return self.cache_service.get_namespace__file_ids(namespace=namespace)
 
     def stats(self, namespace: Safe_Id = None) -> Dict[str, Any]:       # Get cache statistics
         namespace = namespace or Safe_Id("default")
 
         try:
             # Get file counts using shared method
-            counts_data = self.cache_service.get_namespace_file_counts(namespace)
+            counts_data = self.cache_service.get_namespace__file_counts(namespace)
             handler = counts_data['handler']
 
             # Build stats response
@@ -37,4 +43,6 @@ class Routes__Namespace(Fast_API__Routes):
             return {"error": str(e), "namespace": str(namespace)}
 
     def setup_routes(self):
-        self.add_route_get(self.stats)
+        self.add_route_get(self.file_hashes)
+        self.add_route_get(self.file_ids   )
+        self.add_route_get(self.stats      )

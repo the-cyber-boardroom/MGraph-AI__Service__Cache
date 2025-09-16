@@ -118,8 +118,7 @@ class test_Cache__Service(TestCase):                                            
         cache_id__path_2 = cache_id[2:4]
 
         with self.service as _:
-            response = _.store_with_strategy(cache_key_data = self.test_data_string,
-                                             storage_data   = self.test_data_string,
+            response = _.store_with_strategy(storage_data   = self.test_data_string,
                                              cache_hash     = cache_hash,
                                              cache_id       = cache_id,
                                              strategy       = "temporal",
@@ -161,12 +160,11 @@ class test_Cache__Service(TestCase):                                            
                 cache_id   = Random_Guid()
 
                 with self.service as _:
-                    response = _.store_with_strategy(cache_key_data = test_data,
-                                                   storage_data   = test_data,
-                                                   cache_hash     = cache_hash,
-                                                   cache_id       = cache_id,
-                                                   strategy       = strategy,
-                                                   namespace      = Safe_Id(f"ns-{strategy}"))
+                    response = _.store_with_strategy(storage_data   = test_data,
+                                                     cache_hash     = cache_hash,
+                                                     cache_id       = cache_id,
+                                                     strategy       = strategy,
+                                                     namespace      = Safe_Id(f"ns-{strategy}"))
 
                     assert response.cache_id == cache_id
                     assert response.hash     == cache_hash
@@ -179,8 +177,7 @@ class test_Cache__Service(TestCase):                                            
         cache_id   = Random_Guid()
 
         with self.service as _:
-            _.store_with_strategy(cache_key_data = test_data,
-                                  storage_data   = test_data,
+            _.store_with_strategy(storage_data   = test_data,
                                   cache_hash     = cache_hash,
                                   cache_id       = cache_id,
                                   strategy       = "temporal",
@@ -193,10 +190,10 @@ class test_Cache__Service(TestCase):                                            
                                'data'            : 'retrieve by hash test',
                                'data_type'       : 'string',
                                'metadata': {'cache_hash'      : 'ef11cf6a121a582a',
-                                            'cache_id'        : cache_id,
-                                            'cache_key_data'  : 'retrieve by hash test',
-                                            'content_encoding': None,
-                                            'file_type'       : 'json',
+                                            'cache_id'        : cache_id    ,
+                                            'cache_key'       : 'None'      ,
+                                            'content_encoding': None        ,
+                                            'file_type'       : 'json'      ,
                                             'namespace'       : 'test-namespace',
                                             'stored_at'       : stored_at,
                                             'strategy'        : 'temporal'}}
@@ -228,8 +225,7 @@ class test_Cache__Service(TestCase):                                            
                          f'refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
                          f'refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']
         with self.service as _:
-            _.store_with_strategy(cache_key_data = test_data,
-                                  storage_data   = test_data,
+            _.store_with_strategy(storage_data   = test_data,
                                   cache_hash     = cache_hash,
                                   cache_id       = cache_id,
                                   strategy       = "direct",
@@ -242,10 +238,10 @@ class test_Cache__Service(TestCase):                                            
                                          'data'            : 'retrieve by id test',
                                          'data_type'       : 'string',
                                          'metadata'        : { 'cache_hash'      : '042347b98515ab7f',
-                                                               'cache_id'        : cache_id,
-                                                               'cache_key_data'  : 'retrieve by id test',
-                                                               'content_encoding': None,
-                                                               'file_type'       : 'json',
+                                                               'cache_id'        : cache_id     ,
+                                                               'cache_key'       : 'None'       ,
+                                                               'content_encoding': None         ,
+                                                               'file_type'       : 'json'       ,
                                                                'namespace'       : 'test-namespace',
                                                                'stored_at'       : result__retrieve['metadata']['stored_at'],
                                                                'strategy'        : 'direct'}}
@@ -267,12 +263,11 @@ class test_Cache__Service(TestCase):                                            
 
         with self.service as _:
             # Store data
-            store_response = _.store_with_strategy(cache_key_data = test_data,
-                                                  storage_data   = test_data,
-                                                  cache_hash     = cache_hash,
-                                                  cache_id       = cache_id,
-                                                  strategy       = "temporal",
-                                                  namespace      = self.test_namespace)
+            store_response = _.store_with_strategy(storage_data   = test_data,
+                                                   cache_hash     = cache_hash,
+                                                   cache_id       = cache_id,
+                                                   strategy       = "temporal",
+                                                   namespace      = self.test_namespace)
 
             # Verify it exists
             assert _.retrieve_by_id(cache_id, self.test_namespace) is not None
@@ -305,19 +300,17 @@ class test_Cache__Service(TestCase):                                            
 
         with self.service as _:
             # Store same data twice (creates versions)
-            _.store_with_strategy(cache_key_data = test_data,
-                                storage_data   = test_data,
-                                cache_hash     = cache_hash,
-                                cache_id       = cache_id_1,
-                                strategy       = "temporal",
-                                namespace      = self.test_namespace)
+            _.store_with_strategy(storage_data   = test_data,
+                                  cache_hash     = cache_hash,
+                                  cache_id       = cache_id_1,
+                                  strategy       = "temporal",
+                                  namespace      = self.test_namespace)
 
-            _.store_with_strategy(cache_key_data = test_data,
-                                storage_data   = test_data,
-                                cache_hash     = cache_hash,
-                                cache_id       = cache_id_2,
-                                strategy       = "temporal",
-                                namespace      = self.test_namespace)
+            _.store_with_strategy(storage_data   = test_data,
+                                  cache_hash     = cache_hash,
+                                  cache_id       = cache_id_2,
+                                  strategy       = "temporal",
+                                  namespace      = self.test_namespace)
 
             # Delete first version
             delete_result = _.delete_by_id(cache_id_1, self.test_namespace)
@@ -404,12 +397,11 @@ class test_Cache__Service(TestCase):                                            
         content_paths = [f'data/temporal/{self.path_now}/{cache_id}.json']
         with self.service as _:
             # Store data
-            _.store_with_strategy(cache_key_data = test_data,
-                                storage_data   = test_data,
-                                cache_hash     = cache_hash,
-                                cache_id       = cache_id,
-                                strategy       = "temporal",
-                                namespace      = self.test_namespace)
+            _.store_with_strategy(storage_data   = test_data,
+                                  cache_hash     = cache_hash,
+                                  cache_id       = cache_id,
+                                  strategy       = "temporal",
+                                  namespace      = self.test_namespace)
 
             # Read the ID reference directly
             handler = _.get_or_create_handler(self.test_namespace)
@@ -436,8 +428,7 @@ class test_Cache__Service(TestCase):                                            
         cache_id   = Random_Guid()
 
         with self.service as _:
-            result__store  = _.store_with_strategy(cache_key_data = self.test_data_string,
-                                                   storage_data   = self.test_data_string,
+            result__store  = _.store_with_strategy(storage_data   = self.test_data_string,
                                                    cache_hash     = cache_hash           ,
                                                    cache_id       = cache_id             ,
                                                    strategy       = "temporal"           ,
@@ -464,8 +455,7 @@ class test_Cache__Service(TestCase):                                            
 
         with self.service as _:
             # Store data
-            _.store_with_strategy(cache_key_data = self.test_data_string,
-                                  storage_data   = self.test_data_json,  # Store JSON data
+            _.store_with_strategy(storage_data   = self.test_data_json,  # Store JSON data
                                   cache_hash     = cache_hash,
                                   cache_id       = cache_id,
                                   strategy       = "temporal",
@@ -482,7 +472,7 @@ class test_Cache__Service(TestCase):                                            
                                     'data_type'       : 'json'                                       ,
                                     'metadata'        : { 'cache_hash'      : '1e2ff1555748f789'      ,
                                                           'cache_id'        : cache_id                ,
-                                                          'cache_key_data'  : self.test_data_string   ,
+                                                          'cache_key'       : 'None'                 ,
                                                           'content_encoding': None                    ,
                                                           'file_type'       : 'json'                  ,
                                                           'namespace'       : self.test_namespace     ,
@@ -504,23 +494,17 @@ class test_Cache__Service(TestCase):                                            
             id1   = Random_Guid()
             id2   = Random_Guid()
 
-            _.store_with_strategy(
-                cache_key_data = data1_string,
-                storage_data   = data1_string,
-                cache_hash     = hash1,
-                cache_id       = id1,
-                strategy       = "direct",
-                namespace      = ns1
-            )
+            _.store_with_strategy(storage_data   = data1_string ,
+                                  cache_hash     = hash1        ,
+                                  cache_id       = id1          ,
+                                  strategy       = "direct"     ,
+                                  namespace      = ns1          )
 
-            _.store_with_strategy(
-                cache_key_data = data2_string,
-                storage_data   = data2_string,
-                cache_hash     = hash2,
-                cache_id       = id2,
-                strategy       = "direct",
-                namespace      = ns2
-            )
+            _.store_with_strategy(storage_data   = data2_string,
+                                  cache_hash     = hash2    ,
+                                  cache_id       = id2      ,
+                                  strategy       = "direct" ,
+                                  namespace      = ns2      )
 
             # Retrieve from each namespace
             result1 = _.retrieve_by_id(id1, ns1)
@@ -553,14 +537,11 @@ class test_Cache__Service(TestCase):                                            
             cache_id   = Random_Guid()
 
             # Store complex data
-            response = _.store_with_strategy(
-                cache_key_data = json_to_str(complex_data),
-                storage_data   = complex_data,
-                cache_hash     = cache_hash,
-                cache_id       = cache_id,
-                strategy       = "temporal_latest",
-                namespace      = self.test_namespace
-            )
+            response = _.store_with_strategy(storage_data   = complex_data,
+                                             cache_hash     = cache_hash,
+                                             cache_id       = cache_id,
+                                             strategy       = "temporal_latest",
+                                             namespace      = self.test_namespace)
 
             assert response.cache_id == cache_id
 
@@ -575,7 +556,6 @@ class test_Cache__Service(TestCase):                                            
 
         with self.service as _:
             response = _.store_with_strategy(
-                cache_key_data = self.test_data_string,
                 storage_data   = self.test_data_string,
                 cache_hash     = custom_hash,
                 cache_id       = cache_id,
@@ -613,7 +593,6 @@ class test_Cache__Service(TestCase):                                            
                 cache_ids.append(cache_id)
 
                 _.store_with_strategy(
-                    cache_key_data = data,
                     storage_data   = data,
                     cache_hash     = hash_val,
                     cache_id       = cache_id,
@@ -634,7 +613,6 @@ class test_Cache__Service(TestCase):                                            
             # Should raise error or handle gracefully
             with pytest.raises(ValueError, match="Unknown strategy"):
                 _.store_with_strategy(
-                    cache_key_data = self.test_data_string,
                     storage_data   = self.test_data_string,
                     cache_hash     = cache_hash,
                     cache_id       = cache_id,
@@ -652,8 +630,7 @@ class test_Cache__Service(TestCase):                                            
             cache_id_path = f"{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}"
             #cache_hash = '667eea27e9ab1776'
             # Store binary data
-            response = _.store_with_strategy(cache_key_data = str(cache_hash)  ,        # Use hash as key for binary
-                                             storage_data   = binary_data      ,
+            response = _.store_with_strategy(storage_data   = binary_data      ,
                                              cache_hash     = cache_hash       ,
                                              cache_id       = cache_id         ,
                                              strategy       = "direct"         ,
@@ -695,8 +672,7 @@ class test_Cache__Service(TestCase):                                            
             cache_id   = Random_Guid()
 
             # Store compressed data with encoding flag
-            response = _.store_with_strategy(cache_key_data   = str(cache_hash)        ,
-                                             storage_data     = compressed_data       ,
+            response = _.store_with_strategy(storage_data     = compressed_data       ,
                                              cache_hash       = cache_hash             ,
                                              cache_id         = cache_id               ,
                                              strategy         = "temporal"             ,
@@ -715,7 +691,7 @@ class test_Cache__Service(TestCase):                                            
                              'data_type'       : 'binary'                             ,
                              'metadata'        : { 'cache_hash'      : str(cache_hash)  ,
                                                    'cache_id'        : str(cache_id)    ,
-                                                   'cache_key_data'  : str(cache_hash)  ,
+                                                   'cache_key'       : 'None'           ,
                                                    'content_encoding': 'gzip'           ,
                                                    'file_type'       : 'binary'         ,
                                                    'namespace'       : 'test-namespace' ,
@@ -732,8 +708,7 @@ class test_Cache__Service(TestCase):                                            
             cache_id   = Random_Guid()
 
             # Store compressed JSON
-            response = _.store_with_strategy(cache_key_data   = str(cache_hash)        ,
-                                             storage_data     = compressed_data       ,
+            response = _.store_with_strategy(storage_data     = compressed_data       ,
                                              cache_hash       = cache_hash             ,
                                              cache_id         = cache_id               ,
                                              strategy         = "temporal_latest"      ,
@@ -772,8 +747,7 @@ class test_Cache__Service(TestCase):                                            
                     cache_hash = self.service.hash_from_json(data)
 
                 with self.service as _:
-                    _.store_with_strategy(cache_key_data = str(cache_hash)             ,
-                                          storage_data   = data                         ,
+                    _.store_with_strategy(storage_data   = data                         ,
                                           cache_hash     = cache_hash                   ,
                                           cache_id       = cache_id                     ,
                                           strategy       = "direct"                     ,
@@ -791,8 +765,7 @@ class test_Cache__Service(TestCase):                                            
         cache_id   = Random_Guid()
 
         with self.service as _:
-            _.store_with_strategy(cache_key_data = test_data                          ,
-                                  storage_data   = test_data                          ,
+            _.store_with_strategy(storage_data   = test_data                          ,
                                   cache_hash     = cache_hash                         ,
                                   cache_id       = cache_id                           ,
                                   strategy       = "temporal"                         ,
@@ -813,8 +786,7 @@ class test_Cache__Service(TestCase):                                            
             cache_id   = Random_Guid()
 
             # Store binary data
-            _.store_with_strategy(cache_key_data = str(cache_hash)                    ,
-                                  storage_data   = binary_data                        ,
+            _.store_with_strategy(storage_data   = binary_data                        ,
                                   cache_hash     = cache_hash                         ,
                                   cache_id       = cache_id                           ,
                                   strategy       = "temporal_latest"                  ,
@@ -835,8 +807,7 @@ class test_Cache__Service(TestCase):                                            
         with self.service as _:
             # Store v1: uncompressed
             cache_id_v1 = Random_Guid()
-            _.store_with_strategy(cache_key_data = json_to_str(base_data)             ,
-                                  storage_data   = base_data                          ,
+            _.store_with_strategy(storage_data   = base_data                          ,
                                   cache_hash     = cache_hash                         ,
                                   cache_id       = cache_id_v1                        ,
                                   strategy       = "temporal_versioned"               ,
@@ -845,8 +816,7 @@ class test_Cache__Service(TestCase):                                            
             # Store v2: compressed (same hash, different storage)
             cache_id_v2     = Random_Guid()
             compressed_data = gzip.compress(json_to_str(base_data).encode())
-            _.store_with_strategy(cache_key_data   = json_to_str(base_data)           ,
-                                  storage_data     = compressed_data                  ,
+            _.store_with_strategy(storage_data     = compressed_data                  ,
                                   cache_hash       = cache_hash                       ,
                                   cache_id         = cache_id_v2                      ,
                                   strategy         = "temporal_versioned"             ,
@@ -878,8 +848,7 @@ class test_Cache__Service(TestCase):                                            
 
                 with self.service as _:
                     # Store binary data with strategy
-                    response = _.store_with_strategy(cache_key_data = str(cache_hash) ,
-                                                     storage_data   = binary_data     ,
+                    response = _.store_with_strategy(storage_data   = binary_data     ,
                                                      cache_hash     = cache_hash      ,
                                                      cache_id       = cache_id        ,
                                                      strategy       = strategy        ,
@@ -916,12 +885,11 @@ class test_Cache__Service(TestCase):                                            
                 cache_id = Random_Guid()
 
                 with self.service as _:
-                    _.store_with_strategy(cache_key_data = str(cache_hash)            ,
-                                         storage_data   = data                        ,
-                                         cache_hash     = cache_hash                  ,
-                                         cache_id       = cache_id                    ,
-                                         strategy       = "direct"                    ,
-                                         namespace      = self.test_namespace         )
+                    _.store_with_strategy(storage_data   = data                        ,
+                                          cache_hash     = cache_hash                  ,
+                                          cache_id       = cache_id                    ,
+                                          strategy       = "direct"                    ,
+                                          namespace      = self.test_namespace         )
 
                     result = _.retrieve_by_id(cache_id, self.test_namespace)
 

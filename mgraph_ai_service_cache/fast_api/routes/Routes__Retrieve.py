@@ -7,6 +7,9 @@ from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix          import Sa
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag             import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid  import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id      import Safe_Id
+from osbot_utils.utils.Files import path_combine
+from osbot_utils.utils.Http import url_join_safe
+
 from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash       import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Service              import Cache__Service
 
@@ -20,7 +23,9 @@ ROUTES_PATHS__RETRIEVE                = [ BASE_PATH__ROUTES_RETRIEVE + '{cache_i
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}'        ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/binary' ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/json'   ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/string' ]
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/string' ,
+                                          BASE_PATH__ROUTES_RETRIEVE + 'details/{cache_id}'       ,
+                                          BASE_PATH__ROUTES_RETRIEVE + 'details/all/{cache_id}'   ]
 
 
 # todo: refactor this logic into a Service__Retrieve class
@@ -121,7 +126,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         return {"data": data, "data_type": data_type}
 
     def retrieve__cache_id__binary(self, cache_id: Random_Guid,
-                                                    namespace: Safe_Id = None):     # Retrieve as binary by cache ID
+                                         namespace: Safe_Id = None):     # Retrieve as binary by cache ID
         result = self.cache_service.retrieve_by_id(cache_id, namespace)
         if result is None:
             return Response(content="Not found", status_code=404)
@@ -145,7 +150,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                       media_type="application/octet-stream")                # Fallback
 
     def retrieve__hash__cache_hash__string(self, cache_hash: Safe_Str__Cache_Hash,
-                                                        namespace: Safe_Id = None):
+                                                 namespace: Safe_Id = None):
         """Retrieve as string by hash"""
         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
         if result is None:
@@ -168,8 +173,8 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         return Response(content=str(data), media_type="text/plain")
 
     def retrieve__hash__cache_hash__json(self, cache_hash: Safe_Str__Cache_Hash,
-                                                      namespace: Safe_Id = None
-                                                      ) -> Dict[str, Any]:
+                                               namespace: Safe_Id = None
+                                               ) -> Dict[str, Any]:
         """Retrieve as JSON by hash"""
         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
         if result is None:
@@ -195,7 +200,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         return {"data": data, "data_type": data_type}
 
     def retrieve__hash__cache_hash__binary(self, cache_hash: Safe_Str__Cache_Hash,
-                                                        namespace: Safe_Id = None):
+                                                 namespace: Safe_Id = None):
         """Retrieve as binary by hash"""
         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
         if result is None:
@@ -221,6 +226,32 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         return Response(content=str(data).encode('utf-8'),
                         media_type="application/octet-stream")
 
+    def retrieve__details__cache_id(self, cache_id: Random_Guid, namespace: Safe_Id = None):
+        details = self.cache_service.retrieve_by_id__config(cache_id=cache_id, namespace=namespace)
+        if details:
+            return { 'details': details }
+        return {'error': 'Not found', 'message': f'Cache entry id not found: {cache_id} in namespace: {namespace}'}
+
+    def retrieve__details__all__cache_id(self, cache_id: Random_Guid, namespace: Safe_Id = None):
+        result = self.retrieve__details__cache_id(cache_id=cache_id, namespace=namespace)
+        details = result.get('details')
+        if not details:
+            return result
+
+        all_details   = {}
+        content_paths = details.get("content_paths")            # capture this one, since we don't want to show it
+        storage_fs    = self.cache_service.storage_fs()
+        for file_type, file_paths in details.get('all_paths').items():
+            for file_path in file_paths:
+                if file_path not in content_paths:
+                    full_file_path         = url_join_safe(str(namespace), file_path)
+                    if full_file_path:
+                        file_contents          = storage_fs.file__json(full_file_path)          # all these files are json files
+                        all_details[file_path] = file_contents
+        return dict(by_id   =  details   ,
+                    details = all_details)
+
+
     def setup_routes(self):
 
         self.add_route_get(self.retrieve__cache_id)
@@ -233,5 +264,8 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         self.add_route_get(self.retrieve__hash__cache_hash__string)
         self.add_route_get(self.retrieve__hash__cache_hash__json  )
         self.add_route_get(self.retrieve__hash__cache_hash__binary)
+
+        self.add_route_get(self.retrieve__details__all__cache_id)
+        self.add_route_get(self.retrieve__details__cache_id     )
 
 

@@ -60,8 +60,7 @@ class test_Routes__Delete(TestCase):
             cache_id   = Random_Guid()
 
             # Store the data
-            store_result = self.cache_service.store_with_strategy(cache_key_data = test_data         ,
-                                                                  storage_data   = test_data         ,
+            store_result = self.cache_service.store_with_strategy(storage_data   = test_data         ,
                                                                   cache_hash     = cache_hash        ,
                                                                   cache_id       = cache_id          ,
                                                                   strategy       = "direct"          ,
@@ -97,8 +96,7 @@ class test_Routes__Delete(TestCase):
             cache_hash = self.cache_service.hash_from_string(test_data)
             cache_id   = Random_Guid()
 
-            self.cache_service.store_with_strategy(cache_key_data = test_data  ,
-                                                   storage_data   = test_data  ,
+            self.cache_service.store_with_strategy(storage_data   = test_data  ,
                                                    cache_hash     = cache_hash ,
                                                    cache_id       = cache_id   ,
                                                    strategy       = "direct"   ,
@@ -134,16 +132,14 @@ class test_Routes__Delete(TestCase):
             cache_id2  = Random_Guid()
 
             # Store in ns1
-            self.cache_service.store_with_strategy(cache_key_data = test_data  ,
-                                                   storage_data   = test_data  ,
+            self.cache_service.store_with_strategy(storage_data   = test_data  ,
                                                    cache_hash     = cache_hash ,
                                                    cache_id       = cache_id1  ,
                                                    strategy       = "direct"   ,
                                                    namespace      = ns1        )
 
             # Store in ns2
-            self.cache_service.store_with_strategy(cache_key_data = test_data  ,
-                                                   storage_data   = test_data  ,
+            self.cache_service.store_with_strategy(storage_data   = test_data  ,
                                                    cache_hash     = cache_hash ,
                                                    cache_id       = cache_id2  ,
                                                    strategy       = "direct"   ,
@@ -180,12 +176,11 @@ class test_Routes__Delete(TestCase):
                     cache_id   = Random_Guid()
                     namespace  = Safe_Id(f"delete-{strategy}")
 
-                    self.cache_service.store_with_strategy(cache_key_data = test_data  ,
-                                                          storage_data   = test_data  ,
-                                                          cache_hash     = cache_hash ,
-                                                          cache_id       = cache_id   ,
-                                                          strategy       = strategy   ,
-                                                          namespace      = namespace  )
+                    self.cache_service.store_with_strategy(storage_data   = test_data  ,
+                                                           cache_hash     = cache_hash ,
+                                                           cache_id       = cache_id   ,
+                                                           strategy       = strategy   ,
+                                                           namespace      = namespace  )
 
                     # Verify stored
                     retrieve = self.cache_service.retrieve_by_id(cache_id, namespace)
@@ -262,12 +257,11 @@ class test_Routes__Delete(TestCase):
                     cache_id   = Random_Guid()
                     namespace  = Safe_Id(f"count-{strategy}")
 
-                    self.cache_service.store_with_strategy(cache_key_data = test_data  ,
-                                                          storage_data   = test_data  ,
-                                                          cache_hash     = cache_hash ,
-                                                          cache_id       = cache_id   ,
-                                                          strategy       = strategy   ,
-                                                          namespace      = namespace  )
+                    self.cache_service.store_with_strategy(storage_data   = test_data  ,
+                                                           cache_hash     = cache_hash ,
+                                                           cache_id       = cache_id   ,
+                                                           strategy       = strategy   ,
+                                                           namespace      = namespace  )
 
                     # Delete and check count
                     result = _.delete__cache_id(cache_id = cache_id ,
@@ -286,14 +280,11 @@ class test_Routes__Delete(TestCase):
             namespace  = Safe_Id("integration-delete")
 
             # Store via cache service
-            store_result = self.cache_service.store_with_strategy(
-                cache_key_data = test_data ,
-                storage_data   = test_data ,
-                cache_hash     = cache_hash,
-                cache_id       = cache_id  ,
-                strategy       = "temporal",
-                namespace      = namespace
-            )
+            store_result = self.cache_service.store_with_strategy(storage_data   = test_data ,
+                                                                  cache_hash     = cache_hash,
+                                                                  cache_id       = cache_id  ,
+                                                                  strategy       = "temporal",
+                                                                  namespace      = namespace )
             assert store_result.cache_id == cache_id
 
             # Verify exists
@@ -319,12 +310,11 @@ class test_Routes__Delete(TestCase):
             cache_hash = self.cache_service.hash_from_string(test_data)
             cache_id   = Random_Guid()
 
-            self.cache_service.store_with_strategy(cache_key_data = test_data         ,
-                                                  storage_data   = test_data         ,
-                                                  cache_hash     = cache_hash        ,
-                                                  cache_id       = cache_id          ,
-                                                  strategy       = "direct"          ,
-                                                  namespace      = self.test_namespace)
+            self.cache_service.store_with_strategy(storage_data   = test_data         ,
+                                                   cache_hash     = cache_hash        ,
+                                                   cache_id       = cache_id          ,
+                                                   strategy       = "direct"          ,
+                                                   namespace      = self.test_namespace)
 
             # First delete should succeed
             result1 = _.delete__cache_id(cache_id = cache_id        ,

@@ -6,7 +6,11 @@ class Path__Handler__ID_Sharded(Path__Handler):                                 
     shard_depth : int = 2                                                          # Two levels: aa/bb/
     shard_size  : int = 2                                                          # 2 chars per level
 
-    def generate_path(self, file_id: Safe_Id) -> Safe_Str__File__Path:            # Generate sharded path based on cache ID
+    def generate_path(self, file_id:Safe_Id                = None                       # allow the file_id to be used by overwritten methods
+                          , file_key: Safe_Str__File__Path = None                       # allow the file_key to be used by overwritten methods
+                       ) -> Safe_Str__File__Path:                                       # Generate sharded path based on cache ID
+        if file_id is None:
+            raise ValueError('In Path__Handler__ID_Sharded, file_id cannot be None')
         id_str = str(file_id)
 
         shards = []
