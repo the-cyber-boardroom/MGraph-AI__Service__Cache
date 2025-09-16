@@ -57,9 +57,9 @@ class test_Routes__Store(TestCase):
             assert _.tag                 == TAG__ROUTES_STORE
             assert type(_.cache_service) is Cache__Service
 
-    def test_as__string(self):                                     # Test string storage endpoint
+    def test_store__string(self):                                     # Test string storage endpoint
         target_string           = "a different string"
-        response__store         = self.routes.as__string(data      = target_string    ,
+        response__store         = self.routes.store__string(data      = target_string    ,
                                                                                           strategy  = "temporal"       ,
                                                                                           namespace = self.test_namespace)
         with response__store as _:
@@ -85,8 +85,8 @@ class test_Routes__Store(TestCase):
             assert type(_.cache_id) is Random_Guid
             assert type(_.hash)     is Safe_Str__Cache_Hash
 
-    def test_as__json(self):                                       # Test JSON storage endpoint
-        response__store = self.routes.as__json(data      = self.test_json       ,
+    def test_store__json(self):                                       # Test JSON storage endpoint
+        response__store = self.routes.store__json(data      = self.test_json       ,
                                                                                 strategy  = "temporal"           ,
                                                                                 namespace = self.test_namespace  )
         with response__store  as _:
@@ -96,13 +96,13 @@ class test_Routes__Store(TestCase):
             assert type(_.hash)     is Safe_Str__Cache_Hash
             assert _.hash           == '96af669d785b90b6'                           # consistent hash for same data
 
-    def test_as__binary(self):                                     # Test binary through route endpoints
+    def test_store__binary(self):                                     # Test binary through route endpoints
         # Create test binary data
         binary_data = b'\x89PNG\r\n\x1a\n' + b'\x00' * 100                         # Fake PNG header
 
         with self.routes as _:
             # Store binary
-            response_store = _.as__binary(body      = binary_data         ,
+            response_store = _.store__binary(body      = binary_data         ,
                                                                            request   = self.request        ,
                                                                            strategy  = "direct"            ,
                                                                            namespace = self.test_namespace )
@@ -114,7 +114,7 @@ class test_Routes__Store(TestCase):
             assert type(response_store.cache_id) is Random_Guid
             assert response_store.size           > 100                              # Binary has size
 
-    def test_as__binary__compressed(self):                         # Test compressed binary storage
+    def test_store__binary__compressed(self):                         # Test compressed binary storage
         original_data   = b"Test data to compress" * 100
         compressed_data = gzip.compress(original_data)
         self.request    = Request(scope={ "type": "http",
@@ -123,7 +123,7 @@ class test_Routes__Store(TestCase):
 
         with self.routes as _:
             # Store compressed binary
-            response_store = _.as__binary(request   = self.request        ,
+            response_store = _.store__binary(request   = self.request        ,
                                                                            body      = compressed_data     ,
                                                                            strategy  = "temporal"          ,
                                                                            namespace = self.test_namespace )
@@ -135,11 +135,11 @@ class test_Routes__Store(TestCase):
             # Size should reflect compressed size
             assert response_store.size < len(original_data)
 
-    def test_as__binary__uncompressed(self):                       # Test uncompressed binary storage
+    def test_store__binary__uncompressed(self):                       # Test uncompressed binary storage
         binary_data = b'Raw binary data \x00\x01\x02'
 
         with self.routes as _:
-            response = _.as__binary(request   = self.request        ,
+            response = _.store__binary(request   = self.request        ,
                                                      body      = binary_data         ,
                                                      strategy  = "temporal_versioned",
                                                      namespace = self.test_namespace )
@@ -157,7 +157,7 @@ class test_Routes__Store(TestCase):
             with self.subTest(strategy=strategy):
                 with self.routes as _:
                     # Store with strategy
-                    response = _.as__string(data      = test_data                  ,
+                    response = _.store__string(data      = test_data                  ,
                                                               strategy  = strategy                   ,
                                                               namespace = Safe_Id(f"strat-{strategy}"))
 
@@ -170,7 +170,7 @@ class test_Routes__Store(TestCase):
 
         with self.routes as _:
             # Store without namespace (should use "default")
-            response_store = _.as__string(data      = test_data ,
+            response_store = _.store__string(data      = test_data ,
                                                             strategy  = "direct"  ,
                                                             namespace = None      )
             cache_id = response_store.cache_id
@@ -188,7 +188,7 @@ class test_Routes__Store(TestCase):
 
         with self.routes as _:
             # Store as compressed binary
-            response_store = _.as__binary(request   = self.request        ,
+            response_store = _.store__binary(request   = self.request        ,
                                                            body      = compressed_data     ,
                                                            strategy  = "temporal_latest"   ,
                                                            namespace = self.test_namespace )
@@ -204,11 +204,11 @@ class test_Routes__Store(TestCase):
 
         with self.routes as _:
             # Store same data twice
-            response1 = _.as__string(data      = test_data         ,
+            response1 = _.store__string(data      = test_data         ,
                                                        strategy  = "temporal"         ,
                                                        namespace = self.test_namespace)
 
-            response2 = _.as__string(data      = test_data         ,
+            response2 = _.store__string(data      = test_data         ,
                                                      strategy  = "temporal"         ,
                                                      namespace = self.test_namespace)
 
@@ -218,7 +218,7 @@ class test_Routes__Store(TestCase):
 
     def test_store_empty_string(self):                                              # Test storing empty string
         with self.routes as _:
-            response = _.as__string(data      = ""                ,
+            response = _.store__string(data      = ""                ,
                                                                      strategy  = "direct"           ,
                                                                      namespace = self.test_namespace)
 
@@ -229,7 +229,7 @@ class test_Routes__Store(TestCase):
 
     def test_store_empty_json(self):                                                # Test storing empty JSON object
         with self.routes as _:
-            response = _.as__json(data      = {}                  ,
+            response = _.store__json(data      = {}                  ,
                                                                    strategy  = "direct"             ,
                                                                    namespace = self.test_namespace  )
 
@@ -245,7 +245,7 @@ class test_Routes__Store(TestCase):
         }
 
         with self.routes as _:
-            response = _.as__json(data      = large_json          ,
+            response = _.store__json(data      = large_json          ,
                                                   strategy  = "temporal_versioned" ,
                                                   namespace = self.test_namespace  )
 
@@ -257,7 +257,7 @@ class test_Routes__Store(TestCase):
         special_string = "Test with special chars: 你好世界 🚀 \n\t\r"
 
         with self.routes as _:
-            response = _.as__string(data      = special_string    ,
+            response = _.store__string(data      = special_string    ,
                                                     strategy  = "direct"           ,
                                                     namespace = self.test_namespace)
 
@@ -273,7 +273,7 @@ class test_Routes__Store(TestCase):
         }
 
         with self.routes as _:
-            response = _.as__json(data      = json_with_nulls     ,
+            response = _.store__json(data      = json_with_nulls     ,
                                                   strategy  = "temporal"           ,
                                                   namespace = self.test_namespace  )
 

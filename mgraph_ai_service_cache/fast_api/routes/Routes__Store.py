@@ -7,19 +7,21 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id               
 from mgraph_ai_service_cache.service.cache.Cache__Service                          import Cache__Service
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response          import Schema__Cache__Store__Response
 
-TAG__ROUTES_STORE                  = 'store/{strategy}/{namespace}'
-ROUTES_PATHS__STORE                = [ f'/{TAG__ROUTES_STORE}' + '/as/binary' ,
-                                       f'/{TAG__ROUTES_STORE}' + '/as/json'   ,
-                                       f'/{TAG__ROUTES_STORE}' + '/as/string' ]
+TAG__ROUTES_STORE                  = 'store'
+PREFIX__ROUTES_STORE               = '/{namespace}/{strategy}'
+ROUTES_PATHS__STORE                = [ f'{PREFIX__ROUTES_STORE}' + '/store/binary' ,
+                                       f'{PREFIX__ROUTES_STORE}' + '/store/json'   ,
+                                       f'{PREFIX__ROUTES_STORE}' + '/store/string' ]
 
 class Routes__Store(Fast_API__Routes):                                             # FastAPI routes for cache operations
     tag           : Safe_Str__Fast_API__Route__Tag  = TAG__ROUTES_STORE
+    prefix        : Safe_Str__Fast_API__Route__Tag  = PREFIX__ROUTES_STORE
     cache_service : Cache__Service
 
-    def as__string(self, data: str = Body(...)                                                                          ,
-                                          strategy  : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
-                                          namespace : Safe_Id = None
-                                     ) -> Schema__Cache__Store__Response:
+    def store__string(self, data      : str = Body(...)                                                                    ,
+                            strategy  : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
+                            namespace : Safe_Id = None
+                       ) -> Schema__Cache__Store__Response:
 
         cache_hash = self.cache_service.hash_from_string(data)
         cache_id   = Random_Guid()
@@ -31,7 +33,7 @@ class Routes__Store(Fast_API__Routes):                                          
                                                       strategy       = strategy  ,
                                                       namespace      = namespace )
 
-    def as__json(self, data            : dict                                                                               ,
+    def store__json(self, data            : dict                                                                               ,
                                           strategy        : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
                                           namespace       : Safe_Id = None
                                      ) -> Schema__Cache__Store__Response:
@@ -47,7 +49,7 @@ class Routes__Store(Fast_API__Routes):                                          
                                                       namespace      = namespace    )
 
 
-    def as__binary(self, request  : Request                                                    ,
+    def store__binary(self, request  : Request                                                    ,
                                             body     : bytes = Body(..., media_type="application/octet-stream")   ,
                                             strategy: Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
                                             namespace: Safe_Id = None
@@ -77,6 +79,6 @@ class Routes__Store(Fast_API__Routes):                                          
 
 
     def setup_routes(self):                                                     # Configure FastAPI routes
-        self.add_route_post(self.as__string )                                   # String endpoints
-        self.add_route_post(self.as__json   )                                   # JSON endpoints
-        self.add_route_post(self.as__binary )                                   # Binary endpoints
+        self.add_route_post(self.store__string )                                   # String endpoints
+        self.add_route_post(self.store__json   )                                   # JSON endpoints
+        self.add_route_post(self.store__binary )                                   # Binary endpoints
