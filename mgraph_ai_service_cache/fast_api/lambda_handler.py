@@ -15,12 +15,20 @@ if os.getenv('AWS_REGION'):  # only execute if we are not running inside an AWS 
 
     clear_osbot_modules()
 
-from mgraph_ai_service_cache.fast_api.Service__Fast_API import Service__Fast_API
+error   = None          # pin these variablesests
+handler = None
+app     = None
+try:
+    from mgraph_ai_service_cache.fast_api.Service__Fast_API import Service__Fast_API
 
-with Service__Fast_API() as _:
-    _.setup()
-    handler = _.handler()
-    app     = _.app()
+    with Service__Fast_API() as _:
+        _.setup()
+        handler = _.handler()
+        app     = _.app()
+except Exception as error:
+    error = str(error)
 
 def run(event, context=None):
+    if error:
+        return error
     return handler(event, context)
