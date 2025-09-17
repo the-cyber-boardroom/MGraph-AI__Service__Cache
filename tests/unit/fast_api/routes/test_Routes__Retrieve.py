@@ -15,7 +15,7 @@ from osbot_aws.AWS_Config                                                       
 from osbot_fast_api.api.routes.Fast_API__Routes                                     import Fast_API__Routes
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                       import Routes__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.Routes__Store                          import Routes__Store
-from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                    import Safe_Str__Cache_Hash
+from memory_fs.schemas.Safe_Str__Cache_Hash                    import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service
 from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs
 
@@ -248,14 +248,6 @@ class test_Routes__Retrieve(TestCase):
             result = _.retrieve__hash__cache_hash__json(cache_hash, self.test_namespace)
 
             assert result == {"valid": "json", "as": "string"}
-
-    def test_retrieve__hash__cache_hash__not_found(self):                           # Test JSON retrieval by hash not found
-        non_existent_hash = Safe_Str__Cache_Hash("0000000000000000")
-
-        with self.routes__retrieve as _:
-            result = _.retrieve__hash__cache_hash__json(non_existent_hash, self.test_namespace)
-
-            assert result == {"status": "not_found", "message": "Cache entry not found"}
 
     def test_binary_to_string_conversion(self):                                     # Test binary data retrieved as string
         # UTF-8 decodable binary

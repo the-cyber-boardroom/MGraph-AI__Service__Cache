@@ -1,7 +1,7 @@
 from unittest                                                           import TestCase
 from osbot_aws.AWS_Config                                               import aws_config
 from osbot_aws.testing.Temp__Random__AWS_Credentials                    import OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID, OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
-from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash        import Safe_Str__Cache_Hash
+from memory_fs.schemas.Safe_Str__Cache_Hash        import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator       import Cache__Hash__Generator
 from tests.unit.Service__Fast_API__Test_Objs                            import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 

@@ -10,7 +10,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id       import S
 from osbot_utils.utils.Misc                                             import random_string_short
 from osbot_utils.utils.Objects                                          import base_classes, __
 from mgraph_ai_service_cache.fast_api.routes.Routes__Exists             import Routes__Exists, TAG__ROUTES_EXISTS, PREFIX__ROUTES_EXISTS, BASE_PATH__ROUTES_EXISTS, ROUTES_PATHS__EXISTS
-from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash        import Safe_Str__Cache_Hash
+from memory_fs.schemas.Safe_Str__Cache_Hash        import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Service               import Cache__Service
 from tests.unit.Service__Fast_API__Test_Objs                            import setup__service_fast_api_test_objs
 

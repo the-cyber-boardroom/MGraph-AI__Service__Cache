@@ -3,7 +3,7 @@ from osbot_fast_api.api.routes.Fast_API__Routes                     import Fast_
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix       import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag          import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id   import Safe_Id
-from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash    import Safe_Str__Cache_Hash
+from memory_fs.schemas.Safe_Str__Cache_Hash                         import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Service           import Cache__Service
 
 TAG__ROUTES_EXISTS                  = 'exists'

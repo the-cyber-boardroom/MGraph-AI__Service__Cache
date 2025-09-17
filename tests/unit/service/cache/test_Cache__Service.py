@@ -15,7 +15,7 @@ from osbot_utils.utils.Json                                                     
 from osbot_utils.utils.Misc                                                         import random_string_short, str_to_base64
 from osbot_utils.utils.Objects                                                      import base_classes
 from osbot_aws.AWS_Config                                                           import aws_config
-from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                    import Safe_Str__Cache_Hash
+from memory_fs.schemas.Safe_Str__Cache_Hash                                         import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service, DEFAULT__CACHE__SERVICE__BUCKET_NAME, DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS
 from mgraph_ai_service_cache.service.cache.Cache__Handler                           import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                      import Cache__Hash__Config
@@ -189,14 +189,15 @@ class test_Cache__Service(TestCase):                                            
             assert result == { 'content_encoding': None,
                                'data'            : 'retrieve by hash test',
                                'data_type'       : 'string',
-                               'metadata': {'cache_hash'      : 'ef11cf6a121a582a',
-                                            'cache_id'        : cache_id    ,
-                                            'cache_key'       : 'None'      ,
-                                            'content_encoding': None        ,
-                                            'file_type'       : 'json'      ,
-                                            'namespace'       : 'test-namespace',
-                                            'stored_at'       : stored_at,
-                                            'strategy'        : 'temporal'}}
+                               'metadata': {'cache_hash'      : 'ef11cf6a121a582a'  ,
+                                            'cache_id'        : cache_id            ,
+                                            'cache_key'       : 'None'              ,
+                                            'file_id'         : cache_id            ,
+                                            'content_encoding': None                ,
+                                            'file_type'       : 'json'              ,
+                                            'namespace'       : 'test-namespace'    ,
+                                            'stored_at'       : stored_at           ,
+                                            'strategy'        : 'temporal'          }}
             assert result is not None
             assert "data" in result
             assert result["data"] == test_data
@@ -238,11 +239,12 @@ class test_Cache__Service(TestCase):                                            
                                          'data'            : 'retrieve by id test',
                                          'data_type'       : 'string',
                                          'metadata'        : { 'cache_hash'      : '042347b98515ab7f',
-                                                               'cache_id'        : cache_id     ,
-                                                               'cache_key'       : 'None'       ,
-                                                               'content_encoding': None         ,
-                                                               'file_type'       : 'json'       ,
-                                                               'namespace'       : 'test-namespace',
+                                                               'cache_id'        : cache_id          ,
+                                                               'cache_key'       : 'None'            ,
+                                                               'file_id'         : cache_id          ,
+                                                               'content_encoding': None              ,
+                                                               'file_type'       : 'json'            ,
+                                                               'namespace'       : 'test-namespace'  ,
                                                                'stored_at'       : result__retrieve['metadata']['stored_at'],
                                                                'strategy'        : 'direct'}}
 
@@ -426,19 +428,20 @@ class test_Cache__Service(TestCase):                                            
         # Store data first
         cache_hash = self.service.hash_from_string(self.test_data_string)
         cache_id   = Random_Guid()
-
         with self.service as _:
             result__store  = _.store_with_strategy(storage_data   = self.test_data_string,
                                                    cache_hash     = cache_hash           ,
                                                    cache_id       = cache_id             ,
                                                    strategy       = "temporal"           ,
                                                    namespace      = self.test_namespace  )
-
             # Retrieve by hash
             result__retrieve = _.retrieve_by_hash(cache_hash, self.test_namespace)
-            assert result__retrieve         is not None
-            assert "data"         in result__retrieve
-            assert result__retrieve["data"] == self.test_data_string
+            assert result__retrieve                         is not None
+            assert result__retrieve["data"    ]             == self.test_data_string
+            assert result__retrieve["metadata"]['cache_id'] == cache_id
+            assert result__retrieve["metadata"]['cache_id'] == result__store.cache_id
+            assert result__retrieve["metadata"]['file_id' ] == cache_id                             # in this case they match
+            assert _.delete_by_id(cache_id=cache_id, namespace=self.test_namespace).get('deleted_count') == 9
 
 
     def test_retrieve_by_id__not_found(self):                                      # Test retrieval of non-existent ID
@@ -472,8 +475,9 @@ class test_Cache__Service(TestCase):                                            
                                     'data_type'       : 'json'                                       ,
                                     'metadata'        : { 'cache_hash'      : '1e2ff1555748f789'      ,
                                                           'cache_id'        : cache_id                ,
-                                                          'cache_key'       : 'None'                 ,
+                                                          'cache_key'       : 'None'                  ,
                                                           'content_encoding': None                    ,
+                                                          'file_id'         : cache_id                ,
                                                           'file_type'       : 'json'                  ,
                                                           'namespace'       : self.test_namespace     ,
                                                           'stored_at'       : stored_at               ,
@@ -694,6 +698,7 @@ class test_Cache__Service(TestCase):                                            
                                                    'cache_key'       : 'None'           ,
                                                    'content_encoding': 'gzip'           ,
                                                    'file_type'       : 'binary'         ,
+                                                   'file_id'         : cache_id         ,
                                                    'namespace'       : 'test-namespace' ,
                                                    'stored_at'       : stored_at        ,
                                                    'strategy'        : 'temporal'       }}

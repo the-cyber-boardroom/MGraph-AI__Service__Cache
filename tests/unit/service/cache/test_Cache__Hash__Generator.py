@@ -1,6 +1,6 @@
 from unittest                                                      import TestCase
 from osbot_utils.utils.Objects                                     import base_classes, __
-from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash   import Safe_Str__Cache_Hash
+from memory_fs.schemas.Safe_Str__Cache_Hash   import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config     import Cache__Hash__Config, Enum__Hash__Algorithm
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator  import Cache__Hash__Generator
 from osbot_utils.type_safe.Type_Safe                               import Type_Safe

@@ -15,7 +15,7 @@
 # from osbot_aws.AWS_Config                                                           import aws_config
 # from osbot_fast_api.api.routes.Fast_API__Routes                                     import Fast_API__Routes
 # #from mgraph_ai_service_cache.fast_api.routes.Routes__Cache                          import Routes__Cache
-# from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                    import Safe_Str__Cache_Hash
+# from memory_fs.schemas.Safe_Str__Cache_Hash                    import Safe_Str__Cache_Hash
 # from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service
 # from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response           import Schema__Cache__Store__Response
 # from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs

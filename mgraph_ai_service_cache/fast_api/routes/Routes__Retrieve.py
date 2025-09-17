@@ -8,7 +8,7 @@ from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag             import Sa
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid  import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id      import Safe_Id
 from osbot_utils.utils.Http                                            import url_join_safe
-from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash       import Safe_Str__Cache_Hash
+from memory_fs.schemas.Safe_Str__Cache_Hash                            import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Service              import Cache__Service
 
 TAG__ROUTES_RETRIEVE                  = 'retrieve'
@@ -172,13 +172,12 @@ class Routes__Retrieve(Fast_API__Routes):                                       
 
     def retrieve__hash__cache_hash__json(self, cache_hash: Safe_Str__Cache_Hash,
                                                namespace: Safe_Id = None
-                                               ) -> Dict[str, Any]:
-        """Retrieve as JSON by hash"""
+                                               ) -> Dict[str, Any]:     # Retrieve as JSON by hash
         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
         if result is None:
             return {"status": "not_found", "message": "Cache entry not found"}
 
-        data = result.get("data")
+        data      = result.get("data")
         data_type = result.get("data_type")
 
         if data_type == "json":
@@ -188,12 +187,10 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                 return json.loads(data)
             except:
                 return {"error": "Data is not valid JSON", "data": data}
-        elif data_type == "binary":
-            return {
-                "data_type": "binary",
-                "encoding": "base64",
-                "data": base64.b64encode(data).decode('utf-8')
-            }
+        elif data_type == "binary":                                                 # this base64 convertion should be useful for some web clients that want to get the base64 encoding data of a file
+            return {    "data_type": "binary",
+                        "encoding": "base64",
+                        "data": base64.b64encode(data).decode('utf-8')}
 
         return {"data": data, "data_type": data_type}
 
@@ -258,7 +255,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         self.add_route_get(self.retrieve__cache_id__binary    )
 
 
-        self.add_route_get(self.retrieve__hash__cache_hash)                           # Generic retrieval endpoints (return with metadata and type info)
+        self.add_route_get(self.retrieve__hash__cache_hash        )               # Generic retrieval endpoints (return with metadata and type info)
         self.add_route_get(self.retrieve__hash__cache_hash__string)
         self.add_route_get(self.retrieve__hash__cache_hash__json  )
         self.add_route_get(self.retrieve__hash__cache_hash__binary)

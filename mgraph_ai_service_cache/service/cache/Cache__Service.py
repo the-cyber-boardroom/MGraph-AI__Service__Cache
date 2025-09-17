@@ -10,7 +10,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
 from osbot_utils.utils.Misc                                                         import timestamp_now, list_set
 from mgraph_ai_service_cache.schemas.cache.Enum__Cache__Store__Strategy             import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.schemas.hashes.Safe_Str__Cache_Hash                    import Safe_Str__Cache_Hash
+from memory_fs.schemas.Safe_Str__Cache_Hash                                         import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Handler                           import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                      import Cache__Hash__Config
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator                   import Cache__Hash__Generator
@@ -229,10 +229,11 @@ class Cache__Service(Type_Safe):                                                
             content_file_paths = file_fs.file_fs__paths().paths__content()          # get the file paths for the content files
 
             # Add metadata
-            metadata = { "cache_hash"       : str(cache_hash)    ,
+            metadata = { "cache_hash"       : str(cache_hash)    ,                  # todo: convert to Type_Safe class
                          "cache_key"        : str(cache_key)     ,
                          "cache_id"         : str(cache_id)      ,
                          "content_encoding" : content_encoding   ,
+                         "file_id"          : str(file_id)       ,
                          "stored_at"        : timestamp_now()    ,
                          "strategy"         : strategy           ,
                          "namespace"        : str(namespace)     ,
