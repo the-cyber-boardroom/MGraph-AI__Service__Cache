@@ -9,7 +9,7 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text        import Safe_Str__Text
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                   import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
 from osbot_utils.utils.Json                                                         import json_to_str
 from osbot_utils.utils.Misc                                                         import random_string_short, str_to_base64
@@ -41,13 +41,13 @@ class test_Cache__Service(TestCase):                                            
             _.default_ttl_hours  = 12
 
         # Test data shared across tests
-        cls.test_namespace       = Safe_Id("test-namespace")
+        cls.test_namespace       = Safe_Str__Id("test-namespace")
         cls.test_data_string     = "test cache data"
         cls.test_data_json       = {"key": "value", "number": 123, "nested": {"inner": "data"}}
         cls.test_data__base_64   = str_to_base64(json_to_str(cls.test_data_json))
-        cls.test_metadata        = {Safe_Id("author" ): Safe_Str__Text("test-user"),
-                                    Safe_Id("version"): Safe_Str__Text("1.0")}
-        cls.test_tags            = [Safe_Id("test"), Safe_Id("cache")]
+        cls.test_metadata        = {Safe_Str__Id("author" ): Safe_Str__Text("test-user"),
+                                    Safe_Str__Id("version"): Safe_Str__Text("1.0")}
+        cls.test_tags            = [Safe_Str__Id("test"), Safe_Str__Id("cache")]
         cls.path_now             = Path__Handler__Temporal().path_now()                      # get the current temporal path from the handler
 
     @classmethod
@@ -87,7 +87,7 @@ class test_Cache__Service(TestCase):                                            
 
 
     def test_get_or_create_handler(self):                                           # Test handler creation and retrieval
-        namespace = Safe_Id("handler-test")
+        namespace = Safe_Str__Id("handler-test")
 
         with self.service as _:
             # First call creates new handler
@@ -164,7 +164,7 @@ class test_Cache__Service(TestCase):                                            
                                                      cache_hash     = cache_hash,
                                                      cache_id       = cache_id,
                                                      strategy       = strategy,
-                                                     namespace      = Safe_Id(f"ns-{strategy}"))
+                                                     namespace      = Safe_Str__Id(f"ns-{strategy}"))
 
                     assert response.cache_id == cache_id
                     assert response.hash     == cache_hash
@@ -372,16 +372,16 @@ class test_Cache__Service(TestCase):                                            
     def test_list_namespaces(self):                                                   # Test listing active namespaces
         with self.service as _:
             # Create handlers for multiple namespaces
-            _.get_or_create_handler(Safe_Id("ns1"))
-            _.get_or_create_handler(Safe_Id("ns2"))
-            _.get_or_create_handler(Safe_Id("ns3"))
+            _.get_or_create_handler(Safe_Str__Id("ns1"))
+            _.get_or_create_handler(Safe_Str__Id("ns2"))
+            _.get_or_create_handler(Safe_Str__Id("ns3"))
 
             namespaces = _.list_namespaces()
 
             assert type(namespaces) is list
-            assert Safe_Id("ns1") in namespaces
-            assert Safe_Id("ns2") in namespaces
-            assert Safe_Id("ns3") in namespaces
+            assert Safe_Str__Id("ns1") in namespaces
+            assert Safe_Str__Id("ns2") in namespaces
+            assert Safe_Str__Id("ns3") in namespaces
 
     def test__path_tracking_in_id_reference(self):                                    # Test that ID reference contains all paths
         test_data = "path tracking test"
@@ -407,7 +407,7 @@ class test_Cache__Service(TestCase):                                            
 
             # Read the ID reference directly
             handler = _.get_or_create_handler(self.test_namespace)
-            with handler.fs__refs_id.file__json(Safe_Id(str(cache_id))) as ref_fs:
+            with handler.fs__refs_id.file__json(Safe_Str__Id(str(cache_id))) as ref_fs:
                 id_ref_data = ref_fs.content()
                 all_paths = id_ref_data["all_paths"]
                 assert id_ref_data == { 'all_paths'     : all_paths              ,
@@ -485,8 +485,8 @@ class test_Cache__Service(TestCase):                                            
 
 
     def test__multiple_namespaces_isolated(self):                                  # Test namespace isolation
-        ns1 = Safe_Id("namespace1")
-        ns2 = Safe_Id("namespace2")
+        ns1 = Safe_Str__Id("namespace1")
+        ns2 = Safe_Str__Id("namespace2")
 
         data1_string = "namespace 1 data"
         data2_string = "namespace 2 data"
@@ -849,7 +849,7 @@ class test_Cache__Service(TestCase):                                            
             with self.subTest(strategy=strategy):
                 cache_hash = self.service.hash_from_bytes(binary_data)
                 cache_id   = Random_Guid()
-                namespace  = Safe_Id(f"binary-{strategy}")
+                namespace  = Safe_Str__Id(f"binary-{strategy}")
 
                 with self.service as _:
                     # Store binary data with strategy

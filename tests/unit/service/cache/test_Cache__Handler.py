@@ -6,7 +6,7 @@ from osbot_aws.testing.Temp__Random__AWS_Credentials                            
 from osbot_aws.utils.AWS_Sanitization                                           import str_to_valid_s3_bucket_name
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path  import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id              import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id              import Safe_Str__Id
 from osbot_utils.utils.Misc                                                     import random_string_short
 from osbot_utils.utils.Objects                                                  import base_classes, __
 from osbot_aws.AWS_Config                                                       import aws_config
@@ -40,7 +40,7 @@ class test_Cache__Handler(TestCase):                                            
             _.setup()
 
             # Test data shared across tests
-            cls.test_file_id = Safe_Id("test-document")
+            cls.test_file_id = Safe_Str__Id("test-document")
             cls.test_data    = {"content": "test data", "version": 1}
 
             # Get current temporal path for validation
@@ -343,7 +343,7 @@ class test_Cache__Handler(TestCase):                                            
     # Test concurrent operations
     def test__concurrent_strategies(self):                                          # Test using multiple strategies simultaneously
         with self.handler as _:
-            test_id = Safe_Id("concurrent-test")
+            test_id = Safe_Str__Id("concurrent-test")
             data_v1 = {"version": 1, "data": "initial"}
             data_v2 = {"version": 2, "data": "updated"}
             path_prefix__direct     = CACHE__HANDLER__PREFIX_PATH__FS__DATA_DIRECT
@@ -384,7 +384,7 @@ class test_Cache__Handler(TestCase):                                            
     def test__file_operations__not_found(self):                                     # Test operations on non-existent files
         with self.handler as _:
             fs = _.get_fs_for_strategy("direct")
-            file_fs = fs.file__json(Safe_Id("non-existent"))
+            file_fs = fs.file__json(Safe_Str__Id("non-existent"))
 
             assert file_fs.exists()                   is False
             assert file_fs.content()                  is None
@@ -402,7 +402,7 @@ class test_Cache__Handler(TestCase):                                            
                              "items": ["item1", "item2" ],
                              "metadata": {"key": "value"},
                              "active": True             }
-            file_fs = fs.file__json(Safe_Id("complex-test"))
+            file_fs = fs.file__json(Safe_Str__Id("complex-test"))
             files_created = [f'data/temporal-latest/{self.path_now}/complex-test.json'          ,
                              f'data/temporal-latest/{self.path_now}/complex-test.json.config'   ,
                              f'data/temporal-latest/{self.path_now}/complex-test.json.metadata'    ,

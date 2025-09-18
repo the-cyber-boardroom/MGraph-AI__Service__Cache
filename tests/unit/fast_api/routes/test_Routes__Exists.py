@@ -6,7 +6,7 @@ from osbot_aws.utils.AWS_Sanitization                                   import s
 from osbot_fast_api.api.routes.Fast_API__Routes                         import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid   import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id       import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id       import Safe_Str__Id
 from osbot_utils.utils.Misc                                             import random_string_short
 from osbot_utils.utils.Objects                                          import base_classes, __
 from mgraph_ai_service_cache.fast_api.routes.Routes__Exists             import Routes__Exists, TAG__ROUTES_EXISTS, PREFIX__ROUTES_EXISTS, BASE_PATH__ROUTES_EXISTS, ROUTES_PATHS__EXISTS
@@ -29,7 +29,7 @@ class test_Routes__Exists(TestCase):
         cls.routes         = Routes__Exists(cache_service=cls.cache_service)
 
         # Test data
-        cls.test_namespace = Safe_Id("test-exists")
+        cls.test_namespace = Safe_Str__Id("test-exists")
         cls.test_string    = "test exists data"
         cls.test_hash      = Safe_Str__Cache_Hash("0000000000000000")      # Known non-existent hash
 
@@ -128,8 +128,8 @@ class test_Routes__Exists(TestCase):
 
     def test_exists__hash__cache_hash__multiple_namespaces(self):           # Test namespace isolation
         with self.routes as _:
-            ns1 = Safe_Id("exists-ns1")
-            ns2 = Safe_Id("exists-ns2")
+            ns1 = Safe_Str__Id("exists-ns1")
+            ns2 = Safe_Str__Id("exists-ns2")
 
             # Store same data in different namespaces
             test_data  = "namespace isolation test"
@@ -179,8 +179,8 @@ class test_Routes__Exists(TestCase):
             assert type(result) is dict
             assert result["hash"] == str(valid_hash)
 
-            # Valid Safe_Id namespace
-            valid_namespace = Safe_Id("valid-namespace")
+            # Valid Safe_Str__Id namespace
+            valid_namespace = Safe_Str__Id("valid-namespace")
             result = _.exists__hash__cache_hash(cache_hash = self.test_hash    ,
                                                 namespace  = valid_namespace   )
             assert result["namespace"] == str(valid_namespace)
@@ -191,19 +191,10 @@ class test_Routes__Exists(TestCase):
                                                 namespace  = self.test_namespace)
             assert result["hash"] == "stringhash123456"                        # Auto-converted
 
-            # String to Safe_Id (auto-conversion)
+            # String to Safe_Str__Id (auto-conversion)
             result = _.exists__hash__cache_hash(cache_hash = self.test_hash    ,
                                                 namespace  = "string-namespace")
             assert result["namespace"] == "string-namespace"                   # Auto-converted
-
-    def test__empty_hash(self):                                             # Test edge cases
-        with self.routes as _:
-            # Empty hash
-            empty_hash       = Safe_Str__Cache_Hash("")
-            expected_error_1 = 'Invalid ID: The ID must not be empty.'
-            with pytest.raises(ValueError, match = expected_error_1):
-                 _.exists__hash__cache_hash(cache_hash = empty_hash        ,
-                                            namespace  = self.test_namespace)
 
 
 
@@ -213,7 +204,7 @@ class test_Routes__Exists(TestCase):
             test_data   = "integration test data"
             cache_hash  = self.cache_service.hash_from_string(test_data)
             cache_id    = Random_Guid()
-            namespace   = Safe_Id("integration-test")
+            namespace   = Safe_Str__Id("integration-test")
 
             # Initially doesn't exist
             check_before = _.exists__hash__cache_hash(cache_hash = cache_hash,

@@ -5,7 +5,6 @@
 # from osbot_fast_api.api.routes.Fast_API__Routes                                    import Fast_API__Routes
 # from memory_fs.schemas.Safe_Str__Cache_Hash                   import Safe_Str__Cache_Hash
 # from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid              import Random_Guid
-# from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                  import Safe_Id
 # from mgraph_ai_service_cache.service.cache.Cache__Service                          import Cache__Service
 # from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response          import Schema__Cache__Store__Response
 #
@@ -32,13 +31,13 @@
 #     cache_service : Cache__Service
 #
 #     def delete__by_id__cache_id__namespace(self, cache_id: Random_Guid,
-#                                                  namespace: Safe_Id = None) -> Dict[str, Any]:
+#                                                  namespace: Safe_Str__Id = None) -> Dict[str, Any]:
 #         return self.cache_service.delete_by_id(cache_id, namespace)
 #
 #     def store__string__strategy__namespace(self, #request   : Request,
 #                                                  data: str = Body(...)      ,
 #                                                  strategy  : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
-#                                                  namespace : Safe_Id = None
+#                                                  namespace : Safe_Str__Id = None
 #                                             ) -> Schema__Cache__Store__Response:
 #
 #         #data = request.state.body.decode()
@@ -54,7 +53,7 @@
 #
 #     def store__json__strategy__namespace(self, data            : dict                                                                               ,
 #                                                strategy        : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
-#                                                namespace       : Safe_Id = None
+#                                                namespace       : Safe_Str__Id = None
 #                    ) -> Schema__Cache__Store__Response:
 #         #exclude_fields = []
 #         # Calculate hash from filtered JSON
@@ -76,7 +75,7 @@
 #     def store__binary__strategy__namespace(self, request  : Request                                                  , # todo: see if we really need this (since this is mainly used to handle gzip )
 #                                                  body     : bytes = Body(..., media_type="application/octet-stream") ,
 #                                                  strategy : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
-#                                                  namespace: Safe_Id = None
+#                                                  namespace: Safe_Str__Id = None
 #                                          ) -> Schema__Cache__Store__Response:               # Store raw binary data with hash calculation
 #         #body = request.state.body
 #
@@ -107,7 +106,7 @@
 #     # async def store_json_compressed(self, request        : Request                ,  # Store compressed JSON
 #     #                                      exclude_fields  : List[str] = None       ,
 #     #                                      strategy        : Literal["direct", "temporal", "temporal_latest", "temporal_versioned"] = "temporal",
-#     #                                      namespace       : Safe_Id = None
+#     #                                      namespace       : Safe_Str__Id = None
 #     #                                 ) -> Schema__Cache__Store__Response:
 #     #     import gzip
 #     #     import json
@@ -144,12 +143,12 @@
 #     #     return {"hash": str(hash_value)}
 #
 #     def exists__cache_hash__namespace(self, cache_hash      : Safe_Str__Cache_Hash                                   ,  # Check if hash exists
-#                                             namespace  : Safe_Id = None
+#                                             namespace  : Safe_Str__Id = None
 #                                        ) -> Dict[str, bool]:
-#         namespace = namespace or Safe_Id("default")
+#         namespace = namespace or Safe_Str__Id("default")
 #         handler   = self.cache_service.get_or_create_handler(namespace)
 #
-#         with handler.fs__refs_hash.file__json(Safe_Id(str(cache_hash))) as ref_fs:
+#         with handler.fs__refs_hash.file__json(Safe_Str__Id(str(cache_hash))) as ref_fs:
 #             exists = ref_fs.exists()
 #
 #         return {"exists": exists, "hash": str(cache_hash)}
@@ -158,8 +157,8 @@
 #         namespaces = self.cache_service.list_namespaces()
 #         return {"namespaces": [str(ns) for ns in namespaces], "count": len(namespaces)}
 #
-#     def stats__namespaces__namespace(self, namespace: Safe_Id = None) -> Dict[str, Any]:       # Get cache statistics
-#         namespace = namespace or Safe_Id("default")
+#     def stats__namespaces__namespace(self, namespace: Safe_Str__Id = None) -> Dict[str, Any]:       # Get cache statistics
+#         namespace = namespace or Safe_Str__Id("default")
 #
 #         try:
 #             # Get file counts using shared method
@@ -181,7 +180,7 @@
 #         return self.cache_service.list_namespaces()
 #
 #     def retrieve__by_hash__cache_hash__namespace(self, cache_hash : Safe_Str__Cache_Hash,
-#                                                        namespace  : Safe_Id = None
+#                                                        namespace  : Safe_Str__Id = None
 #                                                   ) -> Dict[str, Any]:                          # Retrieve latest by hash with type information"""
 #         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
 #         if result is None:
@@ -198,7 +197,7 @@
 #         return result
 #
 #     def retrieve__by_id__cache_id__namespace(self, cache_id  : Random_Guid,
-#                                                    namespace : Safe_Id = None
+#                                                    namespace : Safe_Str__Id = None
 #                                               ) -> Dict[str, Any]:              # Retrieve by cache ID with type information
 #         result = self.cache_service.retrieve_by_id(cache_id, namespace)
 #         if result is None:
@@ -217,7 +216,7 @@
 #
 #     # New type-specific retrieval methods
 #     def retrieve__string__by_id__cache_id__namespace(self, cache_id: Random_Guid,
-#                                                     namespace: Safe_Id = None
+#                                                     namespace: Safe_Str__Id = None
 #                                                     ) -> str:
 #         """Retrieve as string by cache ID"""
 #         result = self.cache_service.retrieve_by_id(cache_id, namespace)
@@ -244,7 +243,7 @@
 #         return Response(content=str(data), media_type="text/plain")
 #
 #     def retrieve__json__by_id__cache_id__namespace(self, cache_id: Random_Guid,
-#                                                   namespace: Safe_Id = None
+#                                                   namespace: Safe_Str__Id = None
 #                                                   ) -> Dict[str, Any]:
 #         """Retrieve as JSON by cache ID"""
 #         result = self.cache_service.retrieve_by_id(cache_id, namespace)
@@ -274,7 +273,7 @@
 #         return {"data": data, "data_type": data_type}
 #
 #     def retrieve__binary__by_id__cache_id__namespace(self, cache_id: Random_Guid,
-#                                                     namespace: Safe_Id = None):     # Retrieve as binary by cache ID
+#                                                     namespace: Safe_Str__Id = None):     # Retrieve as binary by cache ID
 #         result = self.cache_service.retrieve_by_id(cache_id, namespace)
 #         if result is None:
 #             return Response(content="Not found", status_code=404)
@@ -298,7 +297,7 @@
 #                       media_type="application/octet-stream")                # Fallback
 #
 #     def retrieve__string__by_hash__cache_hash__namespace(self, cache_hash: Safe_Str__Cache_Hash,
-#                                                         namespace: Safe_Id = None):
+#                                                         namespace: Safe_Str__Id = None):
 #         """Retrieve as string by hash"""
 #         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
 #         if result is None:
@@ -322,7 +321,7 @@
 #         return Response(content=str(data), media_type="text/plain")
 #
 #     def retrieve__json__by_hash__cache_hash__namespace(self, cache_hash: Safe_Str__Cache_Hash,
-#                                                       namespace: Safe_Id = None
+#                                                       namespace: Safe_Str__Id = None
 #                                                       ) -> Dict[str, Any]:
 #         """Retrieve as JSON by hash"""
 #         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
@@ -350,7 +349,7 @@
 #         return {"data": data, "data_type": data_type}
 #
 #     def retrieve__binary__by_hash__cache_hash__namespace(self, cache_hash: Safe_Str__Cache_Hash,
-#                                                         namespace: Safe_Id = None):
+#                                                         namespace: Safe_Str__Id = None):
 #         """Retrieve as binary by hash"""
 #         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
 #         if result is None:

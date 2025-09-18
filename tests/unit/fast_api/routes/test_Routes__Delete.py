@@ -1,16 +1,16 @@
-from unittest                                                           import TestCase
-from osbot_aws.AWS_Config                                               import aws_config
-from osbot_aws.testing.Temp__Random__AWS_Credentials                    import OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID, OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
-from osbot_aws.utils.AWS_Sanitization                                   import str_to_valid_s3_bucket_name
-from osbot_fast_api.api.routes.Fast_API__Routes                         import Fast_API__Routes
-from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid   import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id       import Safe_Id
-from osbot_utils.utils.Misc                                             import random_string_short
-from osbot_utils.utils.Objects                                          import base_classes, __
-from mgraph_ai_service_cache.fast_api.routes.Routes__Delete             import Routes__Delete, TAG__ROUTES_DELETE, PREFIX__ROUTES_DELETE, BASE_PATH__ROUTES_DELETE, ROUTES_PATHS__DELETE
-from mgraph_ai_service_cache.service.cache.Cache__Service               import Cache__Service
-from tests.unit.Service__Fast_API__Test_Objs                            import setup__service_fast_api_test_objs
+from unittest                                                                       import TestCase
+from osbot_aws.AWS_Config                                                           import aws_config
+from osbot_aws.testing.Temp__Random__AWS_Credentials                                import OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID, OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
+from osbot_aws.utils.AWS_Sanitization                                               import str_to_valid_s3_bucket_name
+from osbot_fast_api.api.routes.Fast_API__Routes                                     import Fast_API__Routes
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
+from osbot_utils.utils.Misc                                                         import random_string_short
+from osbot_utils.utils.Objects                                                      import base_classes, __
+from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                         import Routes__Delete, TAG__ROUTES_DELETE, PREFIX__ROUTES_DELETE, BASE_PATH__ROUTES_DELETE, ROUTES_PATHS__DELETE
+from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service
+from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs
 
 
 class test_Routes__Delete(TestCase):
@@ -27,7 +27,7 @@ class test_Routes__Delete(TestCase):
         cls.routes         = Routes__Delete(cache_service=cls.cache_service)
 
         # Test data
-        cls.test_namespace = Safe_Id("test-delete")
+        cls.test_namespace = Safe_Str__Id("test-delete")
         cls.test_string    = "test delete data"
 
     @classmethod
@@ -122,8 +122,8 @@ class test_Routes__Delete(TestCase):
 
     def test_delete__cache_id__namespace_isolation(self):                   # Test namespace isolation
         with self.routes as _:
-            ns1 = Safe_Id("delete-ns1")
-            ns2 = Safe_Id("delete-ns2")
+            ns1 = Safe_Str__Id("delete-ns1")
+            ns2 = Safe_Str__Id("delete-ns2")
 
             # Store same data in different namespaces
             test_data  = "namespace isolation test"
@@ -174,7 +174,7 @@ class test_Routes__Delete(TestCase):
                     test_data  = f"delete test for {strategy}"
                     cache_hash = self.cache_service.hash_from_string(test_data)
                     cache_id   = Random_Guid()
-                    namespace  = Safe_Id(f"delete-{strategy}")
+                    namespace  = Safe_Str__Id(f"delete-{strategy}")
 
                     self.cache_service.store_with_strategy(storage_data   = test_data  ,
                                                            cache_hash     = cache_hash ,
@@ -207,8 +207,8 @@ class test_Routes__Delete(TestCase):
             assert type(result) is dict
             assert result["status"] in ["success", "not_found"]
 
-            # Valid Safe_Id namespace
-            valid_namespace = Safe_Id("valid-namespace")
+            # Valid Safe_Str__Id namespace
+            valid_namespace = Safe_Str__Id("valid-namespace")
             result = _.delete__cache_id(cache_id = Random_Guid()  ,
                                        namespace = valid_namespace)
             assert type(result) is dict
@@ -220,7 +220,7 @@ class test_Routes__Delete(TestCase):
                                        namespace = self.test_namespace)
             assert result["status"] == "not_found"                           # Valid GUID format accepted
 
-            # String to Safe_Id (auto-conversion)
+            # String to Safe_Str__Id (auto-conversion)
             result = _.delete__cache_id(cache_id = Random_Guid()       ,
                                        namespace = "string-namespace"  )
             assert result["status"] == "not_found"                           # Auto-converted namespace
@@ -255,7 +255,7 @@ class test_Routes__Delete(TestCase):
                     test_data  = f"count test for {strategy}!"
                     cache_hash = self.cache_service.hash_from_string(test_data)
                     cache_id   = Random_Guid()
-                    namespace  = Safe_Id(f"count-{strategy}")
+                    namespace  = Safe_Str__Id(f"count-{strategy}")
 
                     self.cache_service.store_with_strategy(storage_data   = test_data  ,
                                                            cache_hash     = cache_hash ,
@@ -277,7 +277,7 @@ class test_Routes__Delete(TestCase):
             test_data  = "integration test data"
             cache_hash = self.cache_service.hash_from_string(test_data)
             cache_id   = Random_Guid()
-            namespace  = Safe_Id("integration-delete")
+            namespace  = Safe_Str__Id("integration-delete")
 
             # Store via cache service
             store_result = self.cache_service.store_with_strategy(storage_data   = test_data ,

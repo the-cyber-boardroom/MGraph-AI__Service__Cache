@@ -8,7 +8,7 @@
 # from osbot_aws.utils.AWS_Sanitization                                               import str_to_valid_s3_bucket_name
 # from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 # from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
-# from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
+# from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                   import Safe_Str__Id
 # from osbot_utils.utils.Json                                                         import json_to_str
 # from osbot_utils.utils.Objects                                                      import base_classes
 # from osbot_utils.utils.Misc                                                         import random_string_short
@@ -34,7 +34,7 @@
 #         cls.routes         = Routes__Cache(cache_service=cls.cache_service)
 #
 #         # Test data
-#         cls.test_namespace = Safe_Id("test-api")
+#         cls.test_namespace = Safe_Str__Id("test-api")
 #         cls.test_string    = "test cache string"
 #         cls.test_json      = {"api": "test", "value": 123}
 #         cls.path_now       = Path__Handler__Temporal().path_now()                      # get the current temporal path from the handler
@@ -210,8 +210,8 @@
 #     def test_namespaces(self):                                                      # Test namespace listing
 #         with self.routes as _:
 #             #self.request.state.body = self.test_string.encode()
-#             _.store__string__strategy__namespace(data=self.test_string, namespace=Safe_Id("ns1"))                       # Create some namespaces
-#             _.store__string__strategy__namespace(data=self.test_string, namespace=Safe_Id("ns2"))
+#             _.store__string__strategy__namespace(data=self.test_string, namespace=Safe_Str__Id("ns1"))                       # Create some namespaces
+#             _.store__string__strategy__namespace(data=self.test_string, namespace=Safe_Str__Id("ns2"))
 #
 #             result = _.namespaces()
 #
@@ -656,13 +656,13 @@
 #                     # Store with strategy
 #                     response = _.store__string__strategy__namespace(data      = test_data                  , #  request   = self.request              ,
 #                                                                     strategy  = strategy                   ,
-#                                                                     namespace = Safe_Id(f"strat-{strategy}"))
+#                                                                     namespace = Safe_Str__Id(f"strat-{strategy}"))
 #
 #                     assert type(response.cache_id) is Random_Guid
 #
 #                     # Retrieve and verify
 #                     result = _.retrieve__by_id__cache_id__namespace(cache_id  = response.cache_id         ,
-#                                                                    namespace = Safe_Id(f"strat-{strategy}"))
+#                                                                    namespace = Safe_Str__Id(f"strat-{strategy}"))
 #
 #                     assert result["data"] == test_data
 #

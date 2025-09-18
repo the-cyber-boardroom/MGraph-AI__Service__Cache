@@ -4,13 +4,13 @@ from typing                                                                     
 from osbot_utils.decorators.methods.cache_on_self                                   import cache_on_self
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
 from osbot_utils.utils.Files                                                        import file_extension, file_name_without_extension
 from osbot_utils.utils.Http                                                         import url_join_safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
 from osbot_utils.utils.Misc                                                         import timestamp_now, list_set
-from mgraph_ai_service_cache.schemas.cache.Enum__Cache__Store__Strategy             import Enum__Cache__Store__Strategy
 from memory_fs.schemas.Safe_Str__Cache_Hash                                         import Safe_Str__Cache_Hash
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy       import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.service.cache.Cache__Handler                           import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                      import Cache__Hash__Config
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator                   import Cache__Hash__Generator
@@ -21,17 +21,17 @@ DEFAULT__CACHE__SERVICE__BUCKET_NAME        = "mgraph-ai-cache"
 DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS  = 24
 
 class Cache__Service(Type_Safe):                                                   # Main cache service orchestrator
-    cache_handlers    : Dict[Safe_Id, Cache__Handler]                              # Multiple cache handlers by namespace
+    cache_handlers    : Dict[Safe_Str__Id, Cache__Handler]                              # Multiple cache handlers by namespace
     default_bucket    : str                           = DEFAULT__CACHE__SERVICE__BUCKET_NAME
     default_ttl_hours : int                           = DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS
     hash_config       : Cache__Hash__Config                                        # Hash generation config
     hash_generator    : Cache__Hash__Generator                                     # Hash generator instance
 
-    def delete_by_id(self, cache_id: Random_Guid, namespace: Safe_Id = None) -> Dict[str, Any]:
-        namespace = namespace or Safe_Id("default")
+    def delete_by_id(self, cache_id: Random_Guid, namespace: Safe_Str__Id = None) -> Dict[str, Any]:
+        namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
 
-        with handler.fs__refs_id.file__json(Safe_Id(str(cache_id))) as ref_fs:
+        with handler.fs__refs_id.file__json(Safe_Str__Id(str(cache_id))) as ref_fs:
             if not ref_fs.exists():
                 return {"status": "not_found", "message": f"Cache ID {cache_id} not found"}
 
@@ -57,7 +57,7 @@ class Cache__Service(Type_Safe):                                                
 
         # Update hash reference (remove this cache_id from the list)
         if cache_hash:
-            with handler.fs__refs_hash.file__json(Safe_Id(cache_hash)) as ref_fs:
+            with handler.fs__refs_hash.file__json(Safe_Str__Id(cache_hash)) as ref_fs:
                 if ref_fs.exists():
                     refs = ref_fs.content()
                     # Remove this cache_id from the list
@@ -118,7 +118,7 @@ class Cache__Service(Type_Safe):                                                
             'grand_total_files': sum(ns['total_files'] for ns in all_stats.values())
         }
 
-    def get_namespace__file_hashes(self, namespace: Safe_Id ) -> Dict[str, Any]:
+    def get_namespace__file_hashes(self, namespace: Safe_Str__Id ) -> Dict[str, Any]:
         file_hashes = []
         parent_folder = url_join_safe(str(namespace), "refs/by-hash")
 
@@ -128,7 +128,7 @@ class Cache__Service(Type_Safe):                                                
                 file_hashes.append(file_id)
         return file_hashes
 
-    def get_namespace__file_ids(self, namespace: Safe_Id ) -> Dict[str, Any]:
+    def get_namespace__file_ids(self, namespace: Safe_Str__Id ) -> Dict[str, Any]:
         file_ids = []
         parent_folder = url_join_safe(str(namespace), "refs/by-id")
 
@@ -138,8 +138,8 @@ class Cache__Service(Type_Safe):                                                
                 file_ids.append(file_id)
         return file_ids
 
-    def get_namespace__file_counts(self, namespace: Safe_Id = None) -> Dict[str, Any]:       # Get file counts for all strategies in a namespace
-        namespace = namespace or Safe_Id("default")
+    def get_namespace__file_counts(self, namespace: Safe_Str__Id = None) -> Dict[str, Any]:       # Get file counts for all strategies in a namespace
+        namespace = namespace or Safe_Str__Id("default")
         handler = self.get_or_create_handler(namespace)
 
         file_counts = {}
@@ -182,9 +182,9 @@ class Cache__Service(Type_Safe):                                                
             'total_files': total_files
         }
 
-    def get_or_create_handler(self, namespace: Safe_Id = None                      # Get existing or create new cache handler
+    def get_or_create_handler(self, namespace: Safe_Str__Id = None                      # Get existing or create new cache handler
                               ) -> Cache__Handler:
-        namespace = namespace or Safe_Id("default")
+        namespace = namespace or Safe_Str__Id("default")
         if namespace not in self.cache_handlers:
             handler = Cache__Handler(s3__bucket      = self.default_bucket,
                                      s3__prefix      = str(namespace),
@@ -201,20 +201,20 @@ class Cache__Service(Type_Safe):                                                
                                   strategy         : Enum__Cache__Store__Strategy          ,
                                   cache_id         : Random_Guid                  = None                       ,
                                   cache_key        : Safe_Str__File__Path         = None   ,  # Allow extra key/path to be provided (used by some path_handlers)
-                                  file_id          : Safe_Id                      = None   ,
-                                  namespace        : Safe_Id                      = None   ,
-                                  content_encoding : Safe_Id                      = None
+                                  file_id          : Safe_Str__Id                      = None   ,
+                                  namespace        : Safe_Str__Id                      = None   ,
+                                  content_encoding : Safe_Str__Id                      = None
                             ) -> Schema__Cache__Store__Response:
         if not cache_hash:
             raise ValueError("in Cache__Service.store_with_strategy, the cache_hash must be provided")                      # todo: see if it makes sense for use to calculate the hash here
 
         cache_id  = cache_id or Random_Guid()
-        namespace = namespace or Safe_Id("default")
+        namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
         fs_data   = handler.get_fs_for_strategy(strategy)
         all_paths = { "data": [], "by_hash": [], "by_id" : []     }
 
-        file_id   =  Safe_Id  (file_id or cache_id )                    # if not provided use the cache_id as file_id (needs casting to Safe_Id)
+        file_id   =  Safe_Str__Id  (file_id or cache_id )                    # if not provided use the cache_id as file_id (needs casting to Safe_Str__Id)
         file_key  = Safe_Str__File__Path(cache_key)                     # use cache_key as file_key
         if isinstance(storage_data, bytes):                             # Determine file type based on storage data
             file_fs = fs_data.file__binary(file_id=file_id, file_key=file_key)
@@ -242,7 +242,7 @@ class Cache__Service(Type_Safe):                                                
             file_size = file_fs.metadata().content__size
 
         # Update hash->ID reference
-        with handler.fs__refs_hash.file__json(Safe_Id(cache_hash)) as ref_fs:
+        with handler.fs__refs_hash.file__json(Safe_Str__Id(cache_hash)) as ref_fs:
             if ref_fs.exists():
                 refs = ref_fs.content()
                 refs["cache_ids"     ].append({"id": str(cache_id), "timestamp": timestamp_now()})
@@ -258,7 +258,7 @@ class Cache__Service(Type_Safe):                                                
             all_paths["by_hash"] = paths__hash_to_id
 
         # Update ID->hash reference WITH content path and file type
-        with handler.fs__refs_id.file__json(Safe_Id(str(cache_id))) as ref_fs:
+        with handler.fs__refs_id.file__json(Safe_Str__Id(str(cache_id))) as ref_fs:
             all_paths["by_id"] = ref_fs.paths()
             paths__id_to_hash  =  ref_fs.create({ "all_paths"        : all_paths          ,
                                                    "cache_id"         : str(cache_id)     ,
@@ -277,12 +277,12 @@ class Cache__Service(Type_Safe):                                                
 
 
     def retrieve_by_hash(self, cache_hash : Safe_Str__Cache_Hash,
-                               namespace  : Safe_Id = None
+                               namespace  : Safe_Str__Id = None
                           ) -> Optional[Dict[str, Any]]:                        # Retrieve latest by hash"""
-        namespace = namespace or Safe_Id("default")
+        namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
 
-        with handler.fs__refs_hash.file__json(Safe_Id(cache_hash)) as ref_fs:   # Get hash->ID mapping
+        with handler.fs__refs_hash.file__json(Safe_Str__Id(cache_hash)) as ref_fs:   # Get hash->ID mapping
             if not ref_fs.exists():
                 return None
             refs = ref_fs.content()
@@ -294,13 +294,13 @@ class Cache__Service(Type_Safe):                                                
         return self.retrieve_by_id(Random_Guid(latest_id), namespace)           # Delegate to retrieve_by_id which handles the path lookup
 
     def retrieve_by_id(self, cache_id : Random_Guid,
-                             namespace : Safe_Id = None
+                             namespace : Safe_Str__Id = None
                         ) -> Optional[Dict[str, Any]]:                  #  Retrieve by cache ID using direct path from reference
-        namespace = namespace or Safe_Id("default")
+        namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
 
         # Get ID reference with content path
-        with handler.fs__refs_id.file__json(Safe_Id(cache_id)) as ref_fs:
+        with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:
             if not ref_fs.exists():
                 return None
             ref_data = ref_fs.content()
@@ -329,7 +329,7 @@ class Cache__Service(Type_Safe):                                                
 
             if storage.file__exists(metadata_path):
                 metadata_raw = storage.file__json(metadata_path)
-                # Convert metadata keys to Safe_Id for consistency
+                # Convert metadata keys to Safe_Str__Id for consistency
                 metadata_data = metadata_raw.get('data')            # todo: use native Memory_FS methods here (and we should be using a Type_Safe class here)
 
             # Get content encoding from metadata
@@ -355,12 +355,12 @@ class Cache__Service(Type_Safe):                                                
         return None
 
     def retrieve_by_id__config(self, cache_id  : Random_Guid,
-                                     namespace : Safe_Id    = None
+                                     namespace : Safe_Str__Id    = None
                                 ) -> Optional[Dict[str, Any]]:                      #   Retrieve by cache ID using direct path from reference
-        namespace = namespace or Safe_Id("default")
+        namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
 
-        with handler.fs__refs_id.file__json(Safe_Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
+        with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
             if not ref_fs.exists():
                 return None
             return ref_fs.content()
@@ -371,7 +371,7 @@ class Cache__Service(Type_Safe):                                                
             return False
 
         # Check for content encoding or binary indicators
-        content_encoding = metadata.data.get(Safe_Id('content_encoding'))
+        content_encoding = metadata.data.get(Safe_Str__Id('content_encoding'))
         if content_encoding:
             return True
 
@@ -398,5 +398,5 @@ class Cache__Service(Type_Safe):                                                
                        ) -> Safe_Str__Cache_Hash:
         return self.hash_generator.from_json(data, exclude_fields)
 
-    def list_namespaces(self) -> List[Safe_Id]:                                    # List all active namespaces
+    def list_namespaces(self) -> List[Safe_Str__Id]:                                    # List all active namespaces
         return list_set(self.cache_handlers)

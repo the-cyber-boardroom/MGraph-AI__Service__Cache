@@ -1,15 +1,15 @@
 import base64
 import json
-from typing                                                            import Dict, Any
-from fastapi                                                           import Response
-from osbot_fast_api.api.routes.Fast_API__Routes                        import Fast_API__Routes
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix          import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag             import Safe_Str__Fast_API__Route__Tag
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid  import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id      import Safe_Id
-from osbot_utils.utils.Http                                            import url_join_safe
-from memory_fs.schemas.Safe_Str__Cache_Hash                            import Safe_Str__Cache_Hash
-from mgraph_ai_service_cache.service.cache.Cache__Service              import Cache__Service
+from typing                                                                     import Dict, Any
+from fastapi                                                                    import Response
+from osbot_fast_api.api.routes.Fast_API__Routes                                 import Fast_API__Routes
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                      import Safe_Str__Fast_API__Route__Tag
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
+from osbot_utils.utils.Http                                                     import url_join_safe
+from memory_fs.schemas.Safe_Str__Cache_Hash                                     import Safe_Str__Cache_Hash
+from mgraph_ai_service_cache.service.cache.Cache__Service                       import Cache__Service
 
 TAG__ROUTES_RETRIEVE                  = 'retrieve'
 PREFIX__ROUTES_RETRIEVE               = '/{namespace}'
@@ -34,7 +34,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
     cache_service : Cache__Service
 
     def retrieve__hash__cache_hash(self, cache_hash : Safe_Str__Cache_Hash,
-                                         namespace  : Safe_Id = None
+                                         namespace  : Safe_Str__Id = None
                                     ) -> Dict[str, Any]:                          # Retrieve latest by hash with type information"""
         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
         if result is None:
@@ -55,7 +55,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         return result
 
     def retrieve__cache_id(self, cache_id  : Random_Guid,
-                                 namespace : Safe_Id = None
+                                 namespace : Safe_Str__Id = None
                             ) -> Dict[str, Any]:              # Retrieve by cache ID with type information
         result = self.cache_service.retrieve_by_id(cache_id, namespace)
         if result is None:
@@ -76,7 +76,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
 
     # New type-specific retrieval methods
     def retrieve__cache_id__string(self, cache_id: Random_Guid,
-                                         namespace: Safe_Id = None
+                                         namespace: Safe_Str__Id = None
                                          ) -> str:
         """Retrieve as string by cache ID"""
         result = self.cache_service.retrieve_by_id(cache_id, namespace)
@@ -100,7 +100,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         return Response(content=str(data), media_type="text/plain")
 
     def retrieve__cache_id__json(self, cache_id  : Random_Guid,
-                                       namespace: Safe_Id = None
+                                       namespace: Safe_Str__Id = None
                                   ) -> Dict[str, Any]:               # Retrieve as JSON by cache ID
         result = self.cache_service.retrieve_by_id(cache_id, namespace)
         if result is None:
@@ -124,7 +124,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         return {"data": data, "data_type": data_type}
 
     def retrieve__cache_id__binary(self, cache_id: Random_Guid,
-                                         namespace: Safe_Id = None):     # Retrieve as binary by cache ID
+                                         namespace: Safe_Str__Id = None):     # Retrieve as binary by cache ID
         result = self.cache_service.retrieve_by_id(cache_id, namespace)
         if result is None:
             return Response(content="Not found", status_code=404)
@@ -148,7 +148,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                       media_type="application/octet-stream")                # Fallback
 
     def retrieve__hash__cache_hash__string(self, cache_hash: Safe_Str__Cache_Hash,
-                                                 namespace: Safe_Id = None):
+                                                 namespace: Safe_Str__Id = None):
         """Retrieve as string by hash"""
         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
         if result is None:
@@ -171,7 +171,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         return Response(content=str(data), media_type="text/plain")
 
     def retrieve__hash__cache_hash__json(self, cache_hash: Safe_Str__Cache_Hash,
-                                               namespace: Safe_Id = None
+                                               namespace: Safe_Str__Id = None
                                                ) -> Dict[str, Any]:     # Retrieve as JSON by hash
         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
         if result is None:
@@ -195,7 +195,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         return {"data": data, "data_type": data_type}
 
     def retrieve__hash__cache_hash__binary(self, cache_hash: Safe_Str__Cache_Hash,
-                                                 namespace: Safe_Id = None):
+                                                 namespace: Safe_Str__Id = None):
         """Retrieve as binary by hash"""
         result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
         if result is None:
@@ -221,13 +221,13 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         return Response(content=str(data).encode('utf-8'),
                         media_type="application/octet-stream")
 
-    def retrieve__details__cache_id(self, cache_id: Random_Guid, namespace: Safe_Id = None):
+    def retrieve__details__cache_id(self, cache_id: Random_Guid, namespace: Safe_Str__Id = None):
         details = self.cache_service.retrieve_by_id__config(cache_id=cache_id, namespace=namespace)
         if details:
             return { 'details': details }
         return {'error': 'Not found', 'message': f'Cache entry id not found: {cache_id} in namespace: {namespace}'}
 
-    def retrieve__details__all__cache_id(self, cache_id: Random_Guid, namespace: Safe_Id = None):
+    def retrieve__details__all__cache_id(self, cache_id: Random_Guid, namespace: Safe_Str__Id = None):
         result = self.retrieve__details__cache_id(cache_id=cache_id, namespace=namespace)
         details = result.get('details')
         if not details:
