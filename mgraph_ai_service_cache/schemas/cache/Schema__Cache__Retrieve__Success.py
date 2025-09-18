@@ -5,6 +5,6 @@ from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type         
 
 # Success response for retrieving data
 class Schema__Cache__Retrieve__Success(Type_Safe):                                    # Successful retrieval with data
-    data      : Union[Dict, str, bytes]                                               # Actual cached content
+    data      : Union[dict, str, bytes]                                               # Actual cached content
     metadata  : Schema__Cache__Metadata                                               # Cache metadata
     data_type : Enum__Cache__Data_Type                                                # Type of data returned

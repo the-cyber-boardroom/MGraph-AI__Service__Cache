@@ -10,7 +10,7 @@ from osbot_utils.utils.Http                                                     
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.utils.Misc                                                         import timestamp_now, list_set
 from memory_fs.schemas.Safe_Str__Cache_Hash                                         import Safe_Str__Cache_Hash
-from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service import DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                    import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy       import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.service.cache.Cache__Handler                           import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                      import Cache__Hash__Config
@@ -354,6 +354,7 @@ class Cache__Service(Type_Safe):                                                
 
         return None
 
+    #todo: this method should return Schema__Cache__Entry__Details (which should be the class used to save the file)
     def retrieve_by_id__config(self, cache_id  : Random_Guid,
                                      namespace : Safe_Str__Id    = None
                                 ) -> Optional[Dict[str, Any]]:                      #   Retrieve by cache ID using direct path from reference
@@ -365,21 +366,20 @@ class Cache__Service(Type_Safe):                                                
                 return None
             return ref_fs.content()
 
-    def _is_binary_data(self, metadata) -> bool:
-        """Check if stored data is binary based on metadata"""
+    # todo: check who is using this
+    def _is_binary_data(self, metadata) -> bool:                                    # Check if stored data is binary based on metadata
         if not metadata:
             return False
 
-        # Check for content encoding or binary indicators
-        content_encoding = metadata.data.get(Safe_Str__Id('content_encoding'))
+        content_encoding = metadata.data.get(Safe_Str__Id('content_encoding'))      # Check for content encoding or binary indicators
         if content_encoding:
             return True
 
         # Could add more checks here based on content_type if we store it
         return False
 
-    def _determine_data_type(self, data) -> str:
-        """Determine the type of data (string, json, binary)"""
+    # todo: we should be using the Enum for this
+    def _determine_data_type(self, data) -> str:                                    # Determine the type of data (string, json, binary)
         if isinstance(data, bytes):
             return "binary"
         elif isinstance(data, dict) or isinstance(data, list):
@@ -393,10 +393,7 @@ class Cache__Service(Type_Safe):                                                
     def hash_from_bytes(self, data: bytes) -> Safe_Str__Cache_Hash:                      # Calculate hash from bytes
         return self.hash_generator.from_bytes(data)
 
-    def hash_from_json(self, data          : dict        ,                         # Calculate hash from JSON
-                            exclude_fields : List[str] = None
-                       ) -> Safe_Str__Cache_Hash:
+    def hash_from_json(self, data          : dict        ,                               # Calculate hash from JSON
+                             exclude_fields : List[str] = None
+                        ) -> Safe_Str__Cache_Hash:
         return self.hash_generator.from_json(data, exclude_fields)
-
-    def list_namespaces(self) -> List[Safe_Str__Id]:                                    # List all active namespaces
-        return list_set(self.cache_handlers)

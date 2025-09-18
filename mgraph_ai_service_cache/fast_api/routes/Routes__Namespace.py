@@ -3,6 +3,8 @@ from osbot_fast_api.api.routes.Fast_API__Routes                                 
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                      import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
+
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API import FAST_API__PARAM__NAMESPACE
 from mgraph_ai_service_cache.service.cache.Cache__Service                       import Cache__Service
 
 TAG__ROUTES_NAMESPACE                  = 'namespace'
@@ -17,13 +19,13 @@ class Routes__Namespace(Fast_API__Routes):
     prefix        : Safe_Str__Fast_API__Route__Prefix  =  PREFIX__ROUTES_NAMESPACE
     cache_service : Cache__Service
 
-    def file_hashes(self, namespace: Safe_Str__Id = None):
+    def file_hashes(self, namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE):
         return self.cache_service.get_namespace__file_hashes(namespace=namespace)
 
-    def file_ids(self, namespace: Safe_Str__Id = None):
+    def file_ids(self, namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE):
         return self.cache_service.get_namespace__file_ids(namespace=namespace)
 
-    def stats(self, namespace: Safe_Str__Id = None) -> Dict[str, Any]:       # Get cache statistics
+    def stats(self, namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE) -> Dict[str, Any]:       # Get cache statistics
         namespace = namespace or Safe_Str__Id("default")
 
         try:

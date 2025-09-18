@@ -14,20 +14,8 @@ from mgraph_ai_service_cache.utils.Version                             import ve
 
 
 class Service__Fast_API(Serverless__Fast_API):
-
-    def fast_api__title(self):                                       # todo: move this to the Fast_API class
-        return FAST_API__TITLE
-
-    def setup(self):
-        super().setup()
-        self.setup_fast_api_title_and_version()
-        return self
-
-    def setup_fast_api_title_and_version(self):                     # todo: move this to the Fast_API class
-        app       = self.app()
-        app.title = self.fast_api__title()
-        app.version = version__mgraph_ai_service_cache
-        return self
+    title   = FAST_API__TITLE
+    version = version__mgraph_ai_service_cache
 
     def setup_routes(self):
         self.add_routes(Routes__Admin__Storage)
@@ -41,26 +29,27 @@ class Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__Set_Cookie    )
         #self.add_routes(Routes__Cache     )         # to remove one all methods have been refactored out
 
-    def setup_middlewares(self):
-        super().setup_middlewares()
-        self.app().add_middleware(BodyReaderMiddleware)
-        return self
+    # def setup_middlewares(self):
+    #     super().setup_middlewares()
+    #
+    #     return self
 
 
+# # todo: see if we need to refactor this into Fast_API since the current routes are working ok for this project (for string, bytes and dict)
 # intercept the bytes submitted here
+#self.app().add_middleware(BodyReaderMiddleware)
 
-# todo: refactor this into a separate class (and maybe even to the Fast_API class), once we confirm that it works ok
-from fastapi import Request
-from starlette.middleware.base import BaseHTTPMiddleware
-class BodyReaderMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        if request.method in ["POST", "PUT", "PATCH"]:                              # Only read body for certain methods
-            body = await request.body()
-            request.state.body = body                                               # Store it in request state for later sync access
-        else:
-            request.state.body = None
-
-        response = await call_next(request)
-        return response
+# from fastapi import Request
+# from starlette.middleware.base import BaseHTTPMiddleware
+# class BodyReaderMiddleware(BaseHTTPMiddleware):
+#     async def dispatch(self, request: Request, call_next):
+#         if request.method in ["POST", "PUT", "PATCH"]:                              # Only read body for certain methods
+#             body = await request.body()
+#             request.state.body = body                                               # Store it in request state for later sync access
+#         else:
+#             request.state.body = None
+#
+#         response = await call_next(request)
+#         return response
 
 

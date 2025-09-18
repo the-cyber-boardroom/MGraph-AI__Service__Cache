@@ -26,6 +26,8 @@ try:
         handler = _.handler()
         app     = _.app()
 except Exception as error:
+    if os.getenv("AWS_LAMBDA_FUNCTION_NAME") is None:       # raise exception when not running inside a lambda function
+        raise RuntimeError(error)
     error = str(error)
 
 def run(event, context=None):

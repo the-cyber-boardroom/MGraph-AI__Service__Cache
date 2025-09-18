@@ -1,15 +1,21 @@
 import base64
 import json
-from typing                                                                     import Dict, Any
-from fastapi                                                                    import Response
+from typing import Union, Dict
+from fastapi import HTTPException, Response, Path
+from osbot_fast_api.api.decorators.route_path                                   import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                 import Fast_API__Routes
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                      import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
-from osbot_utils.utils.Http                                                     import url_join_safe
 from memory_fs.schemas.Safe_Str__Cache_Hash                                     import Safe_Str__Cache_Hash
-from mgraph_ai_service_cache.service.cache.Cache__Service                       import Cache__Service
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Binary__Reference     import Schema__Cache__Binary__Reference
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details        import Schema__Cache__Entry__Details
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Exists__Response      import Schema__Cache__Exists__Response
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success     import Schema__Cache__Retrieve__Success
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type         import Enum__Cache__Data_Type
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API                     import FAST_API__PARAM__NAMESPACE
+from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve             import Service__Cache__Retrieve
 
 TAG__ROUTES_RETRIEVE                  = 'retrieve'
 PREFIX__ROUTES_RETRIEVE               = '/{namespace}'
@@ -23,244 +29,259 @@ ROUTES_PATHS__RETRIEVE                = [ BASE_PATH__ROUTES_RETRIEVE + '{cache_i
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/json'   ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/string' ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'details/{cache_id}'       ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'details/all/{cache_id}'   ]
+                                          BASE_PATH__ROUTES_RETRIEVE + 'details/all/{cache_id}'   ,
+                                          BASE_PATH__ROUTES_RETRIEVE + 'exists/{cache_hash}'      ]
 
-
-# todo: refactor this logic into a Service__Retrieve class
-
-class Routes__Retrieve(Fast_API__Routes):                                             # FastAPI routes for cache operations
-    tag           : Safe_Str__Fast_API__Route__Tag    = TAG__ROUTES_RETRIEVE
-    prefix        : Safe_Str__Fast_API__Route__Prefix  =  PREFIX__ROUTES_RETRIEVE
-    cache_service : Cache__Service
-
-    def retrieve__hash__cache_hash(self, cache_hash : Safe_Str__Cache_Hash,
-                                         namespace  : Safe_Str__Id = None
-                                    ) -> Dict[str, Any]:                          # Retrieve latest by hash with type information"""
-        result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
-        if result is None:
-            return {"status": "not_found", "message": "Cache entry not found"}
-
-        namespace = namespace or "default"                                      # todo: change to static config variable
-        binary_url = (BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/binary').format(cache_hash=cache_hash, namespace=namespace)
-
-        if result.get("data_type") == "binary":                                                 # If data is binary, don't return it in JSON - direct to binary endpoint
-            return { "status"      : "binary_data"                                                          ,           # todo: convert to Type_Safe class
-                     "message"     : "Binary data cannot be returned in JSON response"                      ,
-                     "data_type"   : "binary"                                                               ,
-                     "size"        : len(result.get("data", b""))                                           ,
-                     "metadata"    : result.get("metadata", {})                                             ,
-                     "namespace"   : namespace                                                              ,
-                     "binary_url"  : binary_url                                                             }
-
-        return result
-
+class Routes__Retrieve(Fast_API__Routes):                                             # FastAPI routes for cache retrieval operations
+    tag            : Safe_Str__Fast_API__Route__Tag    = TAG__ROUTES_RETRIEVE
+    prefix         : Safe_Str__Fast_API__Route__Prefix = PREFIX__ROUTES_RETRIEVE
+    retrieve_service : Service__Cache__Retrieve                                       # Service layer for business logic
+    
     def retrieve__cache_id(self, cache_id  : Random_Guid,
-                                 namespace : Safe_Str__Id = None
-                            ) -> Dict[str, Any]:              # Retrieve by cache ID with type information
-        result = self.cache_service.retrieve_by_id(cache_id, namespace)
-        if result is None:
-            return {"status": "not_found", "message": "Cache entry not found"}
-
-        namespace = namespace or "default"                                      # todo: change to static config variable
-        binary_url = (BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/binary').format(cache_id=cache_id, namespace=namespace)
-        if result.get("data_type") == "binary":                                 # If data is binary, don't return it in JSON - direct to binary endpoint
-            return { "status"      : "binary_data"                                                      ,
-                     "message"     : "Binary data cannot be returned in JSON response"                  ,
-                     "data_type"   : "binary"                                                           ,
-                     "size"        : len(result.get("data", b""))                                       ,
-                     "metadata"    : result.get("metadata", {})                                         ,
-                     "binary_url"  : binary_url                                                         }
-                     #"binary_url"  : f"/cache/retrieve/binary/by-id/{cache_id}/{namespace or 'default'}" }
-
+                                 namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                            ) -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:             # Retrieve by cache ID with metadata
+                
+        result = self.retrieve_service.retrieve_by_id(cache_id, namespace)                                              # Use service layer
+        
+        if result is None:            
+            error = self.retrieve_service.get_not_found_error(cache_id=cache_id, namespace=namespace)                   # Return 404 Not Found
+            raise HTTPException(status_code=404, detail=error.json())
+        
+        # Handle binary data that can't be returned in JSON
+        if result.data_type == Enum__Cache__Data_Type.BINARY:
+            binary_url = f"/{namespace}/retrieve/{cache_id}/binary"
+            return Schema__Cache__Binary__Reference(message      = "Binary data requires separate endpoint"    ,        # todo: refactor this to use the Schema__Cache__Retrieve__Success
+                                                    data_type    = Enum__Cache__Data_Type.BINARY               ,        #       which is quite compatible with this logic 
+                                                    size         = result.metadata.content_size                ,        #       since this is still a retrieve success, but it just the
+                                                    cache_hash   = result.metadata.cache_hash                  ,        #       edge case where we don't return a binary here  
+                                                    cache_id     = result.metadata.cache_id                    ,        #       (to avoid having to convert bytes into base64)
+                                                    namespace    = namespace                                   ,
+                                                    binary_url   = binary_url                                  ,
+                                                    metadata     = result.metadata                             )
         return result
-
-    # New type-specific retrieval methods
-    def retrieve__cache_id__string(self, cache_id: Random_Guid,
-                                         namespace: Safe_Str__Id = None
-                                         ) -> str:
-        """Retrieve as string by cache ID"""
-        result = self.cache_service.retrieve_by_id(cache_id, namespace)
+    
+    @route_path("/retrieve/hash/{cache_hash}")
+    def retrieve__hash__cache_hash(self, cache_hash : Safe_Str__Cache_Hash,
+                                         namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                    ) -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:     # Retrieve by hash
+                
+        result = self.retrieve_service.retrieve_by_hash(cache_hash, namespace)                                          # Use service layer
+        
         if result is None:
-            return Response(content="Not found", status_code=404)
-
-        data      = result.get("data")
-        data_type = result.get("data_type")
-
-        if data_type == "string":
-            return Response(content=data, media_type="text/plain")
-        elif data_type == "json":
-            return Response(content=json.dumps(data), media_type="text/plain")
-        elif data_type == "binary":                                                 # Convert binary to string (might not be ideal for all binary data)
+            # Return 404 Not Found
+            error = self.retrieve_service.get_not_found_error(cache_hash=cache_hash, namespace=namespace)
+            raise HTTPException(status_code=404, detail=error.json())
+        
+        # Handle binary data redirect
+        if result.data_type == Enum__Cache__Data_Type.BINARY:
+            binary_url = f"/{namespace}/retrieve/hash/{cache_hash}/binary"
+            return Schema__Cache__Binary__Reference(
+                message      = "Binary data requires separate endpoint"    ,
+                data_type    = Enum__Cache__Data_Type.BINARY              ,
+                size         = result.metadata.content_size               ,
+                cache_hash   = result.metadata.cache_hash                 ,
+                cache_id     = result.metadata.cache_id                   ,
+                namespace    = namespace                                  ,
+                binary_url   = binary_url                                  ,
+                metadata     = result.metadata                             )
+        
+        return result
+    
+    @route_path("/retrieve/{cache_id}/string")
+    def retrieve__cache_id__string(self, cache_id : Random_Guid,
+                                         namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                    ) -> Response:                                                          # Retrieve as string format
+        
+        result = self.retrieve_service.retrieve_by_id(cache_id, namespace)
+        
+        if result is None:
+            raise HTTPException(status_code=404, detail="Cache entry not found")
+        
+        # Convert data to string format
+        if result.data_type == Enum__Cache__Data_Type.STRING:
+            content = result.data
+        elif result.data_type == Enum__Cache__Data_Type.JSON:
+            content = json.dumps(result.data)
+        elif result.data_type == Enum__Cache__Data_Type.BINARY:
+            # Try to decode as UTF-8, otherwise base64 encode
             try:
-                return Response(content=data.decode('utf-8'), media_type="text/plain")
-            except:
-                return Response(content=base64.b64encode(data).decode('utf-8'),     # If can't decode, return base64 encoded
-                                media_type="text/plain")
-
-        return Response(content=str(data), media_type="text/plain")
-
+                content = result.data.decode('utf-8')
+            except (UnicodeDecodeError, AttributeError):
+                content = base64.b64encode(result.data).decode('utf-8')
+        else:
+            content = str(result.data)
+        
+        return Response(content=content, media_type="text/plain")
+    
+    @route_path("/retrieve/{cache_id}/json")
     def retrieve__cache_id__json(self, cache_id  : Random_Guid,
-                                       namespace: Safe_Str__Id = None
-                                  ) -> Dict[str, Any]:               # Retrieve as JSON by cache ID
-        result = self.cache_service.retrieve_by_id(cache_id, namespace)
+                                       namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                  ) -> dict:                                                                    # Retrieve as JSON format
+        namespace = namespace or Safe_Str__Id("default")
+        
+        result = self.retrieve_service.retrieve_by_id(cache_id, namespace)
+        
         if result is None:
-            return {"status": "not_found", "message": "Cache entry not found"}
-
-        data = result.get("data")
-        data_type = result.get("data_type")
-
-        if data_type == "json":
-            return data
-        elif data_type == "string":                             # Try to parse string as JSON
+            raise HTTPException(status_code=404, detail="Cache entry not found")
+        
+        # Return data based on type
+        if result.data_type == Enum__Cache__Data_Type.JSON:
+            return result.data
+        elif result.data_type == Enum__Cache__Data_Type.STRING:
+            # Try to parse as JSON
             try:
-                return json.loads(data)
-            except:
-                return {"error": "Data is not valid JSON", "data": data}
-        elif data_type == "binary":                                         # Return base64 encoded binary in JSON wrapper
-            return { "data_type": "binary",
-                     "encoding": "base64",
-                     "data"    : base64.b64encode(data).decode('utf-8')}
-
-        return {"data": data, "data_type": data_type}
-
-    def retrieve__cache_id__binary(self, cache_id: Random_Guid,
-                                         namespace: Safe_Str__Id = None):     # Retrieve as binary by cache ID
-        result = self.cache_service.retrieve_by_id(cache_id, namespace)
+                return json.loads(result.data)
+            except json.JSONDecodeError:
+                # Return 415 Unsupported Media Type
+                raise HTTPException(status_code=415, 
+                                  detail=f"Data is string, not JSON: {result.data[:100]}")
+        elif result.data_type == Enum__Cache__Data_Type.BINARY:
+            # Return base64 encoded in JSON wrapper
+            return {
+                "data_type": "binary",
+                "encoding": "base64",
+                "data": base64.b64encode(result.data).decode('utf-8')
+            }
+        
+        return {"data": result.data, "data_type": str(result.data_type)}                                                    # todo: look at how to handle this scenario that shouldn't happen
+    
+    @route_path("/retrieve/{cache_id}/binary")
+    def retrieve__cache_id__binary(self, cache_id : Random_Guid,
+                                         namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                    ) -> Response:                                                                          # Retrieve as binary format
+        
+        result = self.retrieve_service.retrieve_by_id(cache_id, namespace)
+        
         if result is None:
-            return Response(content="Not found", status_code=404)
-
-        data      = result.get("data")
-        data_type = result.get("data_type")
-
-        if data_type == "binary":
-            return Response(content=data,
-                            media_type="application/octet-stream")          # Return raw binary data (already decompressed by service)
-        elif data_type == "string":
-
-            return Response(content=data.encode('utf-8'),
-                            media_type="application/octet-stream")          # Convert string to bytes
-        elif data_type == "json":
-
-            return Response(content=json.dumps(data).encode('utf-8'),
-                            media_type="application/octet-stream")          # Convert JSON to bytes
-
-        return Response(content=str(data).encode('utf-8'),
-                      media_type="application/octet-stream")                # Fallback
-
-    def retrieve__hash__cache_hash__string(self, cache_hash: Safe_Str__Cache_Hash,
-                                                 namespace: Safe_Str__Id = None):
-        """Retrieve as string by hash"""
-        result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
+            raise HTTPException(status_code=404, detail="Cache entry not found")
+        
+        # Convert to binary format
+        if result.data_type == Enum__Cache__Data_Type.BINARY:                                                               # todo: refactor to helper method since this is quite a common pattern (something like, convert_to_bytes)
+            content = result.data
+        elif result.data_type == Enum__Cache__Data_Type.STRING:
+            content = result.data.encode('utf-8')
+        elif result.data_type == Enum__Cache__Data_Type.JSON:
+            content = json.dumps(result.data).encode('utf-8')
+        else:
+            content = str(result.data).encode('utf-8')
+        
+        return Response(content=content, media_type="application/octet-stream")
+    
+    @route_path("/retrieve/hash/{cache_hash}/string")
+    def retrieve__hash__cache_hash__string(self, cache_hash : Safe_Str__Cache_Hash,
+                                                 namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                            ) -> Response:                                                                  # Retrieve string by hash
+        
+        result = self.retrieve_service.retrieve_by_hash(cache_hash, namespace)
+        
         if result is None:
-            return Response(content="Not found", status_code=404)
+            raise HTTPException(status_code=404, detail="Cache entry not found")
 
-        data = result.get("data")
-        data_type = result.get("data_type")
-
-        if data_type == "string":
-            return Response(content=data, media_type="text/plain")
-        elif data_type == "json":
-            return Response(content=json.dumps(data), media_type="text/plain")
-        elif data_type == "binary":
+        if result.data_type == Enum__Cache__Data_Type.STRING:                                                               # Same conversion logic as retrieve__cache_id__string
+            content = result.data
+        elif result.data_type == Enum__Cache__Data_Type.JSON:                                                               # todo: refactor to common conver method
+            content = json.dumps(result.data)
+        elif result.data_type == Enum__Cache__Data_Type.BINARY:
             try:
-                return Response(content=data.decode('utf-8'), media_type="text/plain")
-            except:
-                return Response(content=base64.b64encode(data).decode('utf-8'),
-                              media_type="text/plain")
+                content = result.data.decode('utf-8')
+            except (UnicodeDecodeError, AttributeError):
+                content = base64.b64encode(result.data).decode('utf-8')
+        else:
+            content = str(result.data)                                                                                      # todo: look at how to handle this scenario that shouldn't happen
+        
+        return Response(content=content, media_type="text/plain")
+    
+    @route_path("/retrieve/hash/{cache_hash}/json")
+    def retrieve__hash__cache_hash__json(self, cache_hash : Safe_Str__Cache_Hash,
+                                               namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                          ) -> dict:                                   # Retrieve JSON by hash
 
-        return Response(content=str(data), media_type="text/plain")
-
-    def retrieve__hash__cache_hash__json(self, cache_hash: Safe_Str__Cache_Hash,
-                                               namespace: Safe_Str__Id = None
-                                               ) -> Dict[str, Any]:     # Retrieve as JSON by hash
-        result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
+        
+        result = self.retrieve_service.retrieve_by_hash(cache_hash, namespace)
+        
         if result is None:
-            return {"status": "not_found", "message": "Cache entry not found"}
+            raise HTTPException(status_code=404, detail="Cache entry not found")
 
-        data      = result.get("data")
-        data_type = result.get("data_type")
-
-        if data_type == "json":
-            return data
-        elif data_type == "string":
+        if result.data_type == Enum__Cache__Data_Type.JSON:                                                                 # Same logic as retrieve__cache_id__json
+            return result.data
+        elif result.data_type == Enum__Cache__Data_Type.STRING:                                                             # todo: refactor to common convert method
             try:
-                return json.loads(data)
-            except:
-                return {"error": "Data is not valid JSON", "data": data}
-        elif data_type == "binary":                                                 # this base64 convertion should be useful for some web clients that want to get the base64 encoding data of a file
-            return {    "data_type": "binary",
-                        "encoding": "base64",
-                        "data": base64.b64encode(data).decode('utf-8')}
+                return json.loads(result.data)
+            except json.JSONDecodeError:
+                raise HTTPException(status_code=415, 
+                                    detail=f"Data is string, not JSON")
+        elif result.data_type == Enum__Cache__Data_Type.BINARY:
+            return { "data_type" : "binary",                                                                                # todo: convert to Type_Safe class
+                     "encoding"  : "base64",
+                     "data"      : base64.b64encode(result.data).decode('utf-8')  }
 
-        return {"data": data, "data_type": data_type}
-
-    def retrieve__hash__cache_hash__binary(self, cache_hash: Safe_Str__Cache_Hash,
-                                                 namespace: Safe_Str__Id = None):
-        """Retrieve as binary by hash"""
-        result = self.cache_service.retrieve_by_hash(cache_hash, namespace)
+    
+    @route_path("/retrieve/hash/{cache_hash}/binary")
+    def retrieve__hash__cache_hash__binary(self, cache_hash : Safe_Str__Cache_Hash,
+                                                 namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                            ) -> Response:                             # Retrieve binary by hash
+        
+        result = self.retrieve_service.retrieve_by_hash(cache_hash, namespace)
+        
         if result is None:
-            return Response(content="Not found", status_code=404)
+            raise HTTPException(status_code=404, detail="Cache entry not found")
 
-        data = result.get("data")
-        data_type = result.get("data_type")
-        content_encoding = result.get("content_encoding")
+        if result.data_type == Enum__Cache__Data_Type.BINARY:                                                               # Same conversion as retrieve__cache_id__binary
+            content = result.data
+        elif result.data_type == Enum__Cache__Data_Type.STRING:                                                             # todo: refactor to common convert method
+            content = result.data.encode('utf-8')
+        elif result.data_type == Enum__Cache__Data_Type.JSON:
+            content = json.dumps(result.data).encode('utf-8')
+        else:
+            content = str(result.data).encode('utf-8')                                                                      # todo: look at how to handle this scenario that shouldn't happen
+        
+        return Response(content=content, media_type="application/octet-stream")
+    
+    @route_path("/retrieve/details/{cache_id}")
+    def retrieve__details__cache_id(self, cache_id : Random_Guid,
+                                          namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                     ) -> Schema__Cache__Entry__Details:                                                    # Get cache entry details
+        
+        details = self.retrieve_service.get_entry_details(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
+        
+        if details is None:
+            error = self.retrieve_service.get_not_found_error(cache_id=cache_id, namespace=namespace)
+            raise HTTPException(status_code=404, detail=error.json())
 
-        if data_type == "binary":
-            headers = {}
-            if content_encoding:
-                headers["Content-Encoding"] = content_encoding
-            return Response(content=data, media_type="application/octet-stream",
-                          headers=headers)
-        elif data_type == "string":
-            return Response(content=data.encode('utf-8'),
-                          media_type="application/octet-stream")
-        elif data_type == "json":
-            return Response(content=json.dumps(data).encode('utf-8'),
-                            media_type="application/octet-stream")
+        return details
 
-        return Response(content=str(data).encode('utf-8'),
-                        media_type="application/octet-stream")
+    # todo: move this logic to the retrieve_service
+    def retrieve__details__all__cache_id(self, cache_id: Random_Guid,
+                                               namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                          ) -> Dict:
+        details = self.retrieve_service.get_entry_details__all(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
 
-    def retrieve__details__cache_id(self, cache_id: Random_Guid, namespace: Safe_Str__Id = None):
-        details = self.cache_service.retrieve_by_id__config(cache_id=cache_id, namespace=namespace)
-        if details:
-            return { 'details': details }
-        return {'error': 'Not found', 'message': f'Cache entry id not found: {cache_id} in namespace: {namespace}'}
+        if details is None:
+            error = self.retrieve_service.get_not_found_error(cache_id=cache_id, namespace=namespace)
+            raise HTTPException(status_code=404, detail=error.json())
 
-    def retrieve__details__all__cache_id(self, cache_id: Random_Guid, namespace: Safe_Str__Id = None):
-        result = self.retrieve__details__cache_id(cache_id=cache_id, namespace=namespace)
-        details = result.get('details')
-        if not details:
-            return result
+    @route_path("/retrieve/exists/{cache_hash}")
+    def retrieve__exists__cache_hash(self, cache_hash : Safe_Str__Cache_Hash,
+                                           namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                      ) -> Schema__Cache__Exists__Response:                                                 # Check if entry exists
+        
+        exists = self.retrieve_service.check_exists(cache_hash, namespace)                                                  # todo: this should return the type Schema__Cache__Exists__Response
+        
+        return Schema__Cache__Exists__Response(exists     = exists     ,                                                    # todo: we should need to do this conversion here
+                                               cache_hash = cache_hash ,
+                                               namespace  = namespace  )
+    
+    def setup_routes(self):                                                                                                 # Configure all routes
+        self.add_route_get(self.retrieve__cache_id                  )               # Generic retrieval (with metadata)
+        self.add_route_get(self.retrieve__hash__cache_hash          )
 
-        all_details   = {}
-        content_paths = details.get("content_paths")            # capture this one, since we don't want to show it
-        storage_fs    = self.cache_service.storage_fs()
-        for file_type, file_paths in details.get('all_paths').items():
-            for file_path in file_paths:
-                if file_path not in content_paths:
-                    full_file_path         = url_join_safe(str(namespace), file_path)
-                    if full_file_path:
-                        file_contents          = storage_fs.file__json(full_file_path)          # all these files are json files
-                        all_details[file_path] = file_contents
-        return dict(by_id   =  details   ,
-                    details = all_details)
+        self.add_route_get(self.retrieve__cache_id__string          )               # Type-specific retrieval
+        self.add_route_get(self.retrieve__cache_id__json            )
+        self.add_route_get(self.retrieve__cache_id__binary          )
+        self.add_route_get(self.retrieve__hash__cache_hash__string  )
+        self.add_route_get(self.retrieve__hash__cache_hash__json    )
+        self.add_route_get(self.retrieve__hash__cache_hash__binary  )
 
-
-    def setup_routes(self):
-
-        self.add_route_get(self.retrieve__cache_id)
-        self.add_route_get(self.retrieve__cache_id__string    )                   # Type-specific retrieval by ID and Hash
-        self.add_route_get(self.retrieve__cache_id__json      )
-        self.add_route_get(self.retrieve__cache_id__binary    )
-
-
-        self.add_route_get(self.retrieve__hash__cache_hash        )               # Generic retrieval endpoints (return with metadata and type info)
-        self.add_route_get(self.retrieve__hash__cache_hash__string)
-        self.add_route_get(self.retrieve__hash__cache_hash__json  )
-        self.add_route_get(self.retrieve__hash__cache_hash__binary)
-
-        self.add_route_get(self.retrieve__details__all__cache_id)
-        self.add_route_get(self.retrieve__details__cache_id     )
-
-
+        self.add_route_get(self.retrieve__details__cache_id         )               # Utility endpoints
+        self.add_route_get(self.retrieve__details__all__cache_id    )
+        self.add_route_get(self.retrieve__exists__cache_hash        )
