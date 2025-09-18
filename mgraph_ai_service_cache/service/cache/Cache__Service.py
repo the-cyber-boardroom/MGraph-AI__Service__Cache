@@ -10,6 +10,7 @@ from osbot_utils.utils.Http                                                     
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.utils.Misc                                                         import timestamp_now, list_set
 from memory_fs.schemas.Safe_Str__Cache_Hash                                         import Safe_Str__Cache_Hash
+from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy       import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.service.cache.Cache__Handler                           import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                      import Cache__Hash__Config
@@ -182,9 +183,8 @@ class Cache__Service(Type_Safe):                                                
             'total_files': total_files
         }
 
-    def get_or_create_handler(self, namespace: Safe_Str__Id = None                      # Get existing or create new cache handler
+    def get_or_create_handler(self, namespace: Safe_Str__Id = DEFAULT_CACHE__NAMESPACE  # Get existing or create new cache handler
                               ) -> Cache__Handler:
-        namespace = namespace or Safe_Str__Id("default")
         if namespace not in self.cache_handlers:
             handler = Cache__Handler(s3__bucket      = self.default_bucket,
                                      s3__prefix      = str(namespace),
