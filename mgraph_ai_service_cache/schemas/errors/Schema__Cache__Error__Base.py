@@ -2,7 +2,7 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text      import Safe_Str__Text
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid             import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id   import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now           import Timestamp_Now
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now           import Timestamp_Now
 
 
 # todo: should we add here the status_code value?

@@ -1,4 +1,5 @@
 from unittest                                                                       import TestCase
+from osbot_fast_api_serverless.utils.testing.skip_tests                             import skip__if_not__in_github_actions
 from osbot_utils.helpers.duration.decorators.capture_duration                       import capture_duration
 from osbot_utils.helpers.duration.decorators.print_duration                         import print_duration
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
@@ -14,6 +15,7 @@ class test_Cache__Test__Fixtures(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        skip__if_not__in_github_actions()
         setup__service_fast_api_test_objs()                                              # LocalStack setup
         cls.test_bucket   = "test-fixtures-test-bucket"                                  # Separate bucket for testing the fixture class
         cls.test_fixtures = Cache__Test__Fixtures(fixtures_bucket   = cls.test_bucket,
@@ -34,6 +36,25 @@ class test_Cache__Test__Fixtures(TestCase):
         #     if s3.bucket_exists(cls.test_bucket):
         #         s3.bucket_delete_all_files(cls.test_bucket)
         #         s3.bucket_delete          (cls.test_bucket)
+
+    def test_01_verify_fixtures(self):                                                   # Test fixture verification
+        with self.test_fixtures as _:                                                    # this test needs to run first
+            # All fixtures should exist
+            assert _.verify_fixtures() is True
+
+            # Delete one fixture manually
+            fixture_info = _.fixtures['string_simple']
+            cache_id = Random_Guid(fixture_info['cache_id'])
+            _.cache_service.delete_by_id(cache_id  = cache_id,
+                                         namespace = _.namespace)
+
+            # Verification should now fail
+            assert _.verify_fixtures() is False
+
+            # Recreate fixtures
+            _.fixtures = {}                                                           # Clear fixture map
+            _.create_fixtures()
+            assert _.verify_fixtures() is True
 
     def test__init__(self):                                                           # Test Type_Safe inheritance and initialization
         with Cache__Test__Fixtures() as _:
@@ -56,6 +77,7 @@ class test_Cache__Test__Fixtures(TestCase):
             assert 'binary_small'    in _.default_fixtures
 
     def test_setup(self):                                                             # Test fixture setup and initialization
+
         with Cache__Test__Fixtures(fixtures_bucket = "test-setup-bucket",
                                    namespace       = Safe_Str__Id("test-setup")) as _:
             _.setup()
@@ -169,26 +191,6 @@ class test_Cache__Test__Fixtures(TestCase):
         # Clean up
         fixtures2.delete_on_exit = True
         fixtures2.cleanup_all()
-
-    def test_01_verify_fixtures(self):                                                   # Test fixture verification
-        with self.test_fixtures as _:                                                    # this test needs to run first
-
-            # All fixtures should exist
-            assert _.verify_fixtures() is True
-
-            # Delete one fixture manually
-            fixture_info = _.fixtures['string_simple']
-            cache_id = Random_Guid(fixture_info['cache_id'])
-            _.cache_service.delete_by_id(cache_id  = cache_id,
-                                         namespace = _.namespace)
-
-            # Verification should now fail
-            assert _.verify_fixtures() is False
-
-            # Recreate fixtures
-            _.fixtures = {}                                                           # Clear fixture map
-            _.create_fixtures()
-            assert _.verify_fixtures() is True
 
     def test_cleanup_all(self):                                                  # Test fixture cleanup
         namespace = Safe_Str__Id("test-cleanup")

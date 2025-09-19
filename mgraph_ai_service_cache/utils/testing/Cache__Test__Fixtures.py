@@ -10,7 +10,7 @@ class Cache__Test__Fixtures(Type_Safe):                                         
     cache_service     : Cache__Service                    = None                      # Cache service instance for fixture storage
     manifest_cache_id : Random_Guid                       = None                      # Predictable ID for manifest storage
     fixtures_bucket   : str                               = "test-cache-fixtures"     # S3 bucket for test fixtures
-    namespace         : Safe_Str__Id                      = None                      # Namespace for fixture isolation
+    namespace         : Safe_Str__Id                      = 'fixtures-namespace'      # Namespace for fixture isolation
     fixtures          : Dict[str, dict[str, Any]]                                     # Map of fixture names to metadata
     setup_completed   : bool                              = False                     # Prevents redundant setup
     manifest          : Dict[str, Any]                    = None                      # Loaded manifest data
@@ -43,9 +43,9 @@ class Cache__Test__Fixtures(Type_Safe):                                         
             self.manifest_cache_id = Random_Guid("00000000-0000-0000-0000-000000000001")
 
         if self.load_manifest():                                                      # Try to load existing manifest
-            if self.verify_fixtures():
-                self.setup_completed = True
-                return self                                                            # All fixtures exist, we're done
+            #if self.verify_fixtures():
+            self.setup_completed = True                                               # if manifest file exists, assume that all fixtures exist
+            return self                                                               # i.e. there is no need to run this check on every request
 
         self.create_fixtures()                                                        # Create missing fixtures
         self.save_manifest()

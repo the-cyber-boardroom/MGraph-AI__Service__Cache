@@ -1,8 +1,9 @@
-from typing                                                                          import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                 import Safe_UInt
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now              import Timestamp_Now
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now              import Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe
 from osbot_utils.utils.Http                                                          import url_join_safe
@@ -67,6 +68,7 @@ class Service__Cache__Retrieve(Type_Safe):                                      
                                 namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
                           ) -> Schema__Cache__Entry__Details:                                # Get detailed information about cache entry
         details = self.cache_service.retrieve_by_id__config(cache_id, namespace)            #
+
         return Schema__Cache__Entry__Details(cache_id      = details.get("cache_id"         ),                              # todo: we don't need to do this here (since this should had been provided by self.retrieve_service.get_entry_details)
                                              cache_hash    = details.get("hash"             ),
                                              namespace     = details.get("namespace"        ),
@@ -94,7 +96,7 @@ class Service__Cache__Retrieve(Type_Safe):                                      
                     if full_file_path:
                         file_contents          = storage_fs.file__json(full_file_path)          # all these files are json files
                         all_details[file_path] = file_contents
-        return dict(by_id   =  details   ,
+        return dict(by_id   =  details.json()   ,
                     details = all_details)
 
     @type_safe
