@@ -3,8 +3,10 @@ import json
 from typing                                                                              import Dict, Optional, Any, List, Literal
 from osbot_utils.decorators.methods.cache_on_self                                        import cache_on_self
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                     import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
+from osbot_utils.utils.Env                                                               import get_env
 from osbot_utils.utils.Files                                                             import file_extension, file_name_without_extension
 from osbot_utils.utils.Http                                                              import url_join_safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
@@ -12,6 +14,7 @@ from osbot_utils.utils.Misc                                                     
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                         import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API                              import ENV_VAR__CACHE__SERVICE__BUCKET_NAME, ENV_VAR__CACHE__SERVICE__DEFAULT_TTL_HOURS
 from mgraph_ai_service_cache.service.cache.Cache__Handler                                import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                           import Cache__Hash__Config
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator                        import Cache__Hash__Generator
@@ -23,10 +26,19 @@ DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS  = 24
 
 class Cache__Service(Type_Safe):                                                   # Main cache service orchestrator
     cache_handlers    : Dict[Safe_Str__Id, Cache__Handler]                              # Multiple cache handlers by namespace
-    default_bucket    : str                           = DEFAULT__CACHE__SERVICE__BUCKET_NAME
-    default_ttl_hours : int                           = DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS
+    default_bucket    : Safe_Str__Id                  = None
+    default_ttl_hours : Safe_UInt                     = None
     hash_config       : Cache__Hash__Config                                        # Hash generation config
     hash_generator    : Cache__Hash__Generator                                     # Hash generator instance
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if not self.default_bucket:
+            self.default_bucket = get_env(ENV_VAR__CACHE__SERVICE__BUCKET_NAME         , DEFAULT__CACHE__SERVICE__BUCKET_NAME      )
+        if not self.default_ttl_hours:
+            self.default_ttl_hours = get_env(ENV_VAR__CACHE__SERVICE__DEFAULT_TTL_HOURS, DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS)
+
+
 
     def delete_by_id(self, cache_id: Random_Guid, namespace: Safe_Str__Id = None) -> Dict[str, Any]:
         namespace = namespace or Safe_Str__Id("default")

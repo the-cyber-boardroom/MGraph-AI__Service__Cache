@@ -10,6 +10,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.utils.Env                                                      import set_env
 from starlette.testclient                                                       import TestClient
 from mgraph_ai_service_cache.fast_api.Service__Fast_API                         import Service__Fast_API
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API                     import ENV_VAR__CACHE__SERVICE__BUCKET_NAME, CACHE__TEST__FIXTURES__BUCKET_NAME
 from mgraph_ai_service_cache.utils.testing.Cache__Test__Fixtures                import Cache__Test__Fixtures
 
 TEST_API_KEY__NAME = 'key-used-in-pytest'
@@ -44,6 +45,11 @@ def setup_cache_fixtures():
 def setup__service_fast_api_test_objs():
         with service_fast_api_test_objs as _:
             if service_fast_api_test_objs.setup_completed is False:
+
+                set_env(ENV_VAR__FAST_API__AUTH__API_KEY__NAME  , TEST_API_KEY__NAME                )
+                set_env(ENV_VAR__FAST_API__AUTH__API_KEY__VALUE , TEST_API_KEY__VALUE               )
+                set_env(ENV_VAR__CACHE__SERVICE__BUCKET_NAME    , CACHE__TEST__FIXTURES__BUCKET_NAME)
+
                 with capture_duration() as load_duration:
                     _.fast_api         = Service__Fast_API().setup()
                     _.fast_api__app    = _.fast_api.app()
@@ -52,8 +58,7 @@ def setup__service_fast_api_test_objs():
                     _.cache_fixtures   = setup_cache_fixtures()
                     _.setup_completed  = True
 
-                    set_env(ENV_VAR__FAST_API__AUTH__API_KEY__NAME , TEST_API_KEY__NAME)
-                    set_env(ENV_VAR__FAST_API__AUTH__API_KEY__VALUE, TEST_API_KEY__VALUE)
+
 
                 _.duration = load_duration.seconds
 

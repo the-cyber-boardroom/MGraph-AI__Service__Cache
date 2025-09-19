@@ -3,18 +3,20 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid             import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id   import Safe_Str__Id
 from osbot_utils.utils.Misc                                                       import timestamp_now
+
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API import CACHE__TEST__FIXTURES__BUCKET_NAME, CACHE__TEST__FIXTURES__NAMESPACE
 from mgraph_ai_service_cache.service.cache.Cache__Service                         import Cache__Service
 
 
-class Cache__Test__Fixtures(Type_Safe):                                               # Manages reusable test fixtures for cache service tests
-    cache_service     : Cache__Service                    = None                      # Cache service instance for fixture storage
-    manifest_cache_id : Random_Guid                       = None                      # Predictable ID for manifest storage
-    fixtures_bucket   : str                               = "test-cache-fixtures"     # S3 bucket for test fixtures
-    namespace         : Safe_Str__Id                      = 'fixtures-namespace'      # Namespace for fixture isolation
-    fixtures          : Dict[str, dict[str, Any]]                                     # Map of fixture names to metadata
-    setup_completed   : bool                              = False                     # Prevents redundant setup
-    manifest          : Dict[str, Any]                    = None                      # Loaded manifest data
-    delete_on_exit    : bool                              = False                     # Whether to cleanup fixtures
+class Cache__Test__Fixtures(Type_Safe):                                                         # Manages reusable test fixtures for cache service tests
+    cache_service     : Cache__Service                    = None                                # Cache service instance for fixture storage
+    manifest_cache_id : Random_Guid                       = None                                # Predictable ID for manifest storage
+    fixtures_bucket   : str                               = CACHE__TEST__FIXTURES__BUCKET_NAME  # S3 bucket for test fixtures
+    namespace         : Safe_Str__Id                      = CACHE__TEST__FIXTURES__NAMESPACE    # Namespace for fixture isolation
+    fixtures          : Dict[str, dict[str, Any]]                                               # Map of fixture names to metadata
+    setup_completed   : bool                              = False                               # Prevents redundant setup
+    manifest          : Dict[str, Any]                    = None                                # Loaded manifest data
+    delete_on_exit    : bool                              = False                               # Whether to cleanup fixtures
 
     # Core fixtures that tests commonly need
     default_fixtures = { 'string_simple'   : "test retrieve string data"                         ,
