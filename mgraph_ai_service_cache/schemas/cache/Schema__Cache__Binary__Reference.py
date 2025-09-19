@@ -1,6 +1,7 @@
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_UInt                              import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text      import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid             import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id   import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash                                       import Safe_Str__Cache_Hash
@@ -15,7 +16,7 @@ class Schema__Cache__Binary__Reference(Type_Safe):                              
     cache_hash   : Safe_Str__Cache_Hash                                               # Hash of the data
     cache_id     : Random_Guid                                                        # ID of the entry
     namespace    : Safe_Str__Id                                                       # Namespace
-    binary_url   : Safe_Str__Text                                                     # URL to retrieve binary data
+    binary_url   : Safe_Str__File__Path                                               # URL to retrieve binary data
     metadata     : Schema__Cache__Metadata                                            # Full metadata
 
 

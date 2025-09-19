@@ -104,10 +104,10 @@ class Routes__Retrieve(Fast_API__Routes):                                       
             content = json.dumps(result.data)
         elif result.data_type == Enum__Cache__Data_Type.BINARY:
             # Try to decode as UTF-8, otherwise base64 encode
-            try:
-                content = result.data.decode('utf-8')
-            except (UnicodeDecodeError, AttributeError):
-                content = base64.b64encode(result.data).decode('utf-8')
+            # try:
+            #     content = result.data.decode('utf-8')
+            # except (UnicodeDecodeError, AttributeError):
+            content = base64.b64encode(result.data).decode('utf-8')         # if it is binary encode as base64
         else:
             content = str(result.data)
         

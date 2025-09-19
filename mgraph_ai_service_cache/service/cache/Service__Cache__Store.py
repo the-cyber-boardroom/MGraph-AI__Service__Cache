@@ -12,6 +12,8 @@ from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input 
 from mgraph_ai_service_cache.service.cache.Cache__Service                            import Cache__Service
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response            import Schema__Cache__Store__Response
 
+# todo: rename to Cache__Service__Store
+
 
 class Service__Cache__Store(Type_Safe):                                               # Service layer for cache store operations
     cache_service : Cache__Service                                                    # Underlying cache service
@@ -32,11 +34,8 @@ class Service__Cache__Store(Type_Safe):                                         
         else:
             cache_hash = self.cache_service.hash_from_string(data)
 
-        cache_id = file_id or Random_Guid()
-
         return self.cache_service.store_with_strategy(storage_data = data       ,       # todo: convert this into a Type_Safe object
                                                       cache_hash   = cache_hash ,
-                                                      cache_id     = cache_id   ,
                                                       cache_key    = cache_key  ,
                                                       file_id      = file_id    ,
                                                       strategy     = strategy   ,
@@ -102,11 +101,6 @@ class Service__Cache__Store(Type_Safe):                                         
                                                       strategy         = strategy        ,
                                                       namespace        = namespace       ,
                                                       content_encoding = content_encoding )
-
-    # todo: this should be done by Type_Safe Enum support
-    @type_safe
-    def validate_strategy(self, strategy: str) -> Optional[Enum__Cache__Store__Strategy]:  # Validate storage strategy
-        return Enum__Cache__Store__Strategy(strategy)
 
 
     @type_safe

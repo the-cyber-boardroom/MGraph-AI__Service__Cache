@@ -214,7 +214,7 @@ class Cache__Service(Type_Safe):                                                
         fs_data   = handler.get_fs_for_strategy(strategy)
         all_paths = { "data": [], "by_hash": [], "by_id" : []     }
 
-        file_id   =  Safe_Str__Id  (file_id or cache_id )                    # if not provided use the cache_id as file_id (needs casting to Safe_Str__Id)
+        file_id   =  Safe_Str__Id  (file_id or cache_id )               # if not provided use the cache_id as file_id (needs casting to Safe_Str__Id)
         file_key  = Safe_Str__File__Path(cache_key)                     # use cache_key as file_key
         if isinstance(storage_data, bytes):                             # Determine file type based on storage data
             file_fs = fs_data.file__binary(file_id=file_id, file_key=file_key)

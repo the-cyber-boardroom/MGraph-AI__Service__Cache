@@ -17,6 +17,7 @@ from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Gone          
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Not_Found          import Schema__Cache__Error__Not_Found
 from mgraph_ai_service_cache.service.cache.Cache__Service                            import Cache__Service
 
+# todo: rename to Cache__Service__Retrieve
 
 class Service__Cache__Retrieve(Type_Safe):                                            # Service layer for cache retrieval operations
     cache_service : Cache__Service                                                    # Underlying cache service
