@@ -253,7 +253,7 @@ class test_Service__Cache__Retrieve(TestCase):
             assert type(result.metadata)     is Schema__Cache__Metadata
             assert result.data               == self.test_json
             assert result.data_type          == Enum__Cache__Data_Type.JSON
-            assert result.metadata.cache_id  != cache_id
+            assert result.metadata.cache_id  == cache_id
 
     def test_retrieve_binary_data(self):                                                # Test binary data retrieval
         with self.retrieve_service as _:

@@ -22,16 +22,16 @@ from tests.unit.Service__Fast_API__Test_Objs                                    
 class test_Cache__Service(TestCase):                                                # Test main cache service orchestrator with all APIs
 
     @classmethod
-    def setUpClass(cls):                                                            # ONE-TIME expensive setup
+    def setUpClass(cls):
         with capture_duration() as duration:
             cls.test_objs          = setup__service_fast_api_test_objs()                # Reuse shared test objects
             cls.cache_fixtures     = cls.test_objs.cache_fixtures                       # Use shared fixtures
 
-            # Use the fixtures bucket for everything
-            cls.test_bucket = cls.cache_fixtures.fixtures_bucket
 
-            # Service that uses the fixtures bucket
-            with Cache__Service() as _:
+            cls.test_bucket = cls.cache_fixtures.fixtures_bucket                        # Use the fixtures bucket for everything
+
+
+            with Cache__Service() as _:                                                 # Service that uses the fixtures bucket
                 cls.service          = _
                 _.default_bucket     = cls.test_bucket                                  # Use fixtures bucket
                 _.default_ttl_hours  = 12
