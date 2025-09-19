@@ -23,6 +23,7 @@ class Routes__Exists(Fast_API__Routes):
         namespace = namespace or Safe_Str__Id("default")                                                             # todo: refactor to use static var for default namespace
         handler   = self.cache_service.get_or_create_handler(namespace)
         file_id   = Safe_Str__Id(cache_hash)                                                                         # cast hash to File_Id (which is what file__json will use)
+
         with handler.fs__refs_hash.file__json(file_id) as ref_fs:
             exists = ref_fs.exists()
 

@@ -31,7 +31,7 @@ class Routes__Admin__Storage(Fast_API__Routes):
         return self.cache_service.storage_fs()
 
     def bucket_name(self):
-        return self.storage_fs().s3_bucket
+        return {'bucket-name': self.storage_fs().s3_bucket }
 
     @route_path("/file/exists/{path:path}")
     def file__exists(self, path):
