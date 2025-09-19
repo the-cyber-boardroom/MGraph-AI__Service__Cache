@@ -1,7 +1,7 @@
 import base64
 import json
-from typing import Union, Dict
-from fastapi import HTTPException, Response, Path
+from typing                                                                     import Union, Dict
+from fastapi                                                                    import HTTPException, Response, Path
 from osbot_fast_api.api.decorators.route_path                                   import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                 import Fast_API__Routes
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   import Safe_Str__Fast_API__Route__Prefix
@@ -250,7 +250,6 @@ class Routes__Retrieve(Fast_API__Routes):                                       
 
         return details
 
-    # todo: move this logic to the retrieve_service
     def retrieve__details__all__cache_id(self, cache_id: Random_Guid,
                                                namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                           ) -> Dict:

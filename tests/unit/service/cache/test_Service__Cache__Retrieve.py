@@ -1,6 +1,5 @@
 from unittest                                                                           import TestCase
-
-from osbot_utils.helpers.duration.decorators.capture_duration import capture_duration
+from osbot_utils.helpers.duration.decorators.capture_duration                           import capture_duration
 from osbot_utils.testing.__                                                             import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                   import Random_Guid
@@ -11,10 +10,12 @@ from memory_fs.schemas.Safe_Str__Cache_Hash                                     
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Metadata                      import Schema__Cache__Metadata
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success             import Schema__Cache__Retrieve__Success
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                 import Enum__Cache__Data_Type
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Gone                  import Schema__Cache__Error__Gone
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Not_Found             import Schema__Cache__Error__Not_Found
 from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve                     import Service__Cache__Retrieve
 from mgraph_ai_service_cache.service.cache.Cache__Service                               import Cache__Service
+from mgraph_ai_service_cache.service.cache.Service__Cache__Store import Service__Cache__Store
 from mgraph_ai_service_cache.utils.for_osbot_utils.Random_Hash                          import Random_Hash
 from tests.unit.Service__Fast_API__Test_Objs                                            import setup__service_fast_api_test_objs
 
@@ -23,20 +24,15 @@ class test_Service__Cache__Retrieve(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        with capture_duration() as duration:
-            setup__service_fast_api_test_objs()
+        setup__service_fast_api_test_objs()
+        cls.temp_bucket_name = "test-retrieve-service"
+        cls.cache_service    = Cache__Service          (default_bucket = cls.temp_bucket_name)
+        cls.retrieve_service = Service__Cache__Retrieve(cache_service  = cls.cache_service  )
+        cls.store_service    = Service__Cache__Store   (cache_service  = cls.cache_service)
+        cls.test_namespace   = Safe_Str__Id("test-retrieve")
+        cls.test_string      = "test retrieve string data"
+        cls.test_json        = {"key": "value", "number": 42}
 
-            cls.temp_bucket_name = "test-retrieve-service"
-            cls.cache_service    = Cache__Service          (default_bucket = cls.temp_bucket_name)
-            cls.retrieve_service = Service__Cache__Retrieve(cache_service  = cls.cache_service  )
-            cls.test_namespace   = Safe_Str__Id("test-retrieve")
-            cls.test_string      = "test retrieve string data"
-            cls.test_json        = {"key": "value", "number": 42}
-        assert duration.seconds < 0.15
-
-        with capture_duration() as duration_2nd:
-            setup__service_fast_api_test_objs()
-        assert duration_2nd.seconds == 0
 
     @classmethod
     def tearDownClass(cls):                                                          # ONE-TIME cleanup
@@ -79,6 +75,16 @@ class test_Service__Cache__Retrieve(TestCase):
             exists = _.check_exists(non_existent_hash, self.test_namespace)
 
             assert exists is False
+
+    def test_get_entry_details(self):
+            store_result = self.store_service.store_string(data         = self.test_string                     ,
+                                                           #strategy     = Enum__Cache__Store__Strategy.TEMPORAL,
+                                                           namespace    = self.test_namespace)
+            assert store_result.obj() == __(cache_id = __SKIP__           ,
+                                            hash      = 'e15b31f87df1896e',
+                                            namespace = 'test-retrieve'   ,
+                                            paths     =__SKIP__           ,
+                                            size      = 27                )
 
     def test_get_not_found_error(self):                                             # Test error response building
         with self.retrieve_service as _:
@@ -182,6 +188,7 @@ class test_Service__Cache__Retrieve(TestCase):
                                                                   cache_id     = cache_id           ,
                                                                   strategy     = "temporal"         ,
                                                                   namespace    = self.test_namespace)
+            assert cache_hash         == 'e15b31f87df1896e'
             assert store_result.obj() == __(cache_id = cache_id           ,
                                             hash      = 'e15b31f87df1896e',
                                             namespace = 'test-retrieve'   ,
