@@ -1,5 +1,5 @@
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from memory_fs.schemas.Safe_Str__Cache_Hash    import Safe_Str__Cache_Hash
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash    import Safe_Str__Cache_Hash
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid              import Random_Guid
 
 

@@ -7,7 +7,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe
 from osbot_utils.utils.Http                                                          import url_join_safe
-from memory_fs.schemas.Safe_Str__Cache_Hash                                          import Safe_Str__Cache_Hash
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash                                          import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details             import Schema__Cache__Entry__Details
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Metadata                   import Schema__Cache__Metadata
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success          import Schema__Cache__Retrieve__Success

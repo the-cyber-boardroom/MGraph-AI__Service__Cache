@@ -1,6 +1,6 @@
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text      import Safe_Str__Text
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid             import Random_Guid
-from memory_fs.schemas.Safe_Str__Cache_Hash                                       import Safe_Str__Cache_Hash
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash                                       import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Base            import Schema__Cache__Error__Base
 
 

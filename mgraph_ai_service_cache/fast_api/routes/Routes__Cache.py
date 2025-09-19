@@ -3,7 +3,7 @@
 # from typing                                                                        import Dict, Any, Literal
 # from fastapi                                                                       import Request, Response, Body
 # from osbot_fast_api.api.routes.Fast_API__Routes                                    import Fast_API__Routes
-# from memory_fs.schemas.Safe_Str__Cache_Hash                   import Safe_Str__Cache_Hash
+# from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash                   import Safe_Str__Cache_Hash
 # from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid              import Random_Guid
 # from mgraph_ai_service_cache.service.cache.Cache__Service                          import Cache__Service
 # from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response          import Schema__Cache__Store__Response

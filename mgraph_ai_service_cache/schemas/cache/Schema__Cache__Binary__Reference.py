@@ -3,7 +3,7 @@ from osbot_utils.type_safe.primitives.core.Safe_UInt                            
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text      import Safe_Str__Text
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid             import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id   import Safe_Str__Id
-from memory_fs.schemas.Safe_Str__Cache_Hash                                       import Safe_Str__Cache_Hash
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash                                       import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Metadata                import Schema__Cache__Metadata
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type           import Enum__Cache__Data_Type
 

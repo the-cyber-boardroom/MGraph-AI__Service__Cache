@@ -2,7 +2,7 @@ import hashlib
 import json
 from typing                                                      import List
 from osbot_utils.type_safe.Type_Safe                             import Type_Safe
-from memory_fs.schemas.Safe_Str__Cache_Hash                      import Safe_Str__Cache_Hash
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash                      import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config   import Cache__Hash__Config, Enum__Hash__Algorithm
 
 class Cache__Hash__Generator(Type_Safe):                                           # Generate consistent hashes from various input types

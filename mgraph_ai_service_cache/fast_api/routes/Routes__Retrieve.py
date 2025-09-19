@@ -8,7 +8,7 @@ from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                      import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
-from memory_fs.schemas.Safe_Str__Cache_Hash                                     import Safe_Str__Cache_Hash
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash                                     import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Binary__Reference     import Schema__Cache__Binary__Reference
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details        import Schema__Cache__Entry__Details
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Exists__Response      import Schema__Cache__Exists__Response

@@ -9,7 +9,7 @@ from osbot_utils.utils.Files                                                    
 from osbot_utils.utils.Http                                                         import url_join_safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.utils.Misc                                                         import timestamp_now, list_set
-from memory_fs.schemas.Safe_Str__Cache_Hash                                         import Safe_Str__Cache_Hash
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash                                         import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                    import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy       import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.service.cache.Cache__Handler                           import Cache__Handler
