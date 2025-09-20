@@ -25,7 +25,7 @@ class test_Routes__Delete__http(TestCase):                                      
         cls.fast_api_server = Fast_API_Server(app=cls.service__app)
         cls.fast_api_server.start()
 
-        cls.base_url        = cls.fast_api_server.url()
+        cls.base_url        = cls.fast_api_server.url().rstrip("/")                 # remove trailing slashes
         cls.headers         = {TEST_API_KEY__NAME: TEST_API_KEY__VALUE}
 
         # Use fixtures namespace for reading, separate for deletion
@@ -63,11 +63,8 @@ class test_Routes__Delete__http(TestCase):                                      
         return cache_id
 
     def test_01_health_check(self):                                                 # Verify API is accessible
-
-        print()
-        print(f"{self.base_url}")
-        pprint(self.test_objs.fast_api.routes_paths())
         print(f"{self.base_url}/info/health")
+
         response = requests.get(f"{self.base_url}/info/health", headers=self.headers)
         assert response.status_code == 200
         assert response.json()      == {'status': 'ok'}
