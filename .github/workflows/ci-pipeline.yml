@@ -119,12 +119,12 @@ jobs:
           target: ${{ inputs.target_deploy }}
 
   publish-to-pypi:
-    if: inputs.should_publish_pypi #&& needs.increment-tag.result == 'success'
+    if: inputs.should_publish_pypi && needs.increment-tag.result == 'success'
     name: "Publish to: PYPI"
     permissions:
       id-token: write
     runs-on: ubuntu-latest
-    #needs: [ increment-tag ]
+    needs: [ increment-tag ]
     steps:
       - uses: actions/checkout@v4
       - name: Git Update Current Branch

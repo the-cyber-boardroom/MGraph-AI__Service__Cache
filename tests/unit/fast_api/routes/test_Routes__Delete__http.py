@@ -6,6 +6,7 @@ from unittest                                                                   
 from osbot_fast_api.utils.Fast_API_Server                                       import Fast_API_Server
 from osbot_fast_api_serverless.utils.testing.skip_tests                         import skip__if_not__in_github_actions
 from osbot_utils.testing.__                                                     import __, __SKIP__
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc                                                     import is_guid
 from osbot_utils.utils.Objects                                                  import obj
 from tests.unit.Service__Fast_API__Test_Objs                                    import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
@@ -65,6 +66,7 @@ class test_Routes__Delete__http(TestCase):                                      
 
         print()
         print(f"{self.base_url}")
+        pprint(self.test_objs.fast_api.routes_paths())
         print(f"{self.base_url}/info/health")
         response = requests.get(f"{self.base_url}/info/health", headers=self.headers)
         assert response.status_code == 200
