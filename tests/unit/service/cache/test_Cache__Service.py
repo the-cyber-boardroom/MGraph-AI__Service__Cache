@@ -11,6 +11,8 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
 from osbot_utils.utils.Objects                                                      import base_classes
 from osbot_aws.AWS_Config                                                           import aws_config
+
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API import CACHE__TEST__FIXTURES__BUCKET_NAME
 from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service, DEFAULT__CACHE__SERVICE__BUCKET_NAME, DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS
 from mgraph_ai_service_cache.service.cache.Cache__Handler                           import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                      import Cache__Hash__Config
@@ -99,7 +101,7 @@ class test_Cache__Service(TestCase):                                            
             assert type(_)                is Cache__Service
             assert base_classes(_)        == [Type_Safe, object]
             assert type(_.cache_handlers) is Type_Safe__Dict
-            assert _.default_bucket       == DEFAULT__CACHE__SERVICE__BUCKET_NAME
+            assert _.default_bucket       == CACHE__TEST__FIXTURES__BUCKET_NAME
             assert _.default_ttl_hours    == DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS
 
     def test_setup(self):                                                            # Test service setup initializes components

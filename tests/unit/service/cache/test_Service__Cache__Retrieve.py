@@ -46,9 +46,9 @@ class test_Service__Cache__Retrieve(TestCase):
             assert base_classes(_)       == [Type_Safe, object]
             assert type(_.cache_service) is Cache__Service
 
-            assert _.obj() == __(cache_service=__(default_bucket    = 'mgraph-ai-cache',
-                                                  default_ttl_hours = 24,
-                                                  cache_handlers    = __(),
+            assert _.obj() == __(cache_service=__(default_bucket    = self.fixtures_bucket      ,
+                                                  default_ttl_hours = 24                        ,
+                                                  cache_handlers    = __()                      ,
                                                   hash_config       = __(algorithm = 'sha256', length=16),
                                                   hash_generator    = __(config    = __(algorithm='sha256', length=16))))
 

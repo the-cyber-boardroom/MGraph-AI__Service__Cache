@@ -2,7 +2,7 @@ from osbot_fast_api.api.routes.Fast_API__Routes           import Fast_API__Route
 from mgraph_ai_service_cache.service.cache.Cache__Service import Cache__Service
 
 TAG__ROUTES_SERVER                  = 'server'
-ROUTES_PATHS__SERVER                = [ f'/{TAG__ROUTES_SERVER}/namespaces' ]
+ROUTES_PATHS__SERVER                = []       # f'/{TAG__ROUTES_SERVER}/namespaces' ]
 
 class Routes__Server(Fast_API__Routes):
     tag         : str          = TAG__ROUTES_SERVER

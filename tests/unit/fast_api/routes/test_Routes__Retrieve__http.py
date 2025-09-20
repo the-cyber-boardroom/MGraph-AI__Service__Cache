@@ -7,10 +7,7 @@ import concurrent.futures
 from unittest                                                                       import TestCase
 from osbot_fast_api.utils.Fast_API_Server                                           import Fast_API_Server
 from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
-from osbot_utils.testing.Pytest import skip_pytest
 from osbot_utils.testing.__ import __, __SKIP__
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Env                                                          import in_github_action
 from osbot_utils.utils.Objects import obj
 
 from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
@@ -320,7 +317,7 @@ class test_Routes__Retrieve__http(TestCase):                                    
         assert binary_response.status_code == 404
 
     def test_15_large_binary_retrieval(self):                                                 # Test large binary
-        skip__if_not__in_github_actions()
+        #skip__if_not__in_github_actions()
         large_binary = bytes([i % 256 for i in range(1024 * 1024)])                          # 1MB binary
         cache_id, cache_hash = self._store_test_data(large_binary, "binary")
 
@@ -347,12 +344,8 @@ class test_Routes__Retrieve__http(TestCase):                                    
                                                  content_encoding  = None                           ,
                                                  content_size      = 0                              ))
 
-        pprint(result)
-        return
-        assert result['status'] == 'binary_data'
-        assert result['size']   == len(large_binary)
 
-        binary_url      = f"{self.base_url}/{self.test_namespace}/retrieve/{cache_id}/binary"
+        binary_url      =  f"{self.base_url}/{obj(result).binary_url}"
         binary_response = requests.get(binary_url, headers=self.headers, stream=True)
 
         assert binary_response.status_code == 200
