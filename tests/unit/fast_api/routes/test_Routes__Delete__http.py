@@ -62,6 +62,10 @@ class test_Routes__Delete__http(TestCase):                                      
         return cache_id
 
     def test_01_health_check(self):                                                 # Verify API is accessible
+
+        print()
+        print(f"{self.base_url}")
+        print(f"{self.base_url}/info/health")
         response = requests.get(f"{self.base_url}/info/health", headers=self.headers)
         assert response.status_code == 200
         assert response.json()      == {'status': 'ok'}
