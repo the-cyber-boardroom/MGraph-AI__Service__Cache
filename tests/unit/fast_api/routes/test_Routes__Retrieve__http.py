@@ -345,7 +345,7 @@ class test_Routes__Retrieve__http(TestCase):                                    
                                                  content_size      = 0                              ))
 
 
-        binary_url      =  f"{self.base_url}/{obj(result).binary_url}"
+        binary_url      =  f"{self.base_url}{obj(result).binary_url}"
         binary_response = requests.get(binary_url, headers=self.headers, stream=True)
 
         assert binary_response.status_code == 200

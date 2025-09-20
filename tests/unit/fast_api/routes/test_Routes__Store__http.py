@@ -53,7 +53,10 @@ class test_Routes__Store__http(TestCase):                                       
         response = requests.post(url     = url                                     ,
                                 data    = data                                     ,
                                 headers = {**self.headers, "Content-Type": "text/plain"})
-
+        if  response.status_code != 200:
+            from osbot_utils.utils.Dev import pprint
+            pprint(response.text)
+            pprint(response.json())
         assert response.status_code == 200
 
         result   = response.json()

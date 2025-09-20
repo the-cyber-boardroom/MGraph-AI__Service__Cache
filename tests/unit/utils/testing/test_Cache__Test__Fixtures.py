@@ -37,6 +37,26 @@ class test_Cache__Test__Fixtures(TestCase):
         #         s3.bucket_delete_all_files(cls.test_bucket)
         #         s3.bucket_delete          (cls.test_bucket)
 
+    def test_00__init__(self):                                                           # Test Type_Safe inheritance and initialization
+        with Cache__Test__Fixtures() as _:
+            assert type(_)               is Cache__Test__Fixtures
+            assert base_classes(_)       == [Type_Safe, object]
+
+            # Verify default initialization
+            assert _.cache_service       is None                                      # Not initialized until setup()
+            assert _.manifest_cache_id   is None                                      # Will be set during setup
+            assert _.fixtures_bucket     == "test-cache-fixtures"
+            assert _.namespace           == 'fixtures-namespace'                                      # Will default to "test-fixtures"
+            assert _.fixtures            == {}
+            assert _.setup_completed     is False
+            assert _.manifest            is None
+            assert _.delete_on_exit      is False
+
+            # Verify default fixtures are defined
+            assert 'string_simple'   in _.default_fixtures
+            assert 'json_simple'     in _.default_fixtures
+            assert 'binary_small'    in _.default_fixtures
+
     def test_01_verify_fixtures(self):                                                   # Test fixture verification
         with self.test_fixtures as _:                                                    # this test needs to run first
             # All fixtures should exist
@@ -56,25 +76,7 @@ class test_Cache__Test__Fixtures(TestCase):
             _.create_fixtures()
             assert _.verify_fixtures() is True
 
-    def test__init__(self):                                                           # Test Type_Safe inheritance and initialization
-        with Cache__Test__Fixtures() as _:
-            assert type(_)               is Cache__Test__Fixtures
-            assert base_classes(_)       == [Type_Safe, object]
 
-            # Verify default initialization
-            assert _.cache_service       is None                                      # Not initialized until setup()
-            assert _.manifest_cache_id   is None                                      # Will be set during setup
-            assert _.fixtures_bucket     == "test-cache-fixtures"
-            assert _.namespace           is None                                      # Will default to "test-fixtures"
-            assert _.fixtures            == {}
-            assert _.setup_completed     is False
-            assert _.manifest            is None
-            assert _.delete_on_exit      is False
-
-            # Verify default fixtures are defined
-            assert 'string_simple'   in _.default_fixtures
-            assert 'json_simple'     in _.default_fixtures
-            assert 'binary_small'    in _.default_fixtures
 
     def test_setup(self):                                                             # Test fixture setup and initialization
 
