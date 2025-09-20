@@ -28,7 +28,7 @@ class test_Routes__Retrieve__http(TestCase):                                    
         cls.fast_api_server = Fast_API_Server(app=cls.service__app)
         cls.fast_api_server.start()
 
-        cls.base_url          = cls.fast_api_server.url()
+        cls.base_url          = cls.fast_api_server.url().rstrip("/")
         cls.headers           = {TEST_API_KEY__NAME: TEST_API_KEY__VALUE}
         cls.test_namespace    = f"http-retrieve-test-{int(time.time())}"                      # Unique namespace
         cls.created_resources = []                                                            # Track created resources

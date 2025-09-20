@@ -53,8 +53,8 @@ jobs:
       - name: "run-tests"
         uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/pytest__run-tests@dev
         with:
-          #test_target: "tests/unit"
-          test_target: "tests/unit/fast_api/routes/test_Routes__Delete__http.py::test_Routes__Delete__http::test_01_health_check"
+          test_target: "tests/unit"
+          #test_target: "tests/unit/fast_api/routes/test_Routes__Delete__http.py::test_Routes__Delete__http::test_01_health_check"
         env:
           FAST_API__AUTH__API_KEY__NAME: 'api-key__in_github_test'
           FAST_API__AUTH__API_KEY__VALUE: 'this-is-the-value-of-the-api-key'
