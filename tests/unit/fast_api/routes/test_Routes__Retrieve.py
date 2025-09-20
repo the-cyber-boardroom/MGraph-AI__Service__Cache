@@ -30,10 +30,10 @@ class test_Routes__Retrieve(TestCase):
         cls.fixtures_namespace = cls.cache_fixtures.namespace
         
         # Services using fixtures bucket
-        cls.cache_service      = Cache__Service(default_bucket = cls.fixtures_bucket)
-        cls.retrieve_service   = Service__Cache__Retrieve(cache_service = cls.cache_service)
-        cls.store_service      = Service__Cache__Store(cache_service = cls.cache_service)
-        cls.routes             = Routes__Retrieve(retrieve_service = cls.retrieve_service)
+        cls.cache_service      = Cache__Service          (default_bucket   = cls.fixtures_bucket)
+        cls.retrieve_service   = Service__Cache__Retrieve(cache_service    = cls.cache_service  )
+        cls.store_service      = Service__Cache__Store   (cache_service    = cls.cache_service  )
+        cls.routes             = Routes__Retrieve        (retrieve_service = cls.retrieve_service)
         
         # Test namespace separate from fixtures
         cls.test_namespace     = Safe_Str__Id("test-routes-retrieve")

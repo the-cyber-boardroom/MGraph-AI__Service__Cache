@@ -17,8 +17,8 @@ class test_Routes__Delete__http(TestCase):                                      
 
     @classmethod
     def setUpClass(cls):                                                             # ONE-TIME expensive setup
-        if in_github_action():
-            pytest.skip("Skipping HTTP tests on GitHub Actions")
+        #if in_github_action():
+        #    pytest.skip("Skipping HTTP tests on GitHub Actions")
 
         cls.test_objs       = setup__service_fast_api_test_objs()                   # Use shared infrastructure
         cls.cache_fixtures  = cls.test_objs.cache_fixtures

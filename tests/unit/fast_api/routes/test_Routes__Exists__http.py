@@ -13,8 +13,8 @@ class test_Routes__Exists__http(TestCase):                                      
 
     @classmethod
     def setUpClass(cls):                                                              # ONE-TIME expensive setup
-        if in_github_action():
-            pytest.skip("Skipping this test on GitHub Actions (because we are getting 404 on the routes below)")
+        # if in_github_action():
+        #     pytest.skip("Skipping this test on GitHub Actions (because we are getting 404 on the routes below)")
 
         cls.test_objs          = setup__service_fast_api_test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
