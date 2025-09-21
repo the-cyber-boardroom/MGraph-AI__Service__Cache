@@ -15,7 +15,7 @@ if os.getenv('AWS_REGION'):  # only execute if we are not running inside an AWS 
 
     clear_osbot_modules()
 
-error   = None          # pin these variablesests
+error   = None          # pin these variables
 handler = None
 app     = None
 try:
@@ -25,10 +25,11 @@ try:
         _.setup()
         handler = _.handler()
         app     = _.app()
-except Exception as error:
+except Exception as exc:
     if os.getenv("AWS_LAMBDA_FUNCTION_NAME") is None:       # raise exception when not running inside a lambda function
         raise RuntimeError(error)
-    error = str(error)
+    error = (f"CRITICAL ERROR: Failed to start service with:\n\n"
+             f"{type(exc).__name__}: {exc}")
 
 def run(event, context=None):
     if error:

@@ -14,6 +14,7 @@ class test_Deploy__Service__to__dev(test_Deploy__Service__base, TestCase):
     #     super().setUpClass()
     #
     # def test_invoke_return_logs(self):
+    ##     self.test_3__create()
     #     from osbot_utils.utils.Dev      import pprint
     #     with self.deploy_fast_api.lambda_function() as _:
     #         result  = _.invoke_return_logs()
