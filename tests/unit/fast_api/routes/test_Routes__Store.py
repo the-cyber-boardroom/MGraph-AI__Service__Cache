@@ -31,13 +31,11 @@ class test_Routes__Store(TestCase):
         cls.test_objs          = setup__service_fast_api_test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
         cls.cache_service      = cls.cache_fixtures.cache_service
-        cls.retrieve_service   = Service__Cache__Retrieve(cache_service    = cls.cache_service   )
-        cls.store_service      = Service__Cache__Store   (cache_service    = cls.cache_service   )
-
-        cls.routes             = Routes__Store           (store_service    = cls.store_service   )
+        cls.routes             = Routes__Store           (cache_service    = cls.cache_service   )
         cls.routes_delete      = Routes__Delete          (cache_service    = cls.cache_service   )
-        cls.routes_retrieve    = Routes__Retrieve        (retrieve_service = cls.retrieve_service)
+        cls.routes_retrieve    = Routes__Retrieve        (cache_service    = cls.cache_service   )
         cls.routes_namespace   = Routes__Namespace       (cache_service    = cls.cache_service   )
+        cls.retrieve_service   = cls.routes_retrieve.retrieve_service()
 
         cls.test_namespace     = Safe_Str__Id("test-store-api")                                 # Test data
         cls.test_string        = "test store string"
@@ -50,10 +48,10 @@ class test_Routes__Store(TestCase):
 
     def test__init__(self):                                                                   # Test initialization
         with Routes__Store() as _:
-            assert type(_)               is Routes__Store
-            assert base_classes(_)       == [Fast_API__Routes, Type_Safe, object]
-            assert _.tag                 == TAG__ROUTES_STORE
-            assert type(_.store_service) is Service__Cache__Store
+            assert type(_)                 is Routes__Store
+            assert base_classes(_)         == [Fast_API__Routes, Type_Safe, object]
+            assert _.tag                   == TAG__ROUTES_STORE
+            assert type(_.store_service()) is Service__Cache__Store
 
     def test_store__string(self):                                                             # Test string storage endpoint
         target_string   = "a different string"

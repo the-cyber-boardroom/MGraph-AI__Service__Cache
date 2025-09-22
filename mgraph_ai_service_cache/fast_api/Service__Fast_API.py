@@ -1,3 +1,4 @@
+from mgraph_ai_service_cache.service.cache.Cache__Service              import Cache__Service
 from osbot_fast_api.api.routes.Routes__Set_Cookie                      import Routes__Set_Cookie
 from osbot_fast_api_serverless.fast_api.Serverless__Fast_API           import Serverless__Fast_API
 from mgraph_ai_service_cache.config                                    import FAST_API__TITLE
@@ -14,8 +15,10 @@ from mgraph_ai_service_cache.utils.Version                             import ve
 
 
 class Service__Fast_API(Serverless__Fast_API):
+    cache_service: Cache__Service
     title   = FAST_API__TITLE
     version = version__mgraph_ai_service_cache
+
 
     def setup_routes(self):
         self.add_routes(Routes__Admin__Storage)
@@ -27,7 +30,13 @@ class Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__Server        )
         self.add_routes(Routes__Info          )
         self.add_routes(Routes__Set_Cookie    )
-        #self.add_routes(Routes__Cache     )         # to remove one all methods have been refactored out
+
+    def add_routes(self, class_routes):
+        kwargs = dict(app=self.app())
+        if 'cache_service' in class_routes.__annotations__:             # if there is a Type_Safe definiton of cache_service
+            kwargs["cache_service"] = self.cache_service                # we will assign it (aka dependency injection)
+        class_routes(**kwargs).setup()
+        return self
 
     # def setup_middlewares(self):
     #     super().setup_middlewares()

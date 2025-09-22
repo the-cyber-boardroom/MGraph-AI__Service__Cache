@@ -2,10 +2,12 @@ import base64
 import json
 from typing                                                                              import Union, Dict
 from fastapi                                                                             import HTTPException, Response, Path
+from mgraph_ai_service_cache.service.cache.Cache__Service import Cache__Service
 from osbot_fast_api.api.decorators.route_path                                            import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                          import Fast_API__Routes
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                            import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                               import Safe_Str__Fast_API__Route__Tag
+from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
@@ -35,16 +37,20 @@ ROUTES_PATHS__RETRIEVE                = [ BASE_PATH__ROUTES_RETRIEVE + '{cache_i
 class Routes__Retrieve(Fast_API__Routes):                                             # FastAPI routes for cache retrieval operations
     tag            : Safe_Str__Fast_API__Route__Tag    = TAG__ROUTES_RETRIEVE
     prefix         : Safe_Str__Fast_API__Route__Prefix = PREFIX__ROUTES_RETRIEVE
-    retrieve_service : Service__Cache__Retrieve                                       # Service layer for business logic
+    cache_service : Cache__Service                                                                          # get cache_service via Dependency Injection
+    
+    @cache_on_self
+    def retrieve_service(self):                                                                             # Service layer for business logic
+        return Service__Cache__Retrieve(cache_service=self.cache_service)                                   # create Service__Cache__Retrieve object (once, using the shared Cache_Service)
     
     def retrieve__cache_id(self, cache_id  : Random_Guid,
                                  namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                             ) -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:             # Retrieve by cache ID with metadata
                 
-        result = self.retrieve_service.retrieve_by_id(cache_id, namespace)                                              # Use service layer
+        result = self.retrieve_service().retrieve_by_id(cache_id, namespace)                                              # Use service layer
         
         if result is None:            
-            error = self.retrieve_service.get_not_found_error(cache_id=cache_id, namespace=namespace)                   # Return 404 Not Found
+            error = self.retrieve_service().get_not_found_error(cache_id=cache_id, namespace=namespace)                   # Return 404 Not Found
             raise HTTPException(status_code=404, detail=error.json())
         
         # Handle binary data that can't be returned in JSON
@@ -65,11 +71,11 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                          namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                     ) -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:     # Retrieve by hash
                 
-        result = self.retrieve_service.retrieve_by_hash(cache_hash, namespace)                                          # Use service layer
+        result = self.retrieve_service().retrieve_by_hash(cache_hash, namespace)                                          # Use service layer
         
         if result is None:
             # Return 404 Not Found
-            error = self.retrieve_service.get_not_found_error(cache_hash=cache_hash, namespace=namespace)
+            error = self.retrieve_service().get_not_found_error(cache_hash=cache_hash, namespace=namespace)
             raise HTTPException(status_code=404, detail=error.json())
         
         # Handle binary data redirect
@@ -92,7 +98,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                          namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                     ) -> Response:                                                          # Retrieve as string format
         
-        result = self.retrieve_service.retrieve_by_id(cache_id, namespace)
+        result = self.retrieve_service().retrieve_by_id(cache_id, namespace)
         
         if result is None:
             raise HTTPException(status_code=404, detail="Cache entry not found")
@@ -119,7 +125,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                   ) -> dict:                                                                    # Retrieve as JSON format
         namespace = namespace or Safe_Str__Id("default")
         
-        result = self.retrieve_service.retrieve_by_id(cache_id, namespace)
+        result = self.retrieve_service().retrieve_by_id(cache_id, namespace)
         
         if result is None:
             raise HTTPException(status_code=404, detail="Cache entry not found")
@@ -150,7 +156,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                          namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                     ) -> Response:                                                                          # Retrieve as binary format
         
-        result = self.retrieve_service.retrieve_by_id(cache_id, namespace)
+        result = self.retrieve_service().retrieve_by_id(cache_id, namespace)
         
         if result is None:
             raise HTTPException(status_code=404, detail="Cache entry not found")
@@ -172,7 +178,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                                  namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                             ) -> Response:                                                                  # Retrieve string by hash
         
-        result = self.retrieve_service.retrieve_by_hash(cache_hash, namespace)
+        result = self.retrieve_service().retrieve_by_hash(cache_hash, namespace)
         
         if result is None:
             raise HTTPException(status_code=404, detail="Cache entry not found")
@@ -197,7 +203,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                           ) -> dict:                                   # Retrieve JSON by hash
 
         
-        result = self.retrieve_service.retrieve_by_hash(cache_hash, namespace)
+        result = self.retrieve_service().retrieve_by_hash(cache_hash, namespace)
         
         if result is None:
             raise HTTPException(status_code=404, detail="Cache entry not found")
@@ -221,7 +227,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                                  namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                             ) -> Response:                             # Retrieve binary by hash
         
-        result = self.retrieve_service.retrieve_by_hash(cache_hash, namespace)
+        result = self.retrieve_service().retrieve_by_hash(cache_hash, namespace)
         
         if result is None:
             raise HTTPException(status_code=404, detail="Cache entry not found")
@@ -242,10 +248,10 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                           namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                      ) -> Schema__Cache__Entry__Details:                                                    # Get cache entry details
         
-        details = self.retrieve_service.get_entry_details(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
+        details = self.retrieve_service().get_entry_details(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
         
         if details is None:
-            error = self.retrieve_service.get_not_found_error(cache_id=cache_id, namespace=namespace)
+            error = self.retrieve_service().get_not_found_error(cache_id=cache_id, namespace=namespace)
             raise HTTPException(status_code=404, detail=error.json())
 
         return details
@@ -253,10 +259,10 @@ class Routes__Retrieve(Fast_API__Routes):                                       
     def retrieve__details__all__cache_id(self, cache_id: Random_Guid,
                                                namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                           ) -> Dict:
-        details = self.retrieve_service.get_entry_details__all(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
+        details = self.retrieve_service().get_entry_details__all(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
 
         if details is None:
-            error = self.retrieve_service.get_not_found_error(cache_id=cache_id, namespace=namespace)
+            error = self.retrieve_service().get_not_found_error(cache_id=cache_id, namespace=namespace)
             raise HTTPException(status_code=404, detail=error.json())
 
     @route_path("/retrieve/exists/{cache_hash}")
@@ -264,7 +270,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                            namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                       ) -> Schema__Cache__Exists__Response:                                                 # Check if entry exists
         
-        exists = self.retrieve_service.check_exists(cache_hash, namespace)                                                  # todo: this should return the type Schema__Cache__Exists__Response
+        exists = self.retrieve_service().check_exists(cache_hash, namespace)                                                  # todo: this should return the type Schema__Cache__Exists__Response
         
         return Schema__Cache__Exists__Response(exists     = exists     ,                                                    # todo: we should need to do this conversion here
                                                cache_hash = cache_hash ,

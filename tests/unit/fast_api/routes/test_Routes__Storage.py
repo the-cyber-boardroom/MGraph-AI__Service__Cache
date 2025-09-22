@@ -1,19 +1,31 @@
 from unittest                                                       import TestCase
+from memory_fs.storage_fs.providers.Storage_FS__Memory              import Storage_FS__Memory
 from mgraph_ai_service_cache.fast_api.routes.Routes__Admin__Storage import Routes__Admin__Storage
-from osbot_utils.utils.Dev import pprint
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API         import CACHE__TEST__FIXTURES__NAMESPACE
+from mgraph_ai_service_cache.service.cache.Cache__Service           import Cache__Service
 from tests.unit.Service__Fast_API__Test_Objs                        import setup__service_fast_api_test_objs
-
 
 class test_Routes__Admin__Storage(TestCase):
 
     @classmethod
     def setup_class(cls):
-        setup__service_fast_api_test_objs()
-        cls.routes_storage = Routes__Admin__Storage()
+        cls.test_objs      = setup__service_fast_api_test_objs()
+        cls.routes_storage = Routes__Admin__Storage(cache_service=cls.test_objs.cache_service)
+
+    def test__init__(self):
+        with self.routes_storage as _:
+            assert type(_                           ) is Routes__Admin__Storage
+            assert type(_.cache_service             ) is Cache__Service
+            assert type(_.cache_service.storage_fs()) is Storage_FS__Memory
+            assert _.cache_service                    == self.test_objs.cache_service
+            assert _.cache_service                    == self.test_objs.fast_api.cache_service
+            assert _.cache_service                    == self.test_objs.cache_fixtures.cache_service
+            assert _.cache_service.storage_fs()       == self.test_objs.cache_fixtures.cache_service.storage_fs()
+
 
     def test_folders(self):
         with self.routes_storage as _:
             result = _.folders()
-            pprint(_.storage_fs().files__paths())
-            assert len(result) == 0             # BUG
-            #assert len(result) > 0
+            assert len(_.storage_fs().files__paths()) == 90
+            assert result == [CACHE__TEST__FIXTURES__NAMESPACE]
+

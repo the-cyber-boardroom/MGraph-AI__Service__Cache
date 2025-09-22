@@ -30,10 +30,9 @@ class test_Routes__Retrieve(TestCase):
         
         # Services using fixtures bucket
         cls.cache_service      = cls.cache_fixtures.cache_service
-        cls.retrieve_service   = Service__Cache__Retrieve(cache_service    = cls.cache_service  )
         cls.store_service      = Service__Cache__Store   (cache_service    = cls.cache_service  )
-        cls.routes             = Routes__Retrieve        (retrieve_service = cls.retrieve_service)
-        
+        cls.routes             = Routes__Retrieve        (cache_service    = cls.cache_service  )
+        cls.retrieve_service   = cls.routes.retrieve_service
         # Test namespace separate from fixtures
         cls.test_namespace     = Safe_Str__Id("test-routes-retrieve")
         
@@ -77,11 +76,11 @@ class test_Routes__Retrieve(TestCase):
 
     def test__init__(self):                                                           # Test auto-initialization
         with Routes__Retrieve() as _:
-            assert type(_)                   is Routes__Retrieve
-            assert base_classes(_)           == [Fast_API__Routes, Type_Safe, object]
-            assert _.tag                     == TAG__ROUTES_RETRIEVE
-            assert _.prefix                  == '/{namespace}'
-            assert type(_.retrieve_service) is Service__Cache__Retrieve
+            assert type(_)                    is Routes__Retrieve
+            assert base_classes(_)            == [Fast_API__Routes, Type_Safe, object]
+            assert _.tag                      == TAG__ROUTES_RETRIEVE
+            assert _.prefix                   == '/{namespace}'
+            assert type(_.retrieve_service()) is Service__Cache__Retrieve
 
     def test_retrieve__cache_id__not_found(self):                                    # Test 404 for non-existent
         with self.routes as _:

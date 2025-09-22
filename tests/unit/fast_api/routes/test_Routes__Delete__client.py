@@ -1,9 +1,11 @@
-from unittest                                                           import TestCase
-from osbot_fast_api_serverless.utils.testing.skip_tests                 import skip__if_not__in_github_actions
-from osbot_utils.testing.__                                             import __, __SKIP__
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid   import Random_Guid
-from osbot_utils.utils.Objects                                          import obj
-from tests.unit.Service__Fast_API__Test_Objs                            import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
+from unittest                                                               import TestCase
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success import Schema__Cache__Retrieve__Success
+from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve         import Service__Cache__Retrieve
+from osbot_fast_api_serverless.utils.testing.skip_tests                     import skip__if_not__in_github_actions
+from osbot_utils.testing.__                                                 import __, __SKIP__
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid       import Random_Guid
+from osbot_utils.utils.Objects                                              import obj
+from tests.unit.Service__Fast_API__Test_Objs                                import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
 
 class test_Routes__Delete__client(TestCase):                                          # Test delete routes via FastAPI TestClient
@@ -48,8 +50,23 @@ class test_Routes__Delete__client(TestCase):                                    
     def test__delete__basic(self):                                                    # Test basic delete operation
         cache_id = self._store_for_deletion("client test data to delete")
 
+        with Service__Cache__Retrieve(cache_service=self.test_objs.cache_service) as _:
+            assert type(_.retrieve_by_id(cache_id, namespace=self.test_namespace)) is Schema__Cache__Retrieve__Success
+            assert _.retrieve_by_id(cache_id, namespace=self.fixtures_namespace) is None                               # BUG
 
         response_retrieve = self.client.get(f'/{self.test_namespace}/retrieve/{cache_id}')              # Verify exists before delete
+        # assert response_retrieve.status_code == 404
+        # assert obj(response_retrieve.json()) == __(detail = __(cache_hash     = None                                  ,
+        #                                                        cache_id       = cache_id                              ,
+        #                                                        error_type     = 'NOT_FOUND'                           ,
+        #                                                        message        = 'The requested cache entry was not found',
+        #                                                        namespace      = 'test-delete-client'                  ,
+        #                                                        request_id     = __SKIP__                              ,
+        #                                                        resource_id    = None                                  ,
+        #                                                        resource_type  = 'cache_entry'                         ,
+        #                                                        timestamp      = __SKIP__                              ))
+        #
+        # return
         assert response_retrieve.status_code == 200
 
 

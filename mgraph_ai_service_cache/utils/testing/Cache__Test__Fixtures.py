@@ -35,8 +35,6 @@ class Cache__Test__Fixtures(Type_Safe):                                         
         if self.setup_completed:
             return self
 
-        self.cache_service = Cache__Service()                                         # Initialize cache service (defaults to using in memory version of Memory-FS
-
         if not self.namespace:                                                        # Set default namespace if not provided
             self.namespace = Safe_Str__Id("test-fixtures")
 
