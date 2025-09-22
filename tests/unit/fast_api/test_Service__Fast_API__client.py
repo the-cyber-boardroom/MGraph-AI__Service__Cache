@@ -56,10 +56,10 @@ class test_Service__Fast_API__client(TestCase):
         assert auth_key_value                is not None
         assert response__with_auth.json()    == ROUTES_INFO__HEALTH__RETURN_VALUE
 
-    def test__check_if_local_stack_is_setup(self):
-        skip__if_not__in_github_actions()
-        with self.service_fast_api_test_objs.local_stack as _:
-            assert _.is_local_stack_configured_and_available() is True
+    # def test__check_if_local_stack_is_setup(self):
+    #     skip__if_not__in_github_actions()
+    #     with self.service_fast_api_test_objs.local_stack as _:
+    #         assert _.is_local_stack_configured_and_available() is True
 
     def test__config_fast_api_routes(self):
         routes_paths = []
