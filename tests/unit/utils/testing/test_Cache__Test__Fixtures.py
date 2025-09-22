@@ -1,4 +1,6 @@
 from unittest                                                                       import TestCase
+
+from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
@@ -52,6 +54,7 @@ class test_Cache__Test__Fixtures(TestCase):
             assert 'binary_small'    in _.default_fixtures
 
     def test_01_verify_fixtures(self):                                                   # Test fixture verification
+        skip__if_not__in_github_actions()
         with self.test_fixtures as _:                                                    # this test needs to run first
             # All fixtures should exist
             assert _.verify_fixtures() is True
@@ -73,7 +76,7 @@ class test_Cache__Test__Fixtures(TestCase):
 
 
     def test_setup(self):                                                             # Test fixture setup and initialization
-
+        skip__if_not__in_github_actions()
         with Cache__Test__Fixtures(cache_service = Cache__Service()          ,
                                    namespace     = Safe_Str__Id("test-setup")) as _:
             _.setup()
@@ -162,6 +165,7 @@ class test_Cache__Test__Fixtures(TestCase):
             assert fixture_hash == str(expected_hash)
 
     def test_cleanup_all(self):                                                  # Test fixture cleanup
+        skip__if_not__in_github_actions()
         namespace = Safe_Str__Id("test-cleanup")
 
         with Cache__Test__Fixtures(cache_service  = Cache__Service(),

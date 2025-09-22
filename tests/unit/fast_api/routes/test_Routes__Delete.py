@@ -1,5 +1,6 @@
 from unittest                                                                       import TestCase
 from osbot_fast_api.api.routes.Fast_API__Routes                                     import Fast_API__Routes
+from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
@@ -91,6 +92,7 @@ class test_Routes__Delete(TestCase):
             assert result["message"] == f"Cache ID {non_existent_id} not found"
 
     def test_delete__all_strategies(self):                                            # Test delete works with all storage strategies
+        skip__if_not__in_github_actions()
         with self.routes as _:
             strategies = ["direct", "temporal", "temporal_latest", "temporal_versioned"]
 

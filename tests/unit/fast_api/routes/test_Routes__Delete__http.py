@@ -178,6 +178,7 @@ class test_Routes__Delete__http(TestCase):                                      
             self.created_cache_ids.remove(cache_id)
 
     def test_07_delete_multiple_times(self):                                        # Test deleting same ID multiple times
+        skip__if_not__in_github_actions()
         cache_id   = self._store_for_deletion("multiple delete test")
         delete_url = f"{self.base_url}/{self.test_namespace}/delete/{cache_id}"
 

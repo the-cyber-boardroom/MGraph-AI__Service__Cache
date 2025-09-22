@@ -1,4 +1,7 @@
 from unittest                                                                            import TestCase
+
+from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
+
 from tests.unit.Service__Fast_API__Test_Objs                                             import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 
@@ -165,6 +168,7 @@ class test_Routes__Exists__client(TestCase):                                    
                                                      'type' : 'value_error'}]}
 
     def test__exists__concurrent_checks_with_fixtures(self):                          # Test concurrent existence checks
+        skip__if_not__in_github_actions()
         import concurrent.futures
 
         def check_exists(fixture_name):                                               # Check if a fixture hash exists

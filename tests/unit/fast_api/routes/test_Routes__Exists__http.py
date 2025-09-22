@@ -116,6 +116,7 @@ class test_Routes__Exists__http(TestCase):                                      
         assert result['namespace']         == 'default'
 
     def test_08_rapid_existence_checks_with_fixtures(self):                           # Test rapid checks using fixtures
+        skip__if_not__in_github_actions()
         fixture_hash = self.cache_fixtures.get_fixture_hash("string_large")
         results      = []
 
@@ -169,6 +170,7 @@ class test_Routes__Exists__http(TestCase):                                      
         assert avg_time < 0.1                                                         # Should be reasonably fast
 
     def test_11_all_fixture_types(self):                                              # Test all fixture types
+        skip__if_not__in_github_actions()
         all_fixtures = self.cache_fixtures.fixtures.keys()
 
         for fixture_name in all_fixtures:
