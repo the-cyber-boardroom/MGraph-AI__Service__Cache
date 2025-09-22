@@ -1,7 +1,6 @@
 from typing                                                                              import Dict, List
 from unittest                                                                            import TestCase
-
-from mgraph_ai_service_cache.schemas.consts.const__Fast_API import CACHE__TEST__FIXTURES__NAMESPACE
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API                              import CACHE__TEST__FIXTURES__NAMESPACE
 from osbot_fast_api_serverless.utils.testing.skip_tests                                  import skip__if_not__in_github_actions
 from osbot_utils.testing.__                                                              import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe

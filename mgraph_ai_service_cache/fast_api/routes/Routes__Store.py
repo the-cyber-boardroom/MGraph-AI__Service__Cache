@@ -1,18 +1,17 @@
-from fastapi                                                                          import HTTPException, Request, Body
-from mgraph_ai_service_cache.service.cache.Cache__Service import Cache__Service
-from osbot_fast_api.api.decorators.route_path                                         import route_path
-from osbot_fast_api.api.routes.Fast_API__Routes                                       import Fast_API__Routes
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                         import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                            import Safe_Str__Fast_API__Route__Tag
-from osbot_utils.decorators.methods.cache_on_self import cache_on_self
-
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path     import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id       import Safe_Str__Id
-from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                      import DEFAULT_CACHE__STORE__STRATEGY
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy         import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.schemas.consts.const__Fast_API                           import FAST_API__PARAM__NAMESPACE
-from mgraph_ai_service_cache.service.cache.Service__Cache__Store                      import Service__Cache__Store
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response             import Schema__Cache__Store__Response
+from fastapi                                                                      import HTTPException, Request, Body
+from mgraph_ai_service_cache.service.cache.Cache__Service                         import Cache__Service
+from osbot_fast_api.api.decorators.route_path                                     import route_path
+from osbot_fast_api.api.routes.Fast_API__Routes                                   import Fast_API__Routes
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                     import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                        import Safe_Str__Fast_API__Route__Tag
+from osbot_utils.decorators.methods.cache_on_self                                 import cache_on_self
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id   import Safe_Str__Id
+from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                  import DEFAULT_CACHE__STORE__STRATEGY
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API                       import FAST_API__PARAM__NAMESPACE
+from mgraph_ai_service_cache.service.cache.Service__Cache__Store                  import Service__Cache__Store
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response         import Schema__Cache__Store__Response
 
 TAG__ROUTES_STORE                  = 'store'
 PREFIX__ROUTES_STORE               = '/{namespace}/{strategy}'

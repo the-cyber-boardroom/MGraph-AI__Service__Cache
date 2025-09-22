@@ -1,6 +1,5 @@
 import base64
 import gzip
-import pytest
 import requests
 import time
 import concurrent.futures

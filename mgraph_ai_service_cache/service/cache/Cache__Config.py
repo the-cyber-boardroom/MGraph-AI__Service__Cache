@@ -1,5 +1,3 @@
-import os
-
 from memory_fs.storage_fs.Storage_FS                                                     import Storage_FS
 from memory_fs.storage_fs.providers.Storage_FS__Local_Disk                               import Storage_FS__Local_Disk
 from memory_fs.storage_fs.providers.Storage_FS__Memory                                   import Storage_FS__Memory

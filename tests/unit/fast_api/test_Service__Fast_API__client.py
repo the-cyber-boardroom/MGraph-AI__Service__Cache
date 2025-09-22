@@ -3,7 +3,6 @@ from fastapi                                                          import Fas
 from osbot_fast_api.api.Fast_API                                      import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix         import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.schemas.consts__Fast_API                          import EXPECTED_ROUTES__SET_COOKIE
-from osbot_local_stack.local_stack.Local_Stack                        import Local_Stack
 from osbot_utils.utils.Env                                            import get_env
 from starlette.testclient                                             import TestClient
 from osbot_fast_api_serverless.utils.testing.skip_tests               import skip__if_not__in_github_actions

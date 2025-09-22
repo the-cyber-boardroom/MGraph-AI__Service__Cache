@@ -1,17 +1,14 @@
 from fastapi                                                                    import FastAPI
-from mgraph_ai_service_cache.service.cache.Cache__Service import Cache__Service
-from osbot_aws.testing.Temp__Random__AWS_Credentials                            import Temp_AWS_Credentials
+from mgraph_ai_service_cache.service.cache.Cache__Service                       import Cache__Service
 from osbot_fast_api.api.Fast_API                                                import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_local_stack.local_stack.Local_Stack                                  import Local_Stack
 from osbot_utils.helpers.duration.decorators.capture_duration                   import capture_duration
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_Float                           import Safe_Float
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
 from osbot_utils.utils.Env                                                      import set_env
-from starlette.testclient                                                       import TestClient
 from mgraph_ai_service_cache.fast_api.Service__Fast_API                         import Service__Fast_API
-from mgraph_ai_service_cache.schemas.consts.const__Fast_API import ENV_VAR__CACHE__SERVICE__BUCKET_NAME, CACHE__TEST__FIXTURES__BUCKET_NAME, CACHE__TEST__FIXTURES__NAMESPACE
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API                     import  CACHE__TEST__FIXTURES__NAMESPACE
 from mgraph_ai_service_cache.utils.testing.Cache__Test__Fixtures                import Cache__Test__Fixtures
 
 TEST_API_KEY__NAME = 'key-used-in-pytest'
