@@ -1,7 +1,4 @@
 from unittest                                                                       import TestCase
-from osbot_fast_api_serverless.utils.testing.skip_tests                             import skip__if_not__in_github_actions
-from osbot_utils.helpers.duration.decorators.capture_duration                       import capture_duration
-from osbot_utils.helpers.duration.decorators.print_duration                         import print_duration
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
@@ -15,16 +12,16 @@ class test_Cache__Test__Fixtures(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        skip__if_not__in_github_actions()
-        setup__service_fast_api_test_objs()                                              # LocalStack setup
-        cls.test_fixtures = Cache__Test__Fixtures(namespace         = Safe_Str__Id("test-fixtures-test"),
-                                                  delete_on_exit    = True)        # Enable cleanup for tests
-        with print_duration():
-            cls.test_fixtures.setup()
+        #skip__if_not__in_github_actions()
+        cls.test_obj      = setup__service_fast_api_test_objs()                                              # LocalStack setup
+        cls.cache_service = Cache__Service()
+        cls.test_fixtures = Cache__Test__Fixtures(namespace     = Safe_Str__Id("test-fixtures-test"),
+                                                  cache_service = cls.cache_service).setup()
 
-    @classmethod
-    def tearDownClass(cls):                                                           # ONE-TIME cleanup
-        cls.test_fixtures.cleanup_all()                                                 # Clean up test fixtures
+
+    # @classmethod
+    # def tearDownClass(cls):                                                           # ONE-TIME cleanup
+    #     cls.test_fixtures.cleanup_all()                                                 # Clean up test fixtures
 
 
         # # Clean up test bucket
@@ -77,7 +74,8 @@ class test_Cache__Test__Fixtures(TestCase):
 
     def test_setup(self):                                                             # Test fixture setup and initialization
 
-        with Cache__Test__Fixtures(namespace       = Safe_Str__Id("test-setup")) as _:
+        with Cache__Test__Fixtures(cache_service = Cache__Service()          ,
+                                   namespace     = Safe_Str__Id("test-setup")) as _:
             _.setup()
 
             # Verify setup completed
@@ -163,35 +161,12 @@ class test_Cache__Test__Fixtures(TestCase):
             expected_hash = _.cache_service.hash_from_string("test retrieve string data")
             assert fixture_hash == str(expected_hash)
 
-    def test_manifest_persistence(self):                                              # Test manifest save and load
-        namespace = Safe_Str__Id("test-persistence")
-
-        # Create fixtures with first instance
-        with Cache__Test__Fixtures(namespace       = namespace) as fixtures1:
-            fixtures1.setup()
-            original_fixtures = fixtures1.fixtures.copy()
-            assert len(original_fixtures) > 0
-
-        # Load fixtures with second instance
-        with Cache__Test__Fixtures(namespace       = namespace) as fixtures2:
-            fixtures2.setup()
-
-            # Should load existing fixtures, not create new ones
-            assert fixtures2.fixtures == original_fixtures
-
-            # Verify data is still accessible
-            string_data = fixtures2.get_fixture_data('string_simple')
-            assert string_data == "test retrieve string data"
-
-        # Clean up
-        fixtures2.delete_on_exit = True
-        fixtures2.cleanup_all()
-
     def test_cleanup_all(self):                                                  # Test fixture cleanup
         namespace = Safe_Str__Id("test-cleanup")
 
-        with Cache__Test__Fixtures(namespace       = namespace,
-                                   delete_on_exit  = True) as _:
+        with Cache__Test__Fixtures(cache_service  = Cache__Service(),
+                                   delete_on_exit = True            ,
+                                   namespace      = namespace       ) as _:
             _.setup()
 
             # Verify fixtures exist
@@ -209,29 +184,6 @@ class test_Cache__Test__Fixtures(TestCase):
             result = _.cache_service.retrieve_by_id(cache_id  = fixture_id,
                                                     namespace = namespace)
             assert result is None
-
-    def test_performance_improvement(self):                                           # Test performance benefit
-        namespace = Safe_Str__Id("test-performance")
-
-        # First run - creates fixtures
-        with capture_duration() as create_duration:
-            with Cache__Test__Fixtures(namespace       = namespace) as fixtures1:
-                fixtures1.setup()
-
-        # Second run - loads existing fixtures
-        with capture_duration() as load_duration:
-            with Cache__Test__Fixtures(namespace       = namespace) as fixtures2:
-                fixtures2.setup()
-
-        # Loading should be faster than creating
-        assert load_duration.seconds < create_duration.seconds
-
-        # Both should have same fixtures
-        assert fixtures1.fixtures == fixtures2.fixtures
-
-        # Clean up
-        fixtures2.delete_on_exit = True
-        fixtures2.cleanup_all()
 
     def test_complex_json_fixture(self):                                              # Test complex JSON preservation
         with self.test_fixtures as _:

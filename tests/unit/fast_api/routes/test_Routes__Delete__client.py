@@ -104,7 +104,7 @@ class test_Routes__Delete__client(TestCase):                                    
         assert result['message'] == f'Cache ID {non_existent_id} not found'
 
     def test__delete__all_strategies(self):                                           # Test delete works with all storage strategies
-        skip__if_not__in_github_actions()
+        #skip__if_not__in_github_actions()
         strategies = ["direct", "temporal", "temporal_latest", "temporal_versioned"]
 
         for strategy in strategies:

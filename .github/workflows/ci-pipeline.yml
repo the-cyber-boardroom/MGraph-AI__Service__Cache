@@ -45,22 +45,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Start Local Stack
-        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/docker__local-stack@dev
-        with:
-          LOCAL_STACK_SERVICES: 's3,lambda,iam,logs'
+#      - name: Start Local Stack
+#        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/docker__local-stack@dev
+#        with:
+#          LOCAL_STACK_SERVICES: 's3,lambda,iam,logs'
 
       - name: "run-tests"
         uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/pytest__run-tests@dev
         with:
           test_target: "tests/unit"
-          #test_target: "tests/unit/fast_api/routes/test_Routes__Delete__http.py::test_Routes__Delete__http::test_01_health_check"
         env:
           FAST_API__AUTH__API_KEY__NAME: 'api-key__in_github_test'
           FAST_API__AUTH__API_KEY__VALUE: 'this-is-the-value-of-the-api-key'
 
   increment-tag:
-    # Always define this job, but skip the actual tag increment step conditionally
     name: Increment Tag
     runs-on: ubuntu-latest
     needs: run-tests

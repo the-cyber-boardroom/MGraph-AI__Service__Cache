@@ -3,8 +3,7 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid             import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id   import Safe_Str__Id
 from osbot_utils.utils.Misc                                                       import timestamp_now
-
-from mgraph_ai_service_cache.schemas.consts.const__Fast_API import CACHE__TEST__FIXTURES__BUCKET_NAME, CACHE__TEST__FIXTURES__NAMESPACE
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API                       import CACHE__TEST__FIXTURES__NAMESPACE
 from mgraph_ai_service_cache.service.cache.Cache__Service                         import Cache__Service
 
 
@@ -47,7 +46,7 @@ class Cache__Test__Fixtures(Type_Safe):                                         
             return self                                                               # i.e. there is no need to run this check on every request
 
         self.create_fixtures()                                                        # Create missing fixtures
-        self.save_manifest()
+        #self.save_manifest()
         self.setup_completed = True
         return self
 

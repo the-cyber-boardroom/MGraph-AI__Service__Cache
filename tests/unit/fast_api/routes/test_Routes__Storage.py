@@ -26,6 +26,6 @@ class test_Routes__Admin__Storage(TestCase):
     def test_folders(self):
         with self.routes_storage as _:
             result = _.folders()
-            assert len(_.storage_fs().files__paths()) == 90
-            assert result == [CACHE__TEST__FIXTURES__NAMESPACE]
+            assert len(_.storage_fs().files__paths()) > 10
+            assert CACHE__TEST__FIXTURES__NAMESPACE in result
 

@@ -29,7 +29,7 @@ class test_Routes__Exists__client(TestCase):                                    
     def test__bucket_name(self):                                                     # Verify API is accessible
         response = self.client.get('/admin/storage/bucket-name')
         assert response.status_code == 200
-        assert response.json()       == {'bucket-name': CACHE__TEST__FIXTURES__BUCKET_NAME}
+        assert response.json()       == {'bucket-name':  'NA'}
 
     def test__exists__hash__using_fixture(self):                                      # Test checking existing hash from fixtures
         # Use fixture that already exists

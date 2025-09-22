@@ -1,5 +1,7 @@
 from typing                                                                              import Dict, List
 from unittest                                                                            import TestCase
+
+from mgraph_ai_service_cache.schemas.consts.const__Fast_API import CACHE__TEST__FIXTURES__NAMESPACE
 from osbot_fast_api_serverless.utils.testing.skip_tests                                  import skip__if_not__in_github_actions
 from osbot_utils.testing.__                                                              import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
@@ -108,14 +110,14 @@ class test_Service__Cache__Retrieve(TestCase):
 
         with self.retrieve_service as _:
             entry_details = _.get_entry_details(cache_id, self.namespace)
-            assert entry_details.obj() == __(cache_id      = cache_id          ,
-                                             cache_hash    = 'e15b31f87df1896e',
-                                             namespace     = 'test-fixtures'   ,
-                                             strategy      = 'direct'          ,
-                                             all_paths     = all_paths         ,
-                                             content_paths = content_paths     ,
-                                             file_type     = 'json'            ,
-                                             timestamp     = str(timestamp)    )
+            assert entry_details.obj() == __(cache_id      = cache_id                        ,
+                                             cache_hash    = 'e15b31f87df1896e'              ,
+                                             namespace     = CACHE__TEST__FIXTURES__NAMESPACE,
+                                             strategy      = 'direct'                        ,
+                                             all_paths     = all_paths                       ,
+                                             content_paths = content_paths                   ,
+                                             file_type     = 'json'                          ,
+                                             timestamp     = str(timestamp)                  )
     def test_get_entry_details__all(self):
         skip__if_not__in_github_actions()                                               # this takes a bit since this will load 10x docs from storage
         cache_id      = self.cache_fixtures.get_fixture_id('string_simple')

@@ -31,7 +31,12 @@ class Routes__Admin__Storage(Fast_API__Routes):
         return self.cache_service.storage_fs()
 
     def bucket_name(self):
-        return {'bucket-name': self.storage_fs().s3_bucket }
+        storage = self.storage_fs()
+        if hasattr(storage, 's3_bucket'):
+            bucket_name = storage.s3_bucket
+        else:
+            bucket_name = 'NA'
+        return {'bucket-name': bucket_name }
 
     @route_path("/file/exists/{path:path}")
     def file__exists(self, path):
