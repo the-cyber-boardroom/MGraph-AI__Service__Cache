@@ -15,9 +15,8 @@ class test_Routes__Delete(TestCase):
     def setUpClass(cls):                                                              # ONE-TIME expensive setup
         cls.test_objs          = setup__service_fast_api_test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
-        cls.fixtures_bucket    = cls.cache_fixtures.fixtures_bucket
         cls.fixtures_namespace = cls.cache_fixtures.namespace
-        cls.cache_service      = Cache__Service(default_bucket=cls.fixtures_bucket)
+        cls.cache_service      = cls.cache_fixtures.cache_service
         cls.routes             = Routes__Delete(cache_service=cls.cache_service)
 
         cls.test_namespace     = Safe_Str__Id("test-delete-routes")                     # Use different namespace for deletable test data

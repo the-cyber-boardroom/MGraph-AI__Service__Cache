@@ -17,9 +17,7 @@ class test_Cache__Test__Fixtures(TestCase):
     def setUpClass(cls):
         skip__if_not__in_github_actions()
         setup__service_fast_api_test_objs()                                              # LocalStack setup
-        cls.test_bucket   = "test-fixtures-test-bucket"                                  # Separate bucket for testing the fixture class
-        cls.test_fixtures = Cache__Test__Fixtures(fixtures_bucket   = cls.test_bucket,
-                                                  namespace         = Safe_Str__Id("test-fixtures-test"),
+        cls.test_fixtures = Cache__Test__Fixtures(namespace         = Safe_Str__Id("test-fixtures-test"),
                                                   delete_on_exit    = True)        # Enable cleanup for tests
         with print_duration():
             cls.test_fixtures.setup()
@@ -45,7 +43,6 @@ class test_Cache__Test__Fixtures(TestCase):
             # Verify default initialization
             assert _.cache_service       is None                                      # Not initialized until setup()
             assert _.manifest_cache_id   is None                                      # Will be set during setup
-            assert _.fixtures_bucket     == "test-cache-fixtures"
             assert _.namespace           == 'fixtures-namespace'                                      # Will default to "test-fixtures"
             assert _.fixtures            == {}
             assert _.setup_completed     is False
@@ -80,14 +77,12 @@ class test_Cache__Test__Fixtures(TestCase):
 
     def test_setup(self):                                                             # Test fixture setup and initialization
 
-        with Cache__Test__Fixtures(fixtures_bucket = "test-setup-bucket",
-                                   namespace       = Safe_Str__Id("test-setup")) as _:
+        with Cache__Test__Fixtures(namespace       = Safe_Str__Id("test-setup")) as _:
             _.setup()
 
             # Verify setup completed
             assert _.setup_completed     is True
             assert type(_.cache_service) is Cache__Service
-            assert _.cache_service.default_bucket == "test-setup-bucket"
 
             # Verify manifest ID was set
             assert type(_.manifest_cache_id) is Random_Guid
@@ -172,15 +167,13 @@ class test_Cache__Test__Fixtures(TestCase):
         namespace = Safe_Str__Id("test-persistence")
 
         # Create fixtures with first instance
-        with Cache__Test__Fixtures(fixtures_bucket = "bucket-test-manifest-persistence",
-                                   namespace       = namespace) as fixtures1:
+        with Cache__Test__Fixtures(namespace       = namespace) as fixtures1:
             fixtures1.setup()
             original_fixtures = fixtures1.fixtures.copy()
             assert len(original_fixtures) > 0
 
         # Load fixtures with second instance
-        with Cache__Test__Fixtures(fixtures_bucket = "bucket-test-manifest-persistence",
-                                   namespace       = namespace) as fixtures2:
+        with Cache__Test__Fixtures(namespace       = namespace) as fixtures2:
             fixtures2.setup()
 
             # Should load existing fixtures, not create new ones
@@ -197,8 +190,7 @@ class test_Cache__Test__Fixtures(TestCase):
     def test_cleanup_all(self):                                                  # Test fixture cleanup
         namespace = Safe_Str__Id("test-cleanup")
 
-        with Cache__Test__Fixtures(fixtures_bucket = "test-cleanup-bucket",
-                                   namespace       = namespace,
+        with Cache__Test__Fixtures(namespace       = namespace,
                                    delete_on_exit  = True) as _:
             _.setup()
 
@@ -223,14 +215,12 @@ class test_Cache__Test__Fixtures(TestCase):
 
         # First run - creates fixtures
         with capture_duration() as create_duration:
-            with Cache__Test__Fixtures(fixtures_bucket = self.test_bucket,
-                                       namespace       = namespace) as fixtures1:
+            with Cache__Test__Fixtures(namespace       = namespace) as fixtures1:
                 fixtures1.setup()
 
         # Second run - loads existing fixtures
         with capture_duration() as load_duration:
-            with Cache__Test__Fixtures(fixtures_bucket = self.test_bucket,
-                                       namespace       = namespace) as fixtures2:
+            with Cache__Test__Fixtures(namespace       = namespace) as fixtures2:
                 fixtures2.setup()
 
         # Loading should be faster than creating

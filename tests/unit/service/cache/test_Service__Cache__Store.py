@@ -21,10 +21,9 @@ class test_Service__Cache__Store(TestCase):
     def setUpClass(cls):                                                              # ONE-TIME expensive setup
         cls.test_objs          = setup__service_fast_api_test_objs()                  # Reuse shared test objects
         cls.cache_fixtures     = cls.test_objs.cache_fixtures                         # Use shared fixtures
-        cls.fixtures_bucket    = cls.cache_fixtures.fixtures_bucket                   # Use fixtures bucket
 
         # Service using fixtures bucket
-        cls.cache_service      = Cache__Service(default_bucket = cls.fixtures_bucket)
+        cls.cache_service      = cls.cache_fixtures.cache_service
         cls.store_service      = Service__Cache__Store(cache_service = cls.cache_service)
 
         # Use different namespace to avoid conflicts with fixtures
@@ -38,31 +37,6 @@ class test_Service__Cache__Store(TestCase):
         # Track created IDs for cleanup
         cls.created_cache_ids  = []
         cls.created_namespaces = []
-
-    @classmethod
-    def tearDownClass(cls):                                                          # Clean up only what we created
-        # Delete all cache entries we created
-        for cache_id in cls.created_cache_ids:
-            try:
-                for ns in cls.created_namespaces:
-                    cls.cache_service.delete_by_id(cache_id, ns)
-            except:
-                pass
-
-        # Clean up test namespaces (not fixtures namespace)
-        for namespace in cls.created_namespaces:
-            if namespace in cls.cache_service.cache_handlers:
-                handler = cls.cache_service.cache_handlers[namespace]
-                try:
-                    with handler.s3__storage as storage:
-                        prefix = str(namespace)
-                        files  = storage.s3.find_files(bucket = cls.fixtures_bucket,
-                                                       prefix = prefix)
-                        if files:
-                            storage.s3.files_delete(bucket = cls.fixtures_bucket,
-                                                   keys   = files)
-                except:
-                    pass
 
     def _track_cache_id(self, response: Schema__Cache__Store__Response            # Helper to track created items
                         ) -> Schema__Cache__Store__Response:
@@ -79,8 +53,12 @@ class test_Service__Cache__Store(TestCase):
             assert base_classes(_)       == [Type_Safe, object]
             assert type(_.cache_service) is Cache__Service
 
-            assert _.obj() == __(cache_service = __(default_bucket    = self.fixtures_bucket    ,
-                                                    default_ttl_hours = 24                      ,
+            assert _.obj() == __(cache_service = __(cache_config      =__(storage_mode='memory',
+                                                    default_bucket    = None,
+                                                    default_ttl_hours = 24  ,
+                                                    local_disk_path   = None ,
+                                                    sqlite_path       = None ,
+                                                    zip_path          = None ),
                                                     cache_handlers    = __()                    ,
                                                     hash_config       = __(algorithm = 'sha256', length = 16),
                                                     hash_generator    = __(config = __(algorithm = 'sha256', length = 16))))

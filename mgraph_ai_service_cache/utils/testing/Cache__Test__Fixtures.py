@@ -11,7 +11,6 @@ from mgraph_ai_service_cache.service.cache.Cache__Service                       
 class Cache__Test__Fixtures(Type_Safe):                                                         # Manages reusable test fixtures for cache service tests
     cache_service     : Cache__Service                    = None                                # Cache service instance for fixture storage
     manifest_cache_id : Random_Guid                       = None                                # Predictable ID for manifest storage
-    fixtures_bucket   : str                               = CACHE__TEST__FIXTURES__BUCKET_NAME  # S3 bucket for test fixtures
     namespace         : Safe_Str__Id                      = CACHE__TEST__FIXTURES__NAMESPACE    # Namespace for fixture isolation
     fixtures          : Dict[str, dict[str, Any]]                                               # Map of fixture names to metadata
     setup_completed   : bool                              = False                               # Prevents redundant setup
@@ -36,7 +35,7 @@ class Cache__Test__Fixtures(Type_Safe):                                         
         if self.setup_completed:
             return self
 
-        self.cache_service = Cache__Service(default_bucket=self.fixtures_bucket)      # Initialize cache service
+        self.cache_service = Cache__Service()                                         # Initialize cache service (defaults to using in memory version of Memory-FS
 
         if not self.namespace:                                                        # Set default namespace if not provided
             self.namespace = Safe_Str__Id("test-fixtures")
@@ -96,8 +95,7 @@ class Cache__Test__Fixtures(Type_Safe):                                         
 
     def save_manifest(self):                                                          # Save fixture manifest to cache
         manifest_data = { "fixtures"   : self.fixtures     ,
-                         "created_at" : timestamp_now()    ,
-                         "bucket"     : self.fixtures_bucket}
+                         "created_at" : timestamp_now()    }
 
         manifest_hash = self.cache_service.hash_from_json(manifest_data)
 
@@ -147,13 +145,5 @@ class Cache__Test__Fixtures(Type_Safe):                                         
         self.fixtures.clear()
         self.manifest = {}
 
-    def cleanup_all(self):  # Complete cleanup including bucket
-        self.cleanup_fixtures()  # Delete fixtures first
-
-        if self.cache_service and self.fixtures_bucket:
-            # Delete the bucket itself
-            handler = self.cache_service.get_or_create_handler(self.namespace)
-            with handler.s3__storage.s3 as s3:
-                if s3.bucket_exists(self.fixtures_bucket):
-                    s3.bucket_delete_all_files(self.fixtures_bucket)
-                    s3.bucket_delete(self.fixtures_bucket)
+    def cleanup_all(self):      # Complete cleanup including bucket
+        self.cleanup_fixtures()  # Delete fixtures

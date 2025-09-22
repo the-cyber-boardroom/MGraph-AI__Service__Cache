@@ -28,9 +28,8 @@ class test_Service__Cache__Retrieve(TestCase):
     def setUpClass(cls):
         cls.test_objs          = setup__service_fast_api_test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
-        cls.fixtures_bucket    = cls.cache_fixtures.fixtures_bucket
         cls.fixtures_namespace = cls.cache_fixtures.namespace
-        cls.cache_service      = Cache__Service          (default_bucket = cls.fixtures_bucket)
+        cls.cache_service      = cls.cache_fixtures.cache_service
         cls.retrieve_service   = Service__Cache__Retrieve(cache_service  = cls.cache_service  )
         cls.store_service      = Service__Cache__Store   (cache_service  = cls.cache_service  )
         cls.namespace          = cls.fixtures_namespace
@@ -46,11 +45,15 @@ class test_Service__Cache__Retrieve(TestCase):
             assert base_classes(_)       == [Type_Safe, object]
             assert type(_.cache_service) is Cache__Service
 
-            assert _.obj() == __(cache_service=__(default_bucket    = self.fixtures_bucket      ,
-                                                  default_ttl_hours = 24                        ,
-                                                  cache_handlers    = __()                      ,
-                                                  hash_config       = __(algorithm = 'sha256', length=16),
-                                                  hash_generator    = __(config    = __(algorithm='sha256', length=16))))
+            assert _.obj() == __( cache_service=__(cache_config=__(storage_mode='memory',
+                                                   default_bucket    = None ,
+                                                   default_ttl_hours = 24   ,
+                                                   local_disk_path   = None ,
+                                                   sqlite_path       = None ,
+                                                   zip_path          = None ),
+                                  cache_handlers    = __()                      ,
+                                  hash_config       = __(algorithm = 'sha256', length=16),
+                                  hash_generator    = __(config    = __(algorithm='sha256', length=16))))
 
     def test_retrieve_by_hash__not_found(self):                                      # Test retrieval of non-existent hash
         with self.retrieve_service as _:
@@ -97,7 +100,7 @@ class test_Service__Cache__Retrieve(TestCase):
         assert an_class_1.obj()     == __(all_paths = obj(data))                                        # confirm roundtrip with obj().
 
     def test_get_entry_details(self):
-        cache_id      = self.cache_fixtures.get_fixture_id('string_simple')
+        cache_id  = self.cache_fixtures.get_fixture_id('string_simple')
         with obj(self.cache_service.retrieve_by_id__config(cache_id, self.namespace)) as _:
             all_paths     = _.all_paths
             timestamp     = _.timestamp

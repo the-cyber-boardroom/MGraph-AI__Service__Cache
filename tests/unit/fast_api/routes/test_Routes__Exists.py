@@ -15,9 +15,8 @@ class test_Routes__Exists(TestCase):
     def setUpClass(cls):                                                              # ONE-TIME expensive setup
         cls.test_objs          = setup__service_fast_api_test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
-        cls.fixtures_bucket    = cls.cache_fixtures.fixtures_bucket
         cls.fixtures_namespace = cls.cache_fixtures.namespace
-        cls.cache_service      = Cache__Service(default_bucket=cls.fixtures_bucket)
+        cls.cache_service      = cls.cache_fixtures.cache_service
         cls.routes             = Routes__Exists(cache_service=cls.cache_service)
 
         # Test data
@@ -36,8 +35,12 @@ class test_Routes__Exists(TestCase):
             assert _.obj() ==__(tag           ='exists',
                                 prefix        = '/{namespace}',
                                 router        = 'APIRouter',
-                                cache_service = __(default_bucket    = self.fixtures_bucket                     ,
-                                                   default_ttl_hours = 24                                       ,
+                                cache_service = __(cache_config=__(storage_mode      ='memory',
+                                                                   default_bucket    = None   ,
+                                                                   default_ttl_hours = 24     ,
+                                                                   local_disk_path   = None   ,
+                                                                   sqlite_path       = None   ,
+                                                                   zip_path          = None   ),
                                                    cache_handlers    = __()                                     ,
                                                    hash_config       = __(algorithm='sha256', length=16)        ,
                                                    hash_generator    = __(config=__(algorithm='sha256', length=16))),

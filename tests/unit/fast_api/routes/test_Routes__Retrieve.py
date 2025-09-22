@@ -26,11 +26,10 @@ class test_Routes__Retrieve(TestCase):
     def setUpClass(cls):                                                              # ONE-TIME expensive setup
         cls.test_objs          = setup__service_fast_api_test_objs()                  # Reuse shared test objects
         cls.cache_fixtures     = cls.test_objs.cache_fixtures                         # Use shared fixtures
-        cls.fixtures_bucket    = cls.cache_fixtures.fixtures_bucket                   # Use fixtures bucket
         cls.fixtures_namespace = cls.cache_fixtures.namespace
         
         # Services using fixtures bucket
-        cls.cache_service      = Cache__Service          (default_bucket   = cls.fixtures_bucket)
+        cls.cache_service      = cls.cache_fixtures.cache_service
         cls.retrieve_service   = Service__Cache__Retrieve(cache_service    = cls.cache_service  )
         cls.store_service      = Service__Cache__Store   (cache_service    = cls.cache_service  )
         cls.routes             = Routes__Retrieve        (retrieve_service = cls.retrieve_service)

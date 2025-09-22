@@ -1,45 +1,40 @@
 import gzip
 import json
-from typing                                                                              import Dict, Optional, Any, List, Literal
+from typing                                                                              import Dict, Optional, Any, List
 from osbot_utils.decorators.methods.cache_on_self                                        import cache_on_self
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.primitives.core.Safe_UInt                                     import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
-from osbot_utils.utils.Env                                                               import get_env
 from osbot_utils.utils.Files                                                             import file_extension, file_name_without_extension
-from osbot_utils.utils.Http                                                              import url_join_safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
+from osbot_utils.utils.Http import url_join_safe
 from osbot_utils.utils.Misc                                                              import timestamp_now
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                         import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.schemas.consts.const__Fast_API                              import ENV_VAR__CACHE__SERVICE__BUCKET_NAME, ENV_VAR__CACHE__SERVICE__DEFAULT_TTL_HOURS
+from mgraph_ai_service_cache.service.cache.Cache__Config                                 import Cache__Config
 from mgraph_ai_service_cache.service.cache.Cache__Handler                                import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                           import Cache__Hash__Config
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator                        import Cache__Hash__Generator
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
-from mgraph_ai_service_cache.service.storage.Storage_FS__S3                              import Storage_FS__S3
 
-DEFAULT__CACHE__SERVICE__BUCKET_NAME        = "mgraph-ai-cache"
-DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS  = 24
+class Cache__Service(Type_Safe):                                                    # Main cache service orchestrator
+    cache_config      : Cache__Config                                               # Configuration object
+    cache_handlers    : Dict[Safe_Str__Id, Cache__Handler]                          # Multiple cache handlers by namespace
+    hash_config       : Cache__Hash__Config                                         # Hash generation config
+    hash_generator    : Cache__Hash__Generator                                      # Hash generator instance
 
-class Cache__Service(Type_Safe):                                                   # Main cache service orchestrator
-    cache_handlers    : Dict[Safe_Str__Id, Cache__Handler]                              # Multiple cache handlers by namespace
-    default_bucket    : Safe_Str__Id                  = None
-    default_ttl_hours : Safe_UInt                     = None
-    hash_config       : Cache__Hash__Config                                        # Hash generation config
-    hash_generator    : Cache__Hash__Generator                                     # Hash generator instance
+    # todo: I think we can now remove this file and just use the self.storage_fs()
+    @cache_on_self
+    def storage_backend(self):                                                      # Create and cache the storage backend
+        return self.cache_config.create_storage_backend()
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        if not self.default_bucket:
-            self.default_bucket = get_env(ENV_VAR__CACHE__SERVICE__BUCKET_NAME         , DEFAULT__CACHE__SERVICE__BUCKET_NAME      )
-        if not self.default_ttl_hours:
-            self.default_ttl_hours = get_env(ENV_VAR__CACHE__SERVICE__DEFAULT_TTL_HOURS, DEFAULT__CACHE__SERVICE__DEFAULT_TTL_HOURS)
+    @cache_on_self
+    def storage_fs(self):                                                           # Return storage backend for direct operations
+        return self.storage_backend()                                               # This is used for admin operations that need direct storage access
 
-
-
+    # todo: this logic is starting to be quite complex to be in a method, I think we can refactor this logic into a separate class and have methods for
+    #       each logic step/action
     def delete_by_id(self, cache_id: Random_Guid, namespace: Safe_Str__Id = None) -> Dict[str, Any]:
         namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
@@ -53,12 +48,10 @@ class Cache__Service(Type_Safe):                                                
             cache_hash   = id_ref_data.get("hash")
             strategy     = id_ref_data.get("strategy")
 
-        # Track deletion results
-        deleted_paths = []
+        deleted_paths = []                                                                          # Track deletion results
         failed_paths  = []
 
-        # Delete data files first (use the appropriate fs based on strategy)
-        fs_data = handler.get_fs_for_strategy(strategy)
+        fs_data = handler.get_fs_for_strategy(strategy)                                             # Delete data files first (use the appropriate fs based on strategy)
         for path in all_paths.get("data", []):
             try:
                 if fs_data.storage_fs.file__delete(path):
@@ -68,25 +61,20 @@ class Cache__Service(Type_Safe):                                                
             except Exception as e:
                 failed_paths.append(f"{path}: {str(e)}")
 
-        # Update hash reference (remove this cache_id from the list)
-        if cache_hash:
+        if cache_hash:                                                                              # Update hash reference (remove this cache_id from the list)
             with handler.fs__refs_hash.file__json(Safe_Str__Id(cache_hash)) as ref_fs:
                 if ref_fs.exists():
-                    refs = ref_fs.content()
-                    # Remove this cache_id from the list
-                    refs["cache_ids"] = [entry for entry in refs["cache_ids"]
-                                        if entry["id"] != str(cache_id)]
+                    refs                   = ref_fs.content()
+                    refs["cache_ids"]      = [entry for entry in refs["cache_ids"]                  # Remove this cache_id from the list
+                                              if entry["id"] != str(cache_id)]
                     refs["total_versions"] -= 1
 
                     if refs["total_versions"] > 0:
-                        # Update the latest_id if needed
-                        if refs["latest_id"] == str(cache_id) and refs["cache_ids"]:
+                        if refs["latest_id"] == str(cache_id) and refs["cache_ids"]:                # Update the latest_id if needed
                             refs["latest_id"] = refs["cache_ids"][-1]["id"]
                         ref_fs.update(file_data=refs)
                     else:
-                        # No more versions, delete the hash reference files
-                        # FIX: Changed from all_paths.get("refs", {}).get("hash", [])
-                        for path in all_paths.get("by_hash", []):
+                        for path in all_paths.get("by_hash", []):                                   # No more versions, delete the hash reference files
                             try:
                                 if handler.fs__refs_hash.storage_fs.file__delete(path):
                                     deleted_paths.append(path)
@@ -95,9 +83,7 @@ class Cache__Service(Type_Safe):                                                
                             except Exception as e:
                                 failed_paths.append(f"{path}: {str(e)}")
 
-        # Finally, delete the ID reference files
-        # FIX: Changed from all_paths.get("refs", {}).get("id", [])
-        for path in all_paths.get("by_id", []):
+        for path in all_paths.get("by_id", []):                                                 # Finally, delete the ID reference files
             try:
                 if handler.fs__refs_id.storage_fs.file__delete(path):
                     deleted_paths.append(path)
@@ -106,16 +92,14 @@ class Cache__Service(Type_Safe):                                                
             except Exception as e:
                 failed_paths.append(f"{path}: {str(e)}")
 
-        return {
-            "status"        : "success" if not failed_paths else "partial",
-            "cache_id"      : str(cache_id),
-            "deleted_count" : len(deleted_paths),
-            "failed_count"  : len(failed_paths),
-            "deleted_paths" : deleted_paths,
-            "failed_paths"  : failed_paths
-        }
+        return { "status"        : "success" if not failed_paths else "partial",                    # todo: this should be a Type_Safe class
+                 "cache_id"      : str(cache_id)        ,
+                 "deleted_count" : len(deleted_paths)   ,
+                 "failed_count"  : len(failed_paths)    ,
+                 "deleted_paths" : deleted_paths        ,
+                 "failed_paths"  : failed_paths         }
 
-    def get_all_namespaces_stats(self) -> Dict[str, Any]:       # Get file counts for all active namespaces
+    def get_all_namespaces_stats(self) -> Dict[str, Any]:                          # Get file counts for all active namespaces
         all_stats = {}
 
         for namespace in self.cache_handlers.keys():
@@ -125,30 +109,38 @@ class Cache__Service(Type_Safe):                                                
                 'file_counts': counts_data['file_counts']
             }
 
-        return {
-            'namespaces': all_stats,
-            'total_namespaces': len(self.cache_handlers),
-            'grand_total_files': sum(ns['total_files'] for ns in all_stats.values())
-        }
+        return { 'namespaces'       : all_stats                 ,                               # todo: this should be a Type_Safe class
+                 'total_namespaces' : len(self.cache_handlers)  ,
+                 'grand_total_files': sum(ns['total_files'] for ns in all_stats.values()),
+                 'storage_mode'     : self.cache_config.storage_mode.value                }     # Include storage mode in stats
 
-    def get_namespace__file_hashes(self, namespace: Safe_Str__Id ) -> Dict[str, Any]:
+
+    def get_namespace__file_hashes(self, namespace: Safe_Str__Id) -> List[str]:
         file_hashes = []
-        parent_folder = url_join_safe(str(namespace), "refs/by-hash")
+        handler = self.get_or_create_handler(namespace)
 
-        for file_path in self.storage_fs().folder__files__all(parent_folder=parent_folder):
+        parent_folder = url_join_safe(str(namespace), "refs/by-hash")                                           # Build the namespace-specific folder path
+
+        for file_path in handler.fs__refs_hash.storage_fs.folder__files__all(parent_folder=parent_folder):      # Use folder__files__all to get only files in this namespace's refs/by-hash folder
             if file_extension(file_path) == '.json':
-                file_id = file_name_without_extension(file_path)
-                file_hashes.append(file_id)
+                file_id     = file_name_without_extension(file_path)                                            # Extract just the hash part (last segment after any sharding)
+                hash_parts  = file_id.split('/')
+                if hash_parts:
+                    file_hashes.append(hash_parts[-1])
         return file_hashes
 
-    def get_namespace__file_ids(self, namespace: Safe_Str__Id ) -> Dict[str, Any]:
+    def get_namespace__file_ids(self, namespace: Safe_Str__Id) -> List[str]:
         file_ids = []
-        parent_folder = url_join_safe(str(namespace), "refs/by-id")
+        handler = self.get_or_create_handler(namespace)
 
-        for file_path in self.storage_fs().folder__files__all(parent_folder=parent_folder):
+        parent_folder = url_join_safe(str(namespace), "refs/by-id")                                             # Build the namespace-specific folder path
+
+        for file_path in handler.fs__refs_id.storage_fs.folder__files__all(parent_folder=parent_folder):        # Use folder__files__all to get only files in this namespace's refs/by-id folder
             if file_extension(file_path) == '.json':
                 file_id = file_name_without_extension(file_path)
-                file_ids.append(file_id)
+                id_parts = file_id.split('/')                                                                   # Extract just the ID part (last segment after any sharding)
+                if id_parts:
+                    file_ids.append(id_parts[-1])
         return file_ids
 
     def get_namespace__file_counts(self, namespace: Safe_Str__Id = None) -> Dict[str, Any]:       # Get file counts for all strategies in a namespace
@@ -158,8 +150,7 @@ class Cache__Service(Type_Safe):                                                
         file_counts = {}
         total_files = 0
 
-        # todo: review the performance implications of this on large namespaces
-        for strategy in ["direct", "temporal", "temporal_latest", "temporal_versioned"]:    # Count files in each data strategy
+        for strategy in ["direct", "temporal", "temporal_latest", "temporal_versioned"]:
             try:
                 fs = handler.get_fs_for_strategy(strategy)
                 if fs and fs.storage_fs:
@@ -192,27 +183,28 @@ class Cache__Service(Type_Safe):                                                
             'namespace': str(namespace),
             'handler': handler,
             'file_counts': file_counts,
-            'total_files': total_files
+            'total_files': total_files,
+            'storage_mode': self.cache_config.storage_mode.value                   # Include storage mode
         }
 
-    def get_or_create_handler(self, namespace: Safe_Str__Id = DEFAULT_CACHE__NAMESPACE  # Get existing or create new cache handler
-                              ) -> Cache__Handler:
+    def get_or_create_handler(self, namespace: Safe_Str__Id = DEFAULT_CACHE__NAMESPACE) -> Cache__Handler:
         if namespace not in self.cache_handlers:
-            handler = Cache__Handler(s3__bucket      = self.default_bucket,
-                                     s3__prefix      = str(namespace),
-                                     cache_ttl_hours = self.default_ttl_hours).setup()
+            # Create handler with shared storage backend and namespace
+            handler = Cache__Handler(storage_backend  = self.storage_backend(),                          # Shared storage backend
+                                     namespace        = str(namespace),                                  # Namespace for path prefixing
+                                     cache_ttl_hours  = self.cache_config.default_ttl_hours).setup()
             self.cache_handlers[namespace] = handler
         return self.cache_handlers[namespace]
 
-    @cache_on_self
-    def storage_fs(self) -> Storage_FS__S3:
-        return Storage_FS__S3(s3_bucket=self.default_bucket).setup()
+    def get_storage_info(self) -> Dict[str, Any]:                                  # Get information about current storage configuration
+        return self.cache_config.get_storage_info()
 
+    # todo: same as with the delete method above,  this logic is starting to be too complex to be all in one method
     def store_with_strategy(self, storage_data     : Any                                   ,
                                   cache_hash       : Safe_Str__Cache_Hash                  ,
                                   strategy         : Enum__Cache__Store__Strategy          ,
                                   cache_id         : Random_Guid                  = None                       ,
-                                  cache_key        : Safe_Str__File__Path         = None   ,  # Allow extra key/path to be provided (used by some path_handlers)
+                                  cache_key        : Safe_Str__File__Path         = None   ,
                                   file_id          : Safe_Str__Id                      = None   ,
                                   namespace        : Safe_Str__Id                      = None   ,
                                   content_encoding : Safe_Str__Id                      = None
@@ -239,9 +231,10 @@ class Cache__Service(Type_Safe):                                                
         with file_fs:
             all_paths['data']  = file_fs.create(storage_data)
             content_file_paths = file_fs.file_fs__paths().paths__content()          # get the file paths for the content files
+            content_file_paths = file_fs.file_fs__paths().paths__content()
 
             # Add metadata
-            metadata = { "cache_hash"       : str(cache_hash)    ,                  # todo: convert to Type_Safe class
+            metadata = { "cache_hash"       : str(cache_hash)    ,                              # this should be a Type_Safe class
                          "cache_key"        : str(cache_key)     ,
                          "cache_id"         : str(cache_id)      ,
                          "content_encoding" : content_encoding   ,
@@ -272,21 +265,20 @@ class Cache__Service(Type_Safe):                                                
         # Update ID->hash reference WITH content path and file type
         with handler.fs__refs_id.file__json(Safe_Str__Id(str(cache_id))) as ref_fs:
             all_paths["by_id"] = ref_fs.paths()
-            paths__id_to_hash  =  ref_fs.create({ "all_paths"        : all_paths          ,
-                                                   "cache_id"         : str(cache_id)     ,
-                                                   "hash"             : str(cache_hash)   ,
-                                                   "namespace"        : str(namespace)    ,
-                                                   "strategy"         : strategy          ,
-                                                   "content_paths"    : content_file_paths,
-                                                   "file_type"        : file_type         ,
-                                                   "timestamp"        : timestamp_now()   })
+            ref_fs.create({ "all_paths"        : all_paths          ,                               # this should be a Type_Safe class
+                            "cache_id"         : str(cache_id)     ,
+                            "hash"             : str(cache_hash)   ,
+                            "namespace"        : str(namespace)    ,
+                            "strategy"         : strategy          ,
+                            "content_paths"    : content_file_paths,
+                            "file_type"        : file_type         ,
+                            "timestamp"        : timestamp_now()   })
 
         return Schema__Cache__Store__Response(cache_id   = cache_id     ,
                                               hash       = cache_hash   ,
-                                              namespace  = namespace,
+                                              namespace  = namespace    ,
                                               paths      = all_paths    ,
                                               size       = file_size    )
-
 
     def retrieve_by_hash(self, cache_hash : Safe_Str__Cache_Hash,
                                namespace  : Safe_Str__Id = None
@@ -305,9 +297,10 @@ class Cache__Service(Type_Safe):                                                
 
         return self.retrieve_by_id(Random_Guid(latest_id), namespace)           # Delegate to retrieve_by_id which handles the path lookup
 
+    # todo: same as with the delete method above,  this logic is starting to be too complex to be all in one method
     def retrieve_by_id(self, cache_id : Random_Guid,
                              namespace : Safe_Str__Id = None
-                        ) -> Optional[Dict[str, Any]]:                  #  Retrieve by cache ID using direct path from reference
+                        ) -> Optional[Dict[str, Any]]:
         namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
 
@@ -357,9 +350,9 @@ class Cache__Service(Type_Safe):                                                
                 except (json.JSONDecodeError, UnicodeDecodeError):
                     data_type = "binary"
             else:
-                data_type = self._determine_data_type(data)
+                data_type = self.determine_data_type(data)
 
-            return { "data"            : data             ,                 # convert to Type_Safe class
+            return { "data"            : data             ,                     # ths should be a Type_Safe class
                      "metadata"        : metadata_data    ,
                      "data_type"       : data_type        ,
                      "content_encoding": content_encoding }
@@ -378,20 +371,7 @@ class Cache__Service(Type_Safe):                                                
                 return None
             return ref_fs.content()
 
-    # todo: check who is using this
-    def _is_binary_data(self, metadata) -> bool:                                    # Check if stored data is binary based on metadata
-        if not metadata:
-            return False
-
-        content_encoding = metadata.data.get(Safe_Str__Id('content_encoding'))      # Check for content encoding or binary indicators
-        if content_encoding:
-            return True
-
-        # Could add more checks here based on content_type if we store it
-        return False
-
-    # todo: we should be using the Enum for this
-    def _determine_data_type(self, data) -> str:                                    # Determine the type of data (string, json, binary)
+    def determine_data_type(self, data) -> str:
         if isinstance(data, bytes):
             return "binary"
         elif isinstance(data, dict) or isinstance(data, list):

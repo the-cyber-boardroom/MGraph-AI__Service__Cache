@@ -1,24 +1,23 @@
 import re
 import pytest
-from unittest                                                                   import TestCase
-from datetime                                                                   import datetime
-from osbot_aws.testing.Temp__Random__AWS_Credentials                            import OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID, OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
-from osbot_aws.utils.AWS_Sanitization                                           import str_to_valid_s3_bucket_name
-from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path  import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id              import Safe_Str__Id
-from osbot_utils.utils.Misc                                                     import random_string_short
-from osbot_utils.utils.Objects                                                  import base_classes, __
-from osbot_aws.AWS_Config                                                       import aws_config
-from memory_fs.Memory_FS                                                        import Memory_FS
-from memory_fs.file_fs.File_FS                                                  import File_FS
-from memory_fs.file_types.Memory_FS__File__Type__Json                           import Memory_FS__File__Type__Json
-from memory_fs.file_types.Memory_FS__File__Type__Text                           import Memory_FS__File__Type__Text
-from memory_fs.helpers.Memory_FS__Temporal                                      import Memory_FS__Temporal
-from memory_fs.helpers.Memory_FS__Latest_Temporal                               import Memory_FS__Latest_Temporal
-from mgraph_ai_service_cache.service.cache.Cache__Handler                       import Cache__Handler, CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_LATEST, CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL, CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_VERSIONED, CACHE__HANDLER__PREFIX_PATH__FS__REFS_HASH, CACHE__HANDLER__PREFIX_PATH__FS__REFS_ID, CACHE__HANDLER__PREFIX_PATH__FS__DATA_DIRECT
-from mgraph_ai_service_cache.service.storage.Storage_FS__S3                     import Storage_FS__S3
-from tests.unit.Service__Fast_API__Test_Objs                                    import setup__service_fast_api_test_objs
+from unittest                                                                       import TestCase
+from datetime                                                                       import datetime
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Storage_Mode          import Enum__Cache__Storage_Mode
+from mgraph_ai_service_cache.service.cache.Cache__Config                            import Cache__Config
+from osbot_aws.utils.AWS_Sanitization                                               import str_to_valid_s3_bucket_name
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
+from osbot_utils.utils.Misc                                                         import random_string_short
+from osbot_utils.utils.Objects                                                      import base_classes, __
+from memory_fs.Memory_FS                                                            import Memory_FS
+from memory_fs.file_fs.File_FS                                                      import File_FS
+from memory_fs.file_types.Memory_FS__File__Type__Json                               import Memory_FS__File__Type__Json
+from memory_fs.file_types.Memory_FS__File__Type__Text                               import Memory_FS__File__Type__Text
+from memory_fs.helpers.Memory_FS__Temporal                                          import Memory_FS__Temporal
+from memory_fs.helpers.Memory_FS__Latest_Temporal                                   import Memory_FS__Latest_Temporal
+from mgraph_ai_service_cache.service.cache.Cache__Handler                           import Cache__Handler, CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_LATEST, CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL, CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_VERSIONED, CACHE__HANDLER__PREFIX_PATH__FS__REFS_HASH, CACHE__HANDLER__PREFIX_PATH__FS__REFS_ID, CACHE__HANDLER__PREFIX_PATH__FS__DATA_DIRECT
+from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs
 
 
 class test_Cache__Handler(TestCase):                                                # Test cache handler with multiple storage strategies
@@ -27,15 +26,18 @@ class test_Cache__Handler(TestCase):                                            
     def setUpClass(cls):                                                            # ONE-TIME expensive setup
         cls.test_objs   = setup__service_fast_api_test_objs()                       # Setup LocalStack
         cls.test_bucket = str_to_valid_s3_bucket_name(random_string_short("test-handler-"))
-        cls.test_prefix = "test-cache"
+        cls.namespace = "test-cache"
 
-        assert aws_config.account_id()  == OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID
-        assert aws_config.region_name() == OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
+        # todo: move this check to the integration tests (since for the Unit tests we are running in memory)
+        #assert aws_config.account_id()  == OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID
+        #assert aws_config.region_name() == OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
 
+        cls.config          = Cache__Config(storage_mode=Enum__Cache__Storage_Mode.MEMORY)  # Use memory for fast tests
+        cls.storage_backend = cls.config.create_storage_backend()       # todo: review the need to make this call (since we should be handling this in a tranparent way)
         with Cache__Handler() as _:
             cls.handler       = _
-            _.s3__bucket      = cls.test_bucket
-            _.s3__prefix      = cls.test_prefix
+            _.storage_backend = cls.storage_backend
+            _.namespace       = cls.namespace
             _.cache_ttl_hours = 12
             _.setup()
 
@@ -46,16 +48,6 @@ class test_Cache__Handler(TestCase):                                            
             # Get current temporal path for validation
             cls.path_now = _.fs__data_temporal.handler__temporal.path_now()
 
-    @classmethod
-    def tearDownClass(cls):                                                         # ONE-TIME cleanup
-        with cls.handler.s3__storage.s3 as _:
-            if _.bucket_exists(cls.test_bucket):
-                _.bucket_delete_all_files(cls.test_bucket)
-                _.bucket_delete(cls.test_bucket)
-
-    def tearDown(self):                                                             # PER-TEST cleanup (optional)
-        # Clear test data between tests if needed
-        pass
 
     def test__init__(self):                                                          # Test initialization and defaults
         with Cache__Handler() as _:
@@ -63,12 +55,9 @@ class test_Cache__Handler(TestCase):                                            
             assert base_classes(_)                 == [Type_Safe, object]
 
             # Test default values
-            assert _.s3__bucket                    == ""
-            assert _.s3__prefix                    == ""
             assert _.cache_ttl_hours               == 24                            # Default TTL
 
             # Test uninitialized state
-            assert _.s3__storage                   is None
             assert _.fs__data_direct               is None
             assert _.fs__data_temporal             is None
             assert _.fs__data_temporal_latest      is None
@@ -78,11 +67,6 @@ class test_Cache__Handler(TestCase):                                            
 
     def test_setup(self):                                                           # Test setup creates all required components
         with self.handler as _:
-            # Verify storage backend
-            assert type(_.s3__storage)                 is Storage_FS__S3
-            assert _.s3__storage.s3_bucket             == self.test_bucket
-            assert _.s3__storage.s3_prefix             == self.test_prefix
-
             # Verify all Memory_FS instances created
             assert type(_.fs__data_direct)             is Memory_FS
             assert type(_.fs__data_temporal)           is Memory_FS__Temporal
@@ -98,23 +82,23 @@ class test_Cache__Handler(TestCase):                                            
         with self.handler as _:
             # Test direct storage path configuration
             direct_handler = _.fs__data_direct.path_handlers[0]
-            assert direct_handler.prefix_path         == Safe_Str__File__Path('data/direct')
+            assert direct_handler.prefix_path         == Safe_Str__File__Path(f'{self.namespace}/data/direct')
             assert direct_handler.shard_depth         == 2
 
             # Test temporal path configuration
             temporal_handler = _.fs__data_temporal.handler__temporal
-            assert temporal_handler.prefix_path       == Safe_Str__File__Path('data/temporal')
+            assert temporal_handler.prefix_path       == Safe_Str__File__Path(f'{self.namespace}/data/temporal')
 
             # Test temporal-latest path configuration
-            assert _.fs__data_temporal_latest.handler__latest.prefix_path == Safe_Str__File__Path('data/temporal-latest')
+            assert _.fs__data_temporal_latest.handler__latest.prefix_path == Safe_Str__File__Path(f'{self.namespace}/data/temporal-latest')
 
             # Test reference stores configuration
             refs_hash_handler = _.fs__refs_hash.path_handlers[0]
-            assert refs_hash_handler.prefix_path      == Safe_Str__File__Path('refs/by-hash')
+            assert refs_hash_handler.prefix_path      == Safe_Str__File__Path(f'{self.namespace}/refs/by-hash')
             assert refs_hash_handler.shard_depth      == 2
 
             refs_id_handler = _.fs__refs_id.path_handlers[0]
-            assert refs_id_handler.prefix_path        == Safe_Str__File__Path('refs/by-id')
+            assert refs_id_handler.prefix_path        == Safe_Str__File__Path(f'{self.namespace}/refs/by-id')
             assert refs_id_handler.shard_depth        == 2
 
     def test_get_fs_for_strategy(self):                                             # Test strategy selection
@@ -153,20 +137,20 @@ class test_Cache__Handler(TestCase):                                            
             assert file_fs.file__config.file_id       == self.test_file_id
 
             # Create and save data
-            assert file_fs.create()                   == [Safe_Str__File__Path('data/direct/te/st/test-document.json'         ),
-                                                          Safe_Str__File__Path('data/direct/te/st/test-document.json.config'  ),
-                                                          Safe_Str__File__Path('data/direct/te/st/test-document.json.metadata')]
-            assert file_fs.update(self.test_data)     == [Safe_Str__File__Path('data/direct/te/st/test-document.json'         ),
-                                                          Safe_Str__File__Path('data/direct/te/st/test-document.json.metadata')]
+            assert file_fs.create()                   == [Safe_Str__File__Path(f'{self.namespace}/data/direct/te/st/test-document.json'         ),
+                                                          Safe_Str__File__Path(f'{self.namespace}/data/direct/te/st/test-document.json.config'  ),
+                                                          Safe_Str__File__Path(f'{self.namespace}/data/direct/te/st/test-document.json.metadata')]
+            assert file_fs.update(self.test_data)     == [Safe_Str__File__Path(f'{self.namespace}/data/direct/te/st/test-document.json'         ),
+                                                          Safe_Str__File__Path(f'{self.namespace}/data/direct/te/st/test-document.json.metadata')]
             assert file_fs.exists()                   is True
 
             # Verify content
             assert file_fs.content()                  == self.test_data
 
             # Clean up
-            assert file_fs.delete()                   == [Safe_Str__File__Path('data/direct/te/st/test-document.json'         ),
-                                                          Safe_Str__File__Path('data/direct/te/st/test-document.json.config'  ),
-                                                          Safe_Str__File__Path('data/direct/te/st/test-document.json.metadata')]
+            assert file_fs.delete()                   == [Safe_Str__File__Path(f'{self.namespace}/data/direct/te/st/test-document.json'         ),
+                                                          Safe_Str__File__Path(f'{self.namespace}/data/direct/te/st/test-document.json.config'  ),
+                                                          Safe_Str__File__Path(f'{self.namespace}/data/direct/te/st/test-document.json.metadata')]
             assert file_fs.exists()                   is False
 
     # Tests for temporal strategy operations
@@ -175,11 +159,11 @@ class test_Cache__Handler(TestCase):                                            
             fs            = _.get_fs_for_strategy("temporal")
             file_fs       = fs.file__json(self.test_file_id)
             prefix_path   = CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL
-            files_created = [Safe_Str__File__Path(f'{prefix_path}/{self.path_now}/test-document.json'          ),
-                             Safe_Str__File__Path(f'{prefix_path}/{self.path_now}/test-document.json.config'   ),
-                             Safe_Str__File__Path(f'{prefix_path}/{self.path_now}/test-document.json.metadata')]
-            files_updated = [Safe_Str__File__Path(f'{prefix_path}/{self.path_now}/test-document.json'          ),
-                             Safe_Str__File__Path(f'{prefix_path}/{self.path_now}/test-document.json.metadata')]
+            files_created = [Safe_Str__File__Path(f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json'          ),
+                             Safe_Str__File__Path(f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json.config'   ),
+                             Safe_Str__File__Path(f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json.metadata')]
+            files_updated = [Safe_Str__File__Path(f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json'          ),
+                             Safe_Str__File__Path(f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json.metadata')]
 
             assert type(file_fs)                      is File_FS
             assert file_fs.file__config.file_id       == self.test_file_id
@@ -224,12 +208,12 @@ class test_Cache__Handler(TestCase):                                            
 
             # Verify exact paths created (from old test)
             prefix_path    = CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_LATEST
-            expected_paths = [Safe_Str__File__Path(f'{prefix_path}/{self.path_now}/test-document.json'          ),
-                              Safe_Str__File__Path(f'{prefix_path}/{self.path_now}/test-document.json.config'   ),
-                              Safe_Str__File__Path(f'{prefix_path}/{self.path_now}/test-document.json.metadata' ),
-                              Safe_Str__File__Path(f'{prefix_path}/latest/test-document.json'                   ),
-                              Safe_Str__File__Path(f'{prefix_path}/latest/test-document.json.config'            ),
-                              Safe_Str__File__Path(f'{prefix_path}/latest/test-document.json.metadata'          )]
+            expected_paths = [Safe_Str__File__Path(f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json'          ),
+                              Safe_Str__File__Path(f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json.config'   ),
+                              Safe_Str__File__Path(f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json.metadata' ),
+                              Safe_Str__File__Path(f'{self.namespace}/{prefix_path}/latest/test-document.json'                   ),
+                              Safe_Str__File__Path(f'{self.namespace}/{prefix_path}/latest/test-document.json.config'            ),
+                              Safe_Str__File__Path(f'{self.namespace}/{prefix_path}/latest/test-document.json.metadata'          )]
 
             # Clean up
             assert file_fs.delete()     == expected_paths
@@ -241,21 +225,21 @@ class test_Cache__Handler(TestCase):                                            
             fs = _.get_fs_for_strategy("temporal_versioned")
             file_fs = fs.file__json(self.test_file_id)
             prefix_path   = CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_VERSIONED
-            files_created = [f'{prefix_path}/{self.path_now}/test-document.json'         ,
-                             f'{prefix_path}/{self.path_now}/test-document.json.config'  ,
-                             f'{prefix_path}/{self.path_now}/test-document.json.metadata',
-                             f'{prefix_path}/latest/test-document.json'                  ,
-                             f'{prefix_path}/latest/test-document.json.config'           ,
-                             f'{prefix_path}/latest/test-document.json.metadata'         ,
-                             f'{prefix_path}/versions/v1/test-document.json'             ,
-                             f'{prefix_path}/versions/v1/test-document.json.config'      ,
-                             f'{prefix_path}/versions/v1/test-document.json.metadata'    ]
-            files_updated = [f'{prefix_path}/{self.path_now}/test-document.json'         ,
-                             f'{prefix_path}/{self.path_now}/test-document.json.metadata',
-                             f'{prefix_path}/latest/test-document.json'                  ,
-                             f'{prefix_path}/latest/test-document.json.metadata'         ,
-                             f'{prefix_path}/versions/v1/test-document.json'             ,
-                             f'{prefix_path}/versions/v1/test-document.json.metadata'    ]
+            files_created = [f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json'         ,
+                             f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json.config'  ,
+                             f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json.metadata',
+                             f'{self.namespace}/{prefix_path}/latest/test-document.json'                  ,
+                             f'{self.namespace}/{prefix_path}/latest/test-document.json.config'           ,
+                             f'{self.namespace}/{prefix_path}/latest/test-document.json.metadata'         ,
+                             f'{self.namespace}/{prefix_path}/versions/v1/test-document.json'             ,
+                             f'{self.namespace}/{prefix_path}/versions/v1/test-document.json.config'      ,
+                             f'{self.namespace}/{prefix_path}/versions/v1/test-document.json.metadata'    ]
+            files_updated = [f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json'         ,
+                             f'{self.namespace}/{prefix_path}/{self.path_now}/test-document.json.metadata',
+                             f'{self.namespace}/{prefix_path}/latest/test-document.json'                  ,
+                             f'{self.namespace}/{prefix_path}/latest/test-document.json.metadata'         ,
+                             f'{self.namespace}/{prefix_path}/versions/v1/test-document.json'             ,
+                             f'{self.namespace}/{prefix_path}/versions/v1/test-document.json.metadata'    ]
             assert type(file_fs)                      is File_FS
             # Should have multiple handlers configured
             assert len(fs.path_handlers)              >= 3                          # temporal, latest, versioned
@@ -279,11 +263,11 @@ class test_Cache__Handler(TestCase):                                            
             test_id   = "doc-001"
 
             path_prefix   = CACHE__HANDLER__PREFIX_PATH__FS__REFS_HASH
-            files_created = [f'{path_prefix}/ab/c1/abc123def456.json'         ,
-                             f'{path_prefix}/ab/c1/abc123def456.json.config'  ,
-                             f'{path_prefix}/ab/c1/abc123def456.json.metadata']
-            files_updated = [f'{path_prefix}/ab/c1/abc123def456.json'         ,
-                             f'{path_prefix}/ab/c1/abc123def456.json.metadata']
+            files_created = [f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json'         ,
+                             f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json.config'  ,
+                             f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json.metadata']
+            files_updated = [f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json'         ,
+                             f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json.metadata']
 
             # Save hash->id mapping
             file_fs = _.fs__refs_hash.file__json(test_hash)
@@ -301,11 +285,11 @@ class test_Cache__Handler(TestCase):                                            
             test_id   = "doc-001"
             test_hash = "abc123def456"
             path_prefix   = CACHE__HANDLER__PREFIX_PATH__FS__REFS_ID
-            files_created = [f'{path_prefix}/do/c-/doc-001.json'         ,
-                             f'{path_prefix}/do/c-/doc-001.json.config'  ,
-                             f'{path_prefix}/do/c-/doc-001.json.metadata']
-            files_updated = [f'{path_prefix}/do/c-/doc-001.json'         ,
-                             f'{path_prefix}/do/c-/doc-001.json.metadata']
+            files_created = [f'{self.namespace}/{path_prefix}/do/c-/doc-001.json'         ,
+                             f'{self.namespace}/{path_prefix}/do/c-/doc-001.json.config'  ,
+                             f'{self.namespace}/{path_prefix}/do/c-/doc-001.json.metadata']
+            files_updated = [f'{self.namespace}/{path_prefix}/do/c-/doc-001.json'         ,
+                             f'{self.namespace}/{path_prefix}/do/c-/doc-001.json.metadata']
             # Save id->hash mapping
             file_fs = _.fs__refs_id.file__json(test_id)
             assert file_fs.create()                    == files_created
@@ -323,11 +307,11 @@ class test_Cache__Handler(TestCase):                                            
             fs          = _.get_fs_for_strategy("direct")
             file_fs     = fs.file__text(self.test_file_id)                              # Create file with text type
             path_prefix = CACHE__HANDLER__PREFIX_PATH__FS__DATA_DIRECT
-            files_created = [f'{path_prefix}/te/st/test-document.txt'         ,
-                             f'{path_prefix}/te/st/test-document.txt.config'  ,
-                             f'{path_prefix}/te/st/test-document.txt.metadata']
-            files_updated = [f'{path_prefix}/te/st/test-document.txt'         ,
-                             f'{path_prefix}/te/st/test-document.txt.metadata']
+            files_created = [f'{self.namespace}/{path_prefix}/te/st/test-document.txt'         ,
+                             f'{self.namespace}/{path_prefix}/te/st/test-document.txt.config'  ,
+                             f'{self.namespace}/{path_prefix}/te/st/test-document.txt.metadata']
+            files_updated = [f'{self.namespace}/{path_prefix}/te/st/test-document.txt'         ,
+                             f'{self.namespace}/{path_prefix}/te/st/test-document.txt.metadata']
             assert type(file_fs.file__config.file_type) is Memory_FS__File__Type__Text
             assert file_fs.file__config.file_type.file_extension == 'txt'
 
@@ -349,17 +333,17 @@ class test_Cache__Handler(TestCase):                                            
             path_prefix__direct     = CACHE__HANDLER__PREFIX_PATH__FS__DATA_DIRECT
             path_prefix__temporal   = CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL
 
-            files_created__direct   = [f'{path_prefix__direct}/co/nc/concurrent-test.json'         ,
-                                       f'{path_prefix__direct}/co/nc/concurrent-test.json.config'  ,
-                                       f'{path_prefix__direct}/co/nc/concurrent-test.json.metadata']
-            files_updated__direct   = [f'{path_prefix__direct}/co/nc/concurrent-test.json'         ,
-                                       f'{path_prefix__direct}/co/nc/concurrent-test.json.metadata']
+            files_created__direct   = [f'{self.namespace}/{path_prefix__direct}/co/nc/concurrent-test.json'         ,
+                                       f'{self.namespace}/{path_prefix__direct}/co/nc/concurrent-test.json.config'  ,
+                                       f'{self.namespace}/{path_prefix__direct}/co/nc/concurrent-test.json.metadata']
+            files_updated__direct   = [f'{self.namespace}/{path_prefix__direct}/co/nc/concurrent-test.json'         ,
+                                       f'{self.namespace}/{path_prefix__direct}/co/nc/concurrent-test.json.metadata']
 
-            files_created__temporal = [f'{path_prefix__temporal}/{self.path_now}/concurrent-test.json'         ,
-                                       f'{path_prefix__temporal}/{self.path_now}/concurrent-test.json.config'  ,
-                                       f'{path_prefix__temporal}/{self.path_now}/concurrent-test.json.metadata']
-            files_updated__temporal = [f'{path_prefix__temporal}/{self.path_now}/concurrent-test.json'         ,
-                                       f'{path_prefix__temporal}/{self.path_now}/concurrent-test.json.metadata']
+            files_created__temporal = [f'{self.namespace}/{path_prefix__temporal}/{self.path_now}/concurrent-test.json'         ,
+                                       f'{self.namespace}/{path_prefix__temporal}/{self.path_now}/concurrent-test.json.config'  ,
+                                       f'{self.namespace}/{path_prefix__temporal}/{self.path_now}/concurrent-test.json.metadata']
+            files_updated__temporal = [f'{self.namespace}/{path_prefix__temporal}/{self.path_now}/concurrent-test.json'         ,
+                                       f'{self.namespace}/{path_prefix__temporal}/{self.path_now}/concurrent-test.json.metadata']
             # Save to direct strategy
             direct_fs = _.get_fs_for_strategy("direct")
             direct_file = direct_fs.file__json(test_id)
@@ -403,16 +387,16 @@ class test_Cache__Handler(TestCase):                                            
                              "metadata": {"key": "value"},
                              "active": True             }
             file_fs = fs.file__json(Safe_Str__Id("complex-test"))
-            files_created = [f'data/temporal-latest/{self.path_now}/complex-test.json'          ,
-                             f'data/temporal-latest/{self.path_now}/complex-test.json.config'   ,
-                             f'data/temporal-latest/{self.path_now}/complex-test.json.metadata'    ,
-                             'data/temporal-latest/latest/complex-test.json'                    ,
-                             'data/temporal-latest/latest/complex-test.json.config'             ,
-                             'data/temporal-latest/latest/complex-test.json.metadata'           ]
-            files_updated = [f'data/temporal-latest/{self.path_now}/complex-test.json'          ,
-                             f'data/temporal-latest/{self.path_now}/complex-test.json.metadata'    ,
-                             'data/temporal-latest/latest/complex-test.json'                    ,
-                             'data/temporal-latest/latest/complex-test.json.metadata'           ]
+            files_created = [f'{self.namespace}/data/temporal-latest/{self.path_now}/complex-test.json'          ,
+                             f'{self.namespace}/data/temporal-latest/{self.path_now}/complex-test.json.config'   ,
+                             f'{self.namespace}/data/temporal-latest/{self.path_now}/complex-test.json.metadata'    ,
+                             f'{self.namespace}/data/temporal-latest/latest/complex-test.json'                    ,
+                             f'{self.namespace}/data/temporal-latest/latest/complex-test.json.config'             ,
+                             f'{self.namespace}/data/temporal-latest/latest/complex-test.json.metadata'           ]
+            files_updated = [f'{self.namespace}/data/temporal-latest/{self.path_now}/complex-test.json'          ,
+                             f'{self.namespace}/data/temporal-latest/{self.path_now}/complex-test.json.metadata'    ,
+                             f'{self.namespace}/data/temporal-latest/latest/complex-test.json'                    ,
+                             f'{self.namespace}/data/temporal-latest/latest/complex-test.json.metadata'           ]
             assert file_fs.create()                   == files_created
             assert file_fs.update(complex_data)       == files_updated
 

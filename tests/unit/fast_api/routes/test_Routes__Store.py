@@ -28,17 +28,9 @@ class test_Routes__Store(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                                      # ONE-TIME expensive setup
-        cls.test_objs        = setup__service_fast_api_test_objs()
-        cls.cache_fixtures   = cls.test_objs.cache_fixtures
-        cls.fixtures_bucket  = cls.cache_fixtures.fixtures_bucket
-        # cls.cache_service    = Cache__Service(default_bucket=cls.fixtures_bucket)
-        #
-        # cls.routes           = Routes__Store    (cache_service=cls.cache_service)
-        # cls.routes_delete    = Routes__Delete   (cache_service=cls.cache_service)
-        # cls.routes_retrieve  = Routes__Retrieve (cache_service=cls.cache_service)
-        # cls.routes_namespace = Routes__Namespace(cache_service=cls.cache_service)
-
-        cls.cache_service      = Cache__Service          (default_bucket   = cls.fixtures_bucket )
+        cls.test_objs          = setup__service_fast_api_test_objs()
+        cls.cache_fixtures     = cls.test_objs.cache_fixtures
+        cls.cache_service      = cls.cache_fixtures.cache_service
         cls.retrieve_service   = Service__Cache__Retrieve(cache_service    = cls.cache_service   )
         cls.store_service      = Service__Cache__Store   (cache_service    = cls.cache_service   )
 
@@ -47,10 +39,10 @@ class test_Routes__Store(TestCase):
         cls.routes_retrieve    = Routes__Retrieve        (retrieve_service = cls.retrieve_service)
         cls.routes_namespace   = Routes__Namespace       (cache_service    = cls.cache_service   )
 
-        cls.test_namespace   = Safe_Str__Id("test-store-api")                                 # Test data
-        cls.test_string      = "test store string"
-        cls.test_json        = {"api": "test", "value": 123}
-        cls.path_now         = Path__Handler__Temporal().path_now()                           # Current temporal path
+        cls.test_namespace     = Safe_Str__Id("test-store-api")                                 # Test data
+        cls.test_string        = "test store string"
+        cls.test_json          = {"api": "test", "value": 123}
+        cls.path_now           = Path__Handler__Temporal().path_now()                           # Current temporal path
 
     def setUp(self):                                                                          # PER-TEST lightweight setup
         self.scope   = {"type": "http", "headers": []}

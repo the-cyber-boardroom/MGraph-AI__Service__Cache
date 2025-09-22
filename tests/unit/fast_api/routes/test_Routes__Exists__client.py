@@ -10,7 +10,6 @@ class test_Routes__Exists__client(TestCase):                                    
     def setUpClass(cls):                                                              # ONE-TIME expensive setup
         cls.test_objs          = setup__service_fast_api_test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
-        cls.fixtures_bucket    = cls.cache_fixtures.fixtures_bucket
         cls.fixtures_namespace = cls.cache_fixtures.namespace
         cls.client             = cls.test_objs.fast_api__client
         cls.app                = cls.test_objs.fast_api__app

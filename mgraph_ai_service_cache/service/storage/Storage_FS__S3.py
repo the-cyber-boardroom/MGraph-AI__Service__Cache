@@ -1,41 +1,38 @@
 from typing                                                                       import List, Optional
+from osbot_aws.AWS_Config                                                         import aws_config
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                    import type_safe
 from osbot_utils.utils.Http                                                       import url_join_safe
-from osbot_utils.utils.Json                                                       import bytes_to_json, json_to_bytes
+from osbot_utils.utils.Json                                                       import bytes_to_json
 from osbot_aws.aws.s3.S3                                                          import S3
 from memory_fs.storage_fs.Storage_FS                                              import Storage_FS
 
-
+# todo: see if we should move this to the boto3-fs project
 class Storage_FS__S3(Storage_FS):
     s3_bucket    : str                                                                  # S3 bucket name for storage
-    s3_prefix    : str = ""                                                            # Optional prefix for all keys
-    s3           : S3  = None                                                          # S3 instance (will be created if not provided)
+    s3_prefix    : str = ""                                                             # Optional prefix for all keys
+    s3           : S3  = None                                                           # S3 instance (will be created if not provided)
     
-    def setup(self) -> 'Storage_FS__S3':                                               # Initialize S3 client if not provided
+    def setup(self) -> 'Storage_FS__S3':                                                # Initialize S3 client if not provided
         if self.s3 is None:
             self.s3 = S3()
-        
-        # Ensure bucket exists
-        if not self.s3.bucket_exists(self.s3_bucket):
-            # Get region from AWS config
-            from osbot_aws.AWS_Config import aws_config
-            region = aws_config.region_name()
+
+        if not self.s3.bucket_exists(self.s3_bucket):                                   # Ensure bucket exists
+            region = aws_config.region_name()                                           # Get region from AWS config
             result = self.s3.bucket_create(bucket=self.s3_bucket, region=region)
             if result.get('status') != 'ok':
                 raise Exception(f"Failed to create S3 bucket {self.s3_bucket}: {result}")
         
         return self
     
-    def _get_s3_key(self, path: Safe_Str__File__Path) -> str:                          # Convert file path to S3 key with optional prefix
+    def _get_s3_key(self, path: Safe_Str__File__Path) -> str:                                       # Convert file path to S3 key with optional prefix
         key = str(path)
         if self.s3_prefix:
-            # Ensure prefix ends with / if it's not empty
-            prefix = self.s3_prefix if self.s3_prefix.endswith('/') else f"{self.s3_prefix}/"
+            prefix = self.s3_prefix if self.s3_prefix.endswith('/') else f"{self.s3_prefix}/"       # Ensure prefix ends with / if it's not empty
             key = f"{prefix}{key}"
         return key
     
-    def _get_path_from_key(self, s3_key: str) -> Safe_Str__File__Path:                 # Convert S3 key back to path
+    def _get_path_from_key(self, s3_key: str) -> Safe_Str__File__Path:                              # Convert S3 key back to path
         if self.s3_prefix:
             prefix = self.s3_prefix if self.s3_prefix.endswith('/') else f"{self.s3_prefix}/"
             if s3_key.startswith(prefix):
@@ -43,7 +40,7 @@ class Storage_FS__S3(Storage_FS):
         return Safe_Str__File__Path(s3_key)
     
     @type_safe
-    def file__bytes(self, path: Safe_Str__File__Path                                   # Read file content as bytes from S3
+    def file__bytes(self, path: Safe_Str__File__Path                                                # Read file content as bytes from S3
                     ) -> Optional[bytes]:
         s3_key = self._get_s3_key(path)
         if self.file__exists(path):
@@ -51,7 +48,7 @@ class Storage_FS__S3(Storage_FS):
         return None
 
     @type_safe
-    def file__json(self, path: Safe_Str__File__Path                                   # Read file content as bytes from S3
+    def file__json(self, path: Safe_Str__File__Path                                                 # Read file content as bytes from S3
                     ) -> Optional[bytes]:
         file_bytes = self.file__bytes(path)
         if file_bytes:

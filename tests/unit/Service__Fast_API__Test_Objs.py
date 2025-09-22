@@ -19,7 +19,7 @@ TEST_API_KEY__VALUE = Random_Guid()
 class Service__Fast_API__Test_Objs(Type_Safe):
     fast_api        : Service__Fast_API     = None
     fast_api__app   : FastAPI               = None
-    fast_api__client: TestClient            = None
+    #fast_api__client: TestClient            = None
     cache_fixtures  : Cache__Test__Fixtures = None
     local_stack     : Local_Stack           = None
     setup_completed : bool                  = False
@@ -27,15 +27,14 @@ class Service__Fast_API__Test_Objs(Type_Safe):
 
 service_fast_api_test_objs = Service__Fast_API__Test_Objs()
 
-
-def setup_local_stack() -> Local_Stack:
-    Temp_AWS_Credentials().with_localstack_credentials()
-    local_stack = Local_Stack().activate()
-    return local_stack
+# todo: move this to the integration tests (since the unit tests should run all in memory)
+# def setup_local_stack() -> Local_Stack:
+#     Temp_AWS_Credentials().with_localstack_credentials()
+#     local_stack = Local_Stack().activate()
+#     return local_stack
 
 def setup_cache_fixtures():
-    cache_fixtures = Cache__Test__Fixtures(fixtures_bucket   = "test-cache-fixtures"                               ,
-                                           namespace         = Safe_Str__Id("test-fixtures")                       ,
+    cache_fixtures = Cache__Test__Fixtures(namespace         = Safe_Str__Id("test-fixtures")                       ,
                                            manifest_cache_id = Random_Guid("00000000-0000-0000-0000-000000000001")) # Predictable
     if False:               # todo: find better way to reset the db
         cache_fixtures.setup()
@@ -48,13 +47,13 @@ def setup__service_fast_api_test_objs():
 
                 set_env(ENV_VAR__FAST_API__AUTH__API_KEY__NAME  , TEST_API_KEY__NAME                )
                 set_env(ENV_VAR__FAST_API__AUTH__API_KEY__VALUE , TEST_API_KEY__VALUE               )
-                set_env(ENV_VAR__CACHE__SERVICE__BUCKET_NAME    , CACHE__TEST__FIXTURES__BUCKET_NAME)
+                #set_env(ENV_VAR__CACHE__SERVICE__BUCKET_NAME    , CACHE__TEST__FIXTURES__BUCKET_NAME)
 
                 with capture_duration() as load_duration:
                     _.fast_api         = Service__Fast_API().setup()
                     _.fast_api__app    = _.fast_api.app()
                     _.fast_api__client = _.fast_api.client()
-                    _.local_stack      = setup_local_stack()
+                    #_.local_stack      = setup_local_stack()
                     _.cache_fixtures   = setup_cache_fixtures()
                     _.setup_completed  = True
 

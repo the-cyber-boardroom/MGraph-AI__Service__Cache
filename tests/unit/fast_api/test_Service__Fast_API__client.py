@@ -35,7 +35,6 @@ class test_Service__Fast_API__client(TestCase):
             assert type(_.fast_api        ) is Service__Fast_API
             assert type(_.fast_api__app   ) is FastAPI
             assert type(_.fast_api__client) is TestClient
-            assert type(_.local_stack     ) is Local_Stack
             assert self.fast_api            == _.fast_api
             assert self.client              == _.fast_api__client
 
