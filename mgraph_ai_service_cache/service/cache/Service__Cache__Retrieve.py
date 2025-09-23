@@ -6,7 +6,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id           import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                            import type_safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash  import Safe_Str__Cache_Hash
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details                  import Schema__Cache__Entry__Details
+from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs                 import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Metadata                        import Schema__Cache__Metadata
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success               import Schema__Cache__Retrieve__Success
 from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                          import DEFAULT_CACHE__NAMESPACE
@@ -72,20 +72,8 @@ class Service__Cache__Retrieve(Type_Safe):                                      
     @type_safe
     def retrieve_by_id__refs(self, cache_id  : Random_Guid,
                                    namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
-                             ) -> Schema__Cache__Entry__Details:                                # Get detailed information about cache entry
+                             ) -> Schema__Cache__File__Refs:                                # Get detailed information about cache entry
         return self.cache_service.retrieve_by_id__refs(cache_id, namespace)                     #
-        # if details:
-        #     return (cache_id      = details.get("cache_id"         ),                              # todo: we don't need to do this here (since this should had been provided by self.retrieve_service.get_entry_details)
-        #                                          cache_hash    = details.get("hash"             ),
-        #                                          namespace     = details.get("namespace"        ),
-        #                                          strategy      = details.get("strategy"         ),
-        #                                          all_paths     = details.get("all_paths"        ),
-        #                                          content_paths = details.get("content_paths"    ),
-        #                                          file_type     = details.get("file_type", "json"),
-        #                                          timestamp     = details.get("timestamp")       )
-        # else:
-        #     return None
-
 
 
     def get_entry_details__all(self, cache_id  : Random_Guid,

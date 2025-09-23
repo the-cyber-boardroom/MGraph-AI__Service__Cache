@@ -1,6 +1,6 @@
 from typing                                                                              import Dict, List
 from unittest                                                                            import TestCase
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details                 import Schema__Cache__Entry__Details
+from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from osbot_fast_api_serverless.utils.testing.skip_tests                                  import skip__if_not__in_github_actions
 from osbot_utils.testing.__                                                              import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
@@ -105,8 +105,8 @@ class test_Service__Cache__Retrieve(TestCase):
 
         cache_service__entry    = self.cache_service.retrieve_by_id__refs(cache_id=cache_id, namespace=self.namespace)
         retrieve_service__entry = self.retrieve_service.retrieve_by_id__refs(cache_id, self.namespace)
-        assert type(cache_service__entry   ) is Schema__Cache__Entry__Details
-        assert type(retrieve_service__entry) is Schema__Cache__Entry__Details
+        assert type(cache_service__entry   ) is Schema__Cache__File__Refs
+        assert type(retrieve_service__entry) is Schema__Cache__File__Refs
         assert cache_service__entry.obj()    == retrieve_service__entry.obj()
 
     def test_get_entry_details__all(self):

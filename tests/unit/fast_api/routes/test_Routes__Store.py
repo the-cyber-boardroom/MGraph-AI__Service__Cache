@@ -16,7 +16,7 @@ from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                     
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace                           import Routes__Namespace
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                            import Routes__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.Routes__Store                               import Routes__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details                 import Schema__Cache__Entry__Details
+from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
 from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store                   import Service__Cache__Store
@@ -294,7 +294,7 @@ class test_Routes__Store(TestCase):
         response__namespace_hashes = self.routes_namespace.file_hashes                    (namespace=namespace)
         response__delete           = self.routes_delete.delete__cache_id                  (cache_id=cache_id, namespace=namespace)
 
-        assert type(response__refs)                  is Schema__Cache__Entry__Details
+        assert type(response__refs)                  is Schema__Cache__File__Refs
         assert cache_id                              in response__namespace_ids
         assert cache_hash                            in response__namespace_hashes
         assert response__delete.get('deleted_count') == 9

@@ -11,7 +11,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.utils.Misc                                                      import list_set
 from osbot_utils.utils.Objects                                                   import base_classes, obj
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                    import Routes__Retrieve, TAG__ROUTES_RETRIEVE
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details import Schema__Cache__Entry__Details
+from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs        import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve              import Service__Cache__Retrieve
 from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store           import Service__Cache__Store
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Binary__Reference      import Schema__Cache__Binary__Reference
@@ -31,8 +31,9 @@ class test_Routes__Retrieve(TestCase):
         cls.store_service      = Service__Cache__Store   (cache_service    = cls.cache_service  )
         cls.routes             = Routes__Retrieve        (cache_service    = cls.cache_service  )
         cls.retrieve_service   = cls.routes.retrieve_service
-        # Test namespace separate from fixtures
-        cls.test_namespace     = Safe_Str__Id("test-routes-retrieve")
+
+
+        cls.test_namespace     = Safe_Str__Id("test-routes-retrieve")                                       # Test namespace separate from fixtures
         
         # Reuse fixture data
         cls.test_string        = cls.cache_fixtures.get_fixture_data('string_simple')
@@ -47,29 +48,17 @@ class test_Routes__Retrieve(TestCase):
         cls.fixture_hash_string = cls.cache_fixtures.get_fixture_hash('string_simple')
         cls.fixture_hash_json   = cls.cache_fixtures.get_fixture_hash('json_simple')
         cls.fixture_hash_binary = cls.cache_fixtures.get_fixture_hash('binary_small')
-        
-        # Track created items for cleanup
-        cls.created_cache_ids  = []
 
-    @classmethod
-    def tearDownClass(cls):                                                          # Clean up only what we created
-        for cache_id in cls.created_cache_ids:
-            try:
-                cls.cache_service.delete_by_id(cache_id, cls.test_namespace)
-            except:
-                pass
 
-    def _track_and_store(self, data, data_type="string"):                            # Helper to store and track
+    def track_and_store(self, data, data_type="string"):                            # Helper to store and track
         if data_type == "string":
             result = self.store_service.store_string(data = data, namespace = self.test_namespace)
         elif data_type == "json":
             result = self.store_service.store_json(data = data, namespace = self.test_namespace)
         elif data_type == "binary":
             result = self.store_service.store_binary(data = data, namespace = self.test_namespace)
-        
-        if result and result.cache_id not in self.created_cache_ids:
-            self.created_cache_ids.append(result.cache_id)
-        
+        else:
+            result = None
         return result
 
     def test__init__(self):                                                           # Test auto-initialization
@@ -149,7 +138,7 @@ class test_Routes__Retrieve(TestCase):
 
     def test_retrieve__cache_id__json__invalid(self):                                # Test invalid JSON
         with self.routes as _:
-            result = self._track_and_store("not json data")                         # Store non-JSON string in test namespace
+            result = self.track_and_store("not json data")                         # Store non-JSON string in test namespace
 
             with pytest.raises(HTTPException) as exc_info:
                 _.retrieve__cache_id__json(result.cache_id, self.test_namespace)
@@ -192,7 +181,7 @@ class test_Routes__Retrieve(TestCase):
         with self.routes as _:
             result = _.retrieve__cache_id__refs(cache_id  = self.fixture_id_string ,
                                                 namespace = self.fixtures_namespace)
-            assert type(result)      is Schema__Cache__Entry__Details
+            assert type(result)      is Schema__Cache__File__Refs
             assert result.cache_id   == self.fixture_id_string
             assert result.cache_hash == self.fixture_hash_string
             assert result.namespace  == str(self.fixtures_namespace)
@@ -217,7 +206,7 @@ class test_Routes__Retrieve(TestCase):
         with self.routes as _:
             # Use larger binary fixture that can't be UTF-8 decoded
             binary_medium = self.cache_fixtures.get_fixture_data('binary_medium')
-            result        = self._track_and_store(binary_medium, "binary")
+            result        = self.track_and_store(binary_medium, "binary")
             
             # Retrieve as string - should base64 encode
             result = _.retrieve__cache_id__string(result.cache_id, self.test_namespace)
@@ -229,7 +218,7 @@ class test_Routes__Retrieve(TestCase):
     def test_json_string_parsing(self):                                              # Test JSON string parsing
         with self.routes as _:
             json_string = '{"valid": "json", "number": 42}'                                 # Store valid JSON as string
-            result      = self._track_and_store(json_string)
+            result      = self.track_and_store(json_string)
 
             result = _.retrieve__cache_id__json(result.cache_id, self.test_namespace)       # Retrieve as JSON - should parse
             
@@ -237,11 +226,9 @@ class test_Routes__Retrieve(TestCase):
 
     def test_default_namespace(self):                                                       # Test default namespace
         with self.routes as _:
-            # Store with None namespace
-            result = self.store_service.store_string(data = "default test", 
+            result = self.store_service.store_string(data = "default test",                 # Store with None namespace
                                                      namespace = None)
             cache_id = result.cache_id
-            self.created_cache_ids.append(cache_id)
             
             # Retrieve with None namespace
             result = _.retrieve__cache_id(cache_id, namespace = None)
