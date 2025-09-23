@@ -40,15 +40,10 @@ env:
 
 jobs:
   run-tests__unit:
-    name: "Run tests"
+    name: "Run tests (Unit)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-#      - name: Start Local Stack
-#        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/docker__local-stack@dev
-#        with:
-#          LOCAL_STACK_SERVICES: 's3,lambda,iam,logs'
 
       - name: "run-tests"
         uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/pytest__run-tests@dev
@@ -59,7 +54,7 @@ jobs:
           FAST_API__AUTH__API_KEY__VALUE: 'this-is-the-value-of-the-api-key'
 
   run-tests__integration:
-    name: "Run tests"
+    name: "Run tests (Integration)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
