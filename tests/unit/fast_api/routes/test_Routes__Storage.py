@@ -3,13 +3,13 @@ from memory_fs.storage_fs.providers.Storage_FS__Memory              import Stora
 from mgraph_ai_service_cache.fast_api.routes.Routes__Admin__Storage import Routes__Admin__Storage
 from mgraph_ai_service_cache.schemas.consts.const__Fast_API         import CACHE__TEST__FIXTURES__NAMESPACE
 from mgraph_ai_service_cache.service.cache.Cache__Service           import Cache__Service
-from tests.unit.Service__Fast_API__Test_Objs                        import setup__service_fast_api_test_objs
+from tests.unit.Service__Cache__Test_Objs                           import setup__service__cache__test_objs
 
 class test_Routes__Admin__Storage(TestCase):
 
     @classmethod
     def setup_class(cls):
-        cls.test_objs      = setup__service_fast_api_test_objs()
+        cls.test_objs      = setup__service__cache__test_objs()
         cls.routes_storage = Routes__Admin__Storage(cache_service=cls.test_objs.cache_service)
 
     def test__init__(self):

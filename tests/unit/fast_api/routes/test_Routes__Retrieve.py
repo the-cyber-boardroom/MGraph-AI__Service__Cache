@@ -17,13 +17,13 @@ from mgraph_ai_service_cache.service.cache.Service__Cache__Store                
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Binary__Reference               import Schema__Cache__Binary__Reference
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Exists__Response                import Schema__Cache__Exists__Response
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                   import Enum__Cache__Data_Type
-from tests.unit.Service__Fast_API__Test_Objs                                              import setup__service_fast_api_test_objs
+from tests.unit.Service__Cache__Test_Objs                                                 import setup__service__cache__test_objs
 
 class test_Routes__Retrieve(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                              # ONE-TIME expensive setup
-        cls.test_objs          = setup__service_fast_api_test_objs()                  # Reuse shared test objects
+        cls.test_objs          = setup__service__cache__test_objs()                  # Reuse shared test objects
         cls.cache_fixtures     = cls.test_objs.cache_fixtures                         # Use shared fixtures
         cls.fixtures_namespace = cls.cache_fixtures.namespace
         

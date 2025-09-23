@@ -12,14 +12,14 @@ from mgraph_ai_service_cache.service.cache.Cache__Service                       
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
-from tests.unit.Service__Fast_API__Test_Objs                                             import setup__service_fast_api_test_objs
+from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
 
 
 class test_Service__Cache__Store(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                              # ONE-TIME expensive setup
-        cls.test_objs          = setup__service_fast_api_test_objs()                  # Reuse shared test objects
+        cls.test_objs          = setup__service__cache__test_objs()                  # Reuse shared test objects
         cls.cache_fixtures     = cls.test_objs.cache_fixtures                         # Use shared fixtures
 
         # Service using fixtures bucket

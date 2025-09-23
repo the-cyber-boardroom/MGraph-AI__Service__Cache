@@ -8,7 +8,7 @@ from osbot_fast_api_serverless.utils.testing.skip_tests                         
 from osbot_utils.testing.__                                                     import __, __SKIP__
 from osbot_utils.utils.Misc                                                     import is_guid
 from osbot_utils.utils.Objects                                                  import obj
-from tests.unit.Service__Fast_API__Test_Objs                                    import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
+from tests.unit.Service__Cache__Test_Objs                                       import setup__service__cache__test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
 class test_Routes__Delete__http(TestCase):                                           # Local HTTP tests using temp FastAPI server
 
@@ -17,7 +17,7 @@ class test_Routes__Delete__http(TestCase):                                      
         #if in_github_action():
         #    pytest.skip("Skipping HTTP tests on GitHub Actions")
 
-        cls.test_objs       = setup__service_fast_api_test_objs()                   # Use shared infrastructure
+        cls.test_objs       = setup__service__cache__test_objs()                   # Use shared infrastructure
         cls.cache_fixtures  = cls.test_objs.cache_fixtures
         cls.service__app    = cls.test_objs.fast_api__app
 

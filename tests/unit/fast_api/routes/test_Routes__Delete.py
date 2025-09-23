@@ -7,14 +7,14 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.utils.Objects                                                      import base_classes
 from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                         import Routes__Delete, TAG__ROUTES_DELETE, PREFIX__ROUTES_DELETE, BASE_PATH__ROUTES_DELETE, ROUTES_PATHS__DELETE
 from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service
-from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs
+from tests.unit.Service__Cache__Test_Objs                                           import setup__service__cache__test_objs
 
 
 class test_Routes__Delete(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                              # ONE-TIME expensive setup
-        cls.test_objs          = setup__service_fast_api_test_objs()
+        cls.test_objs          = setup__service__cache__test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
         cls.fixtures_namespace = cls.cache_fixtures.namespace
         cls.cache_service      = cls.cache_fixtures.cache_service

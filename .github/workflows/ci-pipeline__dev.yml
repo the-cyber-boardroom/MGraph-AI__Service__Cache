@@ -7,6 +7,7 @@ on:
 
 jobs:
   deploy-dev:
+    name: "Dev"
     uses: ./.github/workflows/ci-pipeline.yml
     with:
       git_branch          : 'dev'

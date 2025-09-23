@@ -3,14 +3,14 @@ from unittest                                                                   
 from osbot_fast_api_serverless.utils.testing.skip_tests                             import skip__if_not__in_github_actions
 from memory_fs.path_handlers.Path__Handler__Temporal                                import Path__Handler__Temporal
 from osbot_utils.utils.Misc                                                         import is_guid
-from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
+from tests.unit.Service__Cache__Test_Objs                                           import setup__service__cache__test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
 
 class test_Routes__Store__client(TestCase):                                             # Test store routes via FastAPI TestClient
 
     @classmethod
     def setUpClass(cls):                                                                # ONE-TIME expensive setup
-        cls.test_objs      = setup__service_fast_api_test_objs()
+        cls.test_objs      = setup__service__cache__test_objs()
         cls.cache_fixtures = cls.test_objs.cache_fixtures
         cls.client         = cls.test_objs.fast_api__client
         cls.app            = cls.test_objs.fast_api__app

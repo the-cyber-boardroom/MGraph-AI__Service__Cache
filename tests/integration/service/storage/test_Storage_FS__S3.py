@@ -8,14 +8,15 @@ from osbot_utils.utils.Objects                                                  
 from osbot_aws.AWS_Config                                                           import aws_config
 from memory_fs.storage_fs.Storage_FS                                                import Storage_FS
 from mgraph_ai_service_cache.service.storage.Storage_FS__S3                         import Storage_FS__S3
-from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs
+from tests.integration.Service__Cache__Test_Objs__Integration import setup__service__cache__test_objs__integration
+from tests.unit.Service__Cache__Test_Objs                                           import setup__service__cache__test_objs
 
 
 class test_Storage_FS__S3(TestCase):                                                 # Test S3 storage backend implementation
 
     @classmethod
     def setUpClass(cls):                                                             # ONE-TIME expensive setup
-        cls.test_objs   = setup__service_fast_api_test_objs()
+        cls.test_objs   = setup__service__cache__test_objs__integration()
         cls.test_bucket = str_to_valid_s3_bucket_name(random_string_short("test-storage-"))
         cls.test_prefix = "test-prefix"
 

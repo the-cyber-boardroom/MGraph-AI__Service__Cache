@@ -9,7 +9,7 @@ from osbot_fast_api.utils.Fast_API_Server       import Fast_API_Server
 from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
 from osbot_utils.utils.Env                      import in_github_action
 from osbot_utils.utils.Misc                     import is_guid
-from tests.unit.Service__Fast_API__Test_Objs    import setup__service_fast_api_test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
+from tests.unit.Service__Cache__Test_Objs       import setup__service__cache__test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
 
 class test_Routes__Store__http(TestCase):                                                     # Local HTTP tests using temp FastAPI server
@@ -19,7 +19,7 @@ class test_Routes__Store__http(TestCase):                                       
         #if in_github_action():
         #    pytest.skip("Skipping this test on GitHub Actions (because we are getting 404 on the routes below)")
 
-        cls.test_objs         = setup__service_fast_api_test_objs()
+        cls.test_objs         = setup__service__cache__test_objs()
         cls.cache_fixtures    = cls.test_objs.cache_fixtures
         cls.service__fast_api = cls.test_objs.fast_api
         cls.service__app      = cls.test_objs.fast_api__app

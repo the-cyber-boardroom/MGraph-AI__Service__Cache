@@ -20,14 +20,14 @@ from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Not_Found     
 from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve                      import Service__Cache__Retrieve
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from mgraph_ai_service_cache.service.cache.Service__Cache__Store                         import Service__Cache__Store
-from tests.unit.Service__Fast_API__Test_Objs                                             import setup__service_fast_api_test_objs
+from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
 
 
 class test_Service__Cache__Retrieve(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.test_objs          = setup__service_fast_api_test_objs()
+        cls.test_objs          = setup__service__cache__test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
         cls.fixtures_namespace = cls.cache_fixtures.namespace
         cls.cache_service      = cls.cache_fixtures.cache_service

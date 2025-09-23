@@ -7,7 +7,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.utils.Objects                                                      import base_classes
 from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service
 from mgraph_ai_service_cache.utils.testing.Cache__Test__Fixtures                    import Cache__Test__Fixtures
-from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs
+from tests.unit.Service__Cache__Test_Objs                                           import setup__service__cache__test_objs
 
 
 class test_Cache__Test__Fixtures(TestCase):
@@ -15,7 +15,7 @@ class test_Cache__Test__Fixtures(TestCase):
     @classmethod
     def setUpClass(cls):
         #skip__if_not__in_github_actions()
-        cls.test_obj      = setup__service_fast_api_test_objs()                                              # LocalStack setup
+        cls.test_obj      = setup__service__cache__test_objs()                                              # LocalStack setup
         cls.cache_service = Cache__Service()
         cls.test_fixtures = Cache__Test__Fixtures(namespace     = Safe_Str__Id("test-fixtures-test"),
                                                   cache_service = cls.cache_service).setup()

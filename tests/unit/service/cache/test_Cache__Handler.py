@@ -17,14 +17,14 @@ from memory_fs.file_types.Memory_FS__File__Type__Text                           
 from memory_fs.helpers.Memory_FS__Temporal                                          import Memory_FS__Temporal
 from memory_fs.helpers.Memory_FS__Latest_Temporal                                   import Memory_FS__Latest_Temporal
 from mgraph_ai_service_cache.service.cache.Cache__Handler                           import Cache__Handler, CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_LATEST, CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL, CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_VERSIONED, CACHE__HANDLER__PREFIX_PATH__FS__REFS_HASH, CACHE__HANDLER__PREFIX_PATH__FS__REFS_ID, CACHE__HANDLER__PREFIX_PATH__FS__DATA_DIRECT
-from tests.unit.Service__Fast_API__Test_Objs                                        import setup__service_fast_api_test_objs
+from tests.unit.Service__Cache__Test_Objs                                           import setup__service__cache__test_objs
 
 
 class test_Cache__Handler(TestCase):                                                # Test cache handler with multiple storage strategies
 
     @classmethod
     def setUpClass(cls):                                                            # ONE-TIME expensive setup
-        cls.test_objs   = setup__service_fast_api_test_objs()                       # Setup LocalStack
+        cls.test_objs   = setup__service__cache__test_objs()                       # Setup LocalStack
         cls.test_bucket = str_to_valid_s3_bucket_name(random_string_short("test-handler-"))
         cls.namespace = "test-cache"
 

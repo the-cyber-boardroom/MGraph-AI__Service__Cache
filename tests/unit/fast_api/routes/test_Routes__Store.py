@@ -19,14 +19,14 @@ from mgraph_ai_service_cache.fast_api.routes.Routes__Store                      
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
 from mgraph_ai_service_cache.service.cache.Service__Cache__Store                         import Service__Cache__Store
-from tests.unit.Service__Fast_API__Test_Objs                                             import setup__service_fast_api_test_objs
+from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
 
 
 class test_Routes__Store(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                                      # ONE-TIME expensive setup
-        cls.test_objs          = setup__service_fast_api_test_objs()
+        cls.test_objs          = setup__service__cache__test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
         cls.cache_service      = cls.cache_fixtures.cache_service
         cls.routes             = Routes__Store           (cache_service    = cls.cache_service   )
