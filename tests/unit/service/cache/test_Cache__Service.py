@@ -1,9 +1,15 @@
 from unittest                                                                       import TestCase
+
+from memory_fs.path_handlers.Path__Handler__Temporal import Path__Handler__Temporal
+from osbot_utils.testing.__ import __, __SKIP__
+
 from memory_fs.storage_fs.providers.Storage_FS__Memory                              import Storage_FS__Memory
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
 from osbot_utils.utils.Objects                                                      import base_classes, obj
+
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details import Schema__Cache__Entry__Details
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Storage_Mode          import Enum__Cache__Storage_Mode
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy       import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.service.cache.Cache__Config                            import Cache__Config
@@ -18,6 +24,7 @@ class test_Cache__Service(TestCase):
         cls.cache_service   = Cache__Service(cache_config=cls.config)
         cls.test_namespace  = Safe_Str__Id("test-service")
         cls.created_ids     = []                                                # Track for cleanup         # todo: since we are in memory, we will not need these
+        cls.path_now        = Path__Handler__Temporal().path_now()                           # Current temporal path
 
     # @classmethod
     # def tearDownClass(cls):                                                 # Clean up any test data
@@ -262,12 +269,21 @@ class test_Cache__Service(TestCase):
             # Get id refs
             refs = _.retrieve_by_id__refs(cache_id, self.test_namespace)
 
-            assert refs is not None
-            assert refs['cache_id'] == str(cache_id)
-            assert refs['hash']     == str(cache_hash)
-            assert refs['strategy'] == Enum__Cache__Store__Strategy.TEMPORAL
-            assert 'all_paths' in refs
-            assert 'content_paths' in refs
+            assert type(refs) is Schema__Cache__Entry__Details
+            assert refs.obj() == __(cache_id        = cache_id      ,
+                                    cache_hash      = cache_hash    ,
+                                    namespace       = 'test-service',
+                                    strategy        = 'temporal',
+                                    all_paths       =__(data    = [f'test-service/data/temporal/{self.path_now}/{cache_id}.json'            ,
+                                                                   f'test-service/data/temporal/{self.path_now}/{cache_id}.json.config'     ,
+                                                                   f'test-service/data/temporal/{self.path_now}/{cache_id}.json.metadata'   ],
+                                                       by_hash  = [ 'test-service/refs/by-hash/9e/db/9edb6ed62ec59b6c.json'                 ,
+                                                                    'test-service/refs/by-hash/9e/db/9edb6ed62ec59b6c.json.config'          ,
+                                                                    'test-service/refs/by-hash/9e/db/9edb6ed62ec59b6c.json.metadata'        ],
+                                                       by_id     = __SKIP__                                                                 ),
+                                   content_paths    = [f'test-service/data/temporal/{self.path_now}/{cache_id}.json'],
+                                   file_type        = 'json',
+                                   timestamp        = __SKIP__)
 
     def test_multiple_versions_same_hash(self):                            # Test multiple versions with same hash
         with self.cache_service as _:

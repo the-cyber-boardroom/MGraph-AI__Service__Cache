@@ -1,6 +1,6 @@
 from typing                                                                              import Dict, List
 from unittest                                                                            import TestCase
-from mgraph_ai_service_cache.schemas.consts.const__Fast_API                              import CACHE__TEST__FIXTURES__NAMESPACE
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details                 import Schema__Cache__Entry__Details
 from osbot_fast_api_serverless.utils.testing.skip_tests                                  import skip__if_not__in_github_actions
 from osbot_utils.testing.__                                                              import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
@@ -100,23 +100,15 @@ class test_Service__Cache__Retrieve(TestCase):
         assert an_class_1.json()    == {"all_paths": data }                                             # confirm roundtrip with .json()
         assert an_class_1.obj()     == __(all_paths = obj(data))                                        # confirm roundtrip with obj().
 
-    def test_get_entry_details(self):
+    def test_retrieve_by_id__refs(self):
         cache_id  = self.cache_fixtures.get_fixture_id('string_simple')
-        with obj(self.cache_service.retrieve_by_id__refs(cache_id=cache_id, namespace=self.namespace)) as _:
-            all_paths     = _.all_paths
-            timestamp     = _.timestamp
-            content_paths = _.content_paths
 
-        with self.retrieve_service as _:
-            entry_refs = _.retrieve_by_id__refs(cache_id, self.namespace)
-            assert entry_refs.obj() == __(cache_id      = cache_id                        ,
-                                          cache_hash    = 'e15b31f87df1896e'              ,
-                                          namespace     = CACHE__TEST__FIXTURES__NAMESPACE,
-                                          strategy      = 'direct'                        ,
-                                          all_paths     = all_paths                       ,
-                                          content_paths = content_paths                   ,
-                                          file_type     = 'json'                          ,
-                                          timestamp     = str(timestamp)                  )
+        cache_service__entry    = self.cache_service.retrieve_by_id__refs(cache_id=cache_id, namespace=self.namespace)
+        retrieve_service__entry = self.retrieve_service.retrieve_by_id__refs(cache_id, self.namespace)
+        assert type(cache_service__entry   ) is Schema__Cache__Entry__Details
+        assert type(retrieve_service__entry) is Schema__Cache__Entry__Details
+        assert cache_service__entry.obj()    == retrieve_service__entry.obj()
+
     def test_get_entry_details__all(self):
         skip__if_not__in_github_actions()                                               # this takes a bit since this will load 10x docs from storage
         cache_id      = self.cache_fixtures.get_fixture_id('string_simple')

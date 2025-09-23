@@ -194,11 +194,10 @@ class test_Routes__Retrieve(TestCase):
                                                 namespace = self.fixtures_namespace)
             assert type(result)      is Schema__Cache__Entry__Details
             assert result.cache_id   == self.fixture_id_string
-            assert result.cache_hash == ''                                      # BUG
-            assert result.cache_hash != self.fixture_hash_string                # BUG
+            assert result.cache_hash == self.fixture_hash_string
             assert result.namespace  == str(self.fixtures_namespace)
-            # assert result.obj().contains(__(cache_id   = self.fixture_id_string,
-            #                                 cache_hash = self.fixture_hash_string))
+            assert result.obj().contains(__(cache_id   = self.fixture_id_string,
+                                            cache_hash = self.fixture_hash_string))
 
 
 

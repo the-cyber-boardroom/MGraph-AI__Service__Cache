@@ -47,7 +47,7 @@ class Cache__Service(Type_Safe):                                                
 
             id_ref_data  = ref_fs.content()
             all_paths    = id_ref_data.get("all_paths", {})
-            cache_hash   = id_ref_data.get("hash")
+            cache_hash   = id_ref_data.get("cache_hash")
             strategy     = id_ref_data.get("strategy")
 
         deleted_paths = []                                                                          # Track deletion results
@@ -256,7 +256,7 @@ class Cache__Service(Type_Safe):                                                
                 refs["total_versions"] += 1
                 paths__hash_to_id =  ref_fs.update(file_data=refs)
             else:
-                refs = {"hash"           : str(cache_hash)                                     ,
+                refs = {"cache_hash"     : str(cache_hash)                                      ,
                         "cache_ids"      : [{"id": str(cache_id), "timestamp": timestamp_now()}],
                         "latest_id"      : str(cache_id)                                        ,
                         "total_versions" : 1                                                    }
@@ -268,7 +268,7 @@ class Cache__Service(Type_Safe):                                                
             all_paths["by_id"] = ref_fs.paths()
             ref_fs.create({ "all_paths"        : all_paths          ,                               # this should be a Type_Safe class
                             "cache_id"         : str(cache_id)     ,
-                            "hash"             : str(cache_hash)   ,
+                            "cache_hash"       : str(cache_hash)   ,
                             "namespace"        : str(namespace)    ,
                             "strategy"         : strategy          ,
                             "content_paths"    : content_file_paths,
