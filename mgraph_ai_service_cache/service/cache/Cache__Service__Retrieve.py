@@ -18,7 +18,7 @@ from mgraph_ai_service_cache.service.cache.Cache__Service                       
 
 # todo: rename to Cache__Service__Retrieve
 
-class Service__Cache__Retrieve(Type_Safe):                                            # Service layer for cache retrieval operations
+class Cache__Service__Retrieve(Type_Safe):                                            # Service layer for cache retrieval operations
     cache_service : Cache__Service                                                    # Underlying cache service
 
     @type_safe

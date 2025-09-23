@@ -19,7 +19,7 @@ from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Binary__Reference     
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success              import Schema__Cache__Retrieve__Success
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                  import Enum__Cache__Data_Type
 from mgraph_ai_service_cache.schemas.consts.const__Fast_API                              import FAST_API__PARAM__NAMESPACE
-from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve                      import Service__Cache__Retrieve
+from mgraph_ai_service_cache.service.cache.Cache__Service__Retrieve                      import Cache__Service__Retrieve
 
 TAG__ROUTES_RETRIEVE                  = 'retrieve'
 PREFIX__ROUTES_RETRIEVE               = '/{namespace}'
@@ -44,7 +44,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
     
     @cache_on_self
     def retrieve_service(self):                                                                             # Service layer for business logic
-        return Service__Cache__Retrieve(cache_service=self.cache_service)                                   # create Service__Cache__Retrieve object (once, using the shared Cache_Service)
+        return Cache__Service__Retrieve(cache_service=self.cache_service)                                   # create Cache__Service__Retrieve object (once, using the shared Cache_Service)
 
     @type_safe
     def handle_not_found(self, result        : Union[Type_Safe, Dict] = None,                                 # Base method for 404 handling

@@ -24,7 +24,7 @@ class Schema__Child__File__Data(Type_Safe):                                     
     path      : Safe_Str__File__Path                                                            # Full file path
 
 
-class Service__Cache__Retrieve__Child(Type_Safe):                                               # Service layer for retrieving child files
+class Cache__Service__Retrieve__Data(Type_Safe):                                               # Service layer for retrieving child files
     cache_service : Cache__Service                                                              # Underlying cache service instance
 
     @type_safe

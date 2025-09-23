@@ -12,7 +12,7 @@ from osbot_utils.utils.Objects                                                  
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy                 import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                     import Schema__Cache__Store__Response
 from mgraph_ai_service_cache.service.cache.Cache__Service                                     import Cache__Service
-from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve import Service__Cache__Retrieve
+from mgraph_ai_service_cache.service.cache.Cache__Service__Retrieve                           import Cache__Service__Retrieve
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                        import Cache__Service__Store
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__Data                  import Cache__Service__Store__Data
 from tests.unit.Service__Cache__Test_Objs                                                     import setup__service__cache__test_objs
@@ -28,7 +28,7 @@ class test_Cache__Service__Store__Data(TestCase):
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
         cls.cache_service      = cls.cache_fixtures.cache_service
         cls.store_service      = Cache__Service__Store      (cache_service = cls.cache_service)
-        cls.retrieve_service   = Service__Cache__Retrieve   (cache_service = cls.cache_service)
+        cls.retrieve_service   = Cache__Service__Retrieve   (cache_service = cls.cache_service)
         cls.store_data_service = Cache__Service__Store__Data(cache_service = cls.cache_service)
 
         cls.test_namespace   = Safe_Str__Id("test-child-service")                              # Test data setup

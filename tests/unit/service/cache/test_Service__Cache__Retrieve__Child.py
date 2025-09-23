@@ -1,24 +1,21 @@
-from typing                                                                                  import List
-from unittest                                                                                 import TestCase
-
 import pytest
-from osbot_fast_api_serverless.utils.testing.skip_tests                                       import skip__if_not__in_github_actions
-from osbot_utils.testing.__                                                                   import __, __SKIP__
-from osbot_utils.type_safe.Type_Safe                                                          import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id               import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path             import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                  import Safe_Str__Text
-from osbot_utils.type_safe.primitives.core.Safe_UInt                                          import Safe_UInt
-from osbot_utils.utils.Objects                                                                import base_classes
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy                 import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.service.cache.Cache__Service                                     import Cache__Service
+from unittest                                                                     import TestCase
+from osbot_fast_api_serverless.utils.testing.skip_tests                           import skip__if_not__in_github_actions
+from osbot_utils.testing.__                                                       import __
+from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id   import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text      import Safe_Str__Text
+from osbot_utils.type_safe.primitives.core.Safe_UInt                              import Safe_UInt
+from osbot_utils.utils.Objects                                                    import base_classes
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.service.cache.Cache__Service                         import Cache__Service
+from mgraph_ai_service_cache.service.cache.Cache__Service__Retrieve__Data         import Cache__Service__Retrieve__Data, Schema__Child__File__Info, Schema__Child__File__Data
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store            import Cache__Service__Store
+from tests.unit.Service__Cache__Test_Objs                                         import setup__service__cache__test_objs
 
-from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve__Child                    import Service__Cache__Retrieve__Child, Schema__Child__File__Info, Schema__Child__File__Data
-from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store import Cache__Service__Store
-from tests.unit.Service__Cache__Test_Objs                                                     import setup__service__cache__test_objs
 
-
-class test_Service__Cache__Retrieve__Child(TestCase):
+class test_Cache__Service__Retrieve__Child(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                                        # ONE-TIME expensive setup
@@ -28,7 +25,7 @@ class test_Service__Cache__Retrieve__Child(TestCase):
         cls.cache_service    = cls.cache_fixtures.cache_service
         cls.store_service    = Cache__Service__Store         (cache_service = cls.cache_service)
         cls.child_store      = Cache__Service__Store__Child  (cache_service = cls.cache_service)
-        cls.child_retrieve   = Service__Cache__Retrieve__Child(cache_service = cls.cache_service)
+        cls.child_retrieve   = Cache__Service__Retrieve__Data(cache_service = cls.cache_service)
 
         cls.test_namespace   = Safe_Str__Id("test-retrieve-child")                              # Test data
         cls.test_cache_key   = Safe_Str__File__Path("test/retrieve")
@@ -58,8 +55,8 @@ class test_Service__Cache__Retrieve__Child(TestCase):
             cls.test_children[child_type] = {"id": child_id, "data": data}
 
     def test__init__(self):                                                                     # Test auto-initialization
-        with Service__Cache__Retrieve__Child() as _:
-            assert type(_)               is Service__Cache__Retrieve__Child
+        with Cache__Service__Retrieve__Data() as _:
+            assert type(_) is Cache__Service__Retrieve__Data
             assert base_classes(_)       == [Type_Safe, object]
             assert type(_.cache_service) is Cache__Service
 

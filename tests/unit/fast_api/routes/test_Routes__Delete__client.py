@@ -1,6 +1,6 @@
 from unittest                                                               import TestCase
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success import Schema__Cache__Retrieve__Success
-from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve         import Service__Cache__Retrieve
+from mgraph_ai_service_cache.service.cache.Cache__Service__Retrieve         import Cache__Service__Retrieve
 from osbot_fast_api_serverless.utils.testing.skip_tests                     import skip__if_not__in_github_actions
 from osbot_utils.testing.__                                                 import __, __SKIP__
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid       import Random_Guid
@@ -50,7 +50,7 @@ class test_Routes__Delete__client(TestCase):                                    
     def test__delete__basic(self):                                                    # Test basic delete operation
         cache_id = self._store_for_deletion("client test data to delete")
 
-        with Service__Cache__Retrieve(cache_service=self.test_objs.cache_service) as _:
+        with Cache__Service__Retrieve(cache_service=self.test_objs.cache_service) as _:
             assert type(_.retrieve_by_id(cache_id, namespace=self.test_namespace)) is Schema__Cache__Retrieve__Success
             assert _.retrieve_by_id(cache_id, namespace=self.fixtures_namespace) is None                               # BUG
 
