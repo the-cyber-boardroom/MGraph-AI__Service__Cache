@@ -1,7 +1,6 @@
 from typing                                                                              import Dict, List
 from unittest                                                                            import TestCase
 from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
-from osbot_fast_api_serverless.utils.testing.skip_tests                                  import skip__if_not__in_github_actions
 from osbot_utils.testing.__                                                              import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
@@ -110,7 +109,6 @@ class test_Service__Cache__Retrieve(TestCase):
         assert cache_service__entry.obj()    == retrieve_service__entry.obj()
 
     def test_get_entry_details__all(self):
-        skip__if_not__in_github_actions()                                               # this takes a bit since this will load 10x docs from storage
         cache_id      = self.cache_fixtures.get_fixture_id('string_simple')
         with self.retrieve_service as _:
             entry_details_all = _.get_entry_details__all(cache_id, self.namespace)
