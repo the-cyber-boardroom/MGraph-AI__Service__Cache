@@ -1,6 +1,6 @@
 from unittest                                                                       import TestCase
 from osbot_fast_api.api.routes.Fast_API__Routes                                     import Fast_API__Routes
-from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
+from osbot_fast_api_serverless.utils.testing.skip_tests                             import skip__if_not__in_github_actions
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id

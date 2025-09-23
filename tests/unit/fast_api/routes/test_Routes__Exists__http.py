@@ -2,11 +2,10 @@ import pytest
 import requests
 import time
 import concurrent.futures
-from unittest                                    import TestCase
-from osbot_fast_api.utils.Fast_API_Server        import Fast_API_Server
+from unittest                                           import TestCase
+from osbot_fast_api.utils.Fast_API_Server               import Fast_API_Server
 from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
-from osbot_utils.utils.Env                       import in_github_action
-from tests.unit.Service__Cache__Test_Objs        import setup__service__cache__test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
+from tests.unit.Service__Cache__Test_Objs               import setup__service__cache__test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
 
 class test_Routes__Exists__http(TestCase):                                            # Local HTTP tests using temp FastAPI server
