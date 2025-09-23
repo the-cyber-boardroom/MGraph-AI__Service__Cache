@@ -16,7 +16,7 @@ from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                     
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace                           import Routes__Namespace
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                            import Routes__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.Routes__Store                               import Routes__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details import Schema__Cache__Entry__Details
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details                 import Schema__Cache__Entry__Details
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
 from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store                   import Service__Cache__Store

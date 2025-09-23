@@ -2,9 +2,8 @@ import base64
 import json
 from typing                                                                              import Union, Dict
 from fastapi                                                                             import HTTPException, Response, Path
-from osbot_utils.type_safe.Type_Safe import Type_Safe
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
-
+from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from osbot_fast_api.api.decorators.route_path                                            import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                          import Fast_API__Routes
@@ -16,7 +15,6 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Binary__Reference              import Schema__Cache__Binary__Reference
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details                 import Schema__Cache__Entry__Details
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Exists__Response               import Schema__Cache__Exists__Response
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success              import Schema__Cache__Retrieve__Success
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                  import Enum__Cache__Data_Type
 from mgraph_ai_service_cache.schemas.consts.const__Fast_API                              import FAST_API__PARAM__NAMESPACE
@@ -83,12 +81,8 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                          namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                     ) -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:             # Retrieve by cache ID with metadata
 
-        result = self.retrieve_service().retrieve_by_id__config(cache_id, namespace)
-        return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
-        # if result is None:
-        #     error = self.retrieve_service().get_not_found_error(cache_id=cache_id, namespace=namespace)
-        #     raise HTTPException(status_code=404, detail=error.json())
-        # return result
+        response_data = self.retrieve_service().retrieve_by_id__config(cache_id, namespace)
+        return self.handle_not_found(response_data, cache_id=cache_id, namespace=namespace)
 
     def retrieve__cache_id__refs(self, cache_id : Random_Guid,
                                        namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE

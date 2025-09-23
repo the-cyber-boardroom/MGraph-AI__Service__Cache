@@ -297,6 +297,8 @@ class Cache__Service(Type_Safe):                                                
         return self.retrieve_by_id(Random_Guid(latest_id), namespace)           # Delegate to retrieve_by_id which handles the path lookup
 
     # todo: same as with the delete method above,  this logic is starting to be too complex to be all in one method
+    #       also I think we are doing too much here, with far too many calls to the file system
+    #       at least we should just return the data (i.e. we don't need to return the metadata here (since there is an enpoint to get that)
     def retrieve_by_id(self, cache_id : Random_Guid,
                              namespace : Safe_Str__Id = None
                         ) -> Optional[Dict[str, Any]]:

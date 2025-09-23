@@ -5,7 +5,6 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now          import Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id           import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                            import type_safe
-from osbot_utils.utils.Http                                                               import url_join_safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash  import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details                  import Schema__Cache__Entry__Details
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Metadata                        import Schema__Cache__Metadata
@@ -20,7 +19,17 @@ from mgraph_ai_service_cache.service.cache.Cache__Service                       
 
 class Service__Cache__Retrieve(Type_Safe):                                            # Service layer for cache retrieval operations
     cache_service : Cache__Service                                                    # Underlying cache service
-    
+
+    @type_safe
+    def check_exists(self, cache_hash : Safe_Str__Cache_Hash,
+                           namespace  : Safe_Str__Id        = DEFAULT_CACHE__NAMESPACE
+                     ) -> bool:                                                       # Check if cache entry exists
+
+        handler   = self.cache_service.get_or_create_handler(namespace)
+
+        with handler.fs__refs_hash.file__json(Safe_Str__Id(str(cache_hash))) as ref_fs:
+            return ref_fs.exists()
+
     @type_safe
     def retrieve_by_hash(self, cache_hash : Safe_Str__Cache_Hash,
                                namespace  : Safe_Str__Id        = DEFAULT_CACHE__NAMESPACE
@@ -61,16 +70,6 @@ class Service__Cache__Retrieve(Type_Safe):                                      
         return self.cache_service.retrieve_by_id__config(cache_id, namespace)                #
 
     @type_safe
-    def check_exists(self, cache_hash : Safe_Str__Cache_Hash,
-                           namespace  : Safe_Str__Id        = DEFAULT_CACHE__NAMESPACE
-                     ) -> bool:                                                       # Check if cache entry exists
-
-        handler   = self.cache_service.get_or_create_handler(namespace)
-        
-        with handler.fs__refs_hash.file__json(Safe_Str__Id(str(cache_hash))) as ref_fs:
-            return ref_fs.exists()
-    
-    @type_safe
     def get_entry_refs(self, cache_id  : Random_Guid,
                              namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
                         ) -> Schema__Cache__Entry__Details:                                # Get detailed information about cache entry
@@ -86,6 +85,7 @@ class Service__Cache__Retrieve(Type_Safe):                                      
                                                  timestamp     = details.get("timestamp")       )
         else:
             return None
+
 
 
     def get_entry_details__all(self, cache_id  : Random_Guid,
