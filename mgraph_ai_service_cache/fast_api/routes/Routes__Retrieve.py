@@ -88,13 +88,8 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                        namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                   ) -> Schema__Cache__Entry__Details:                                                    # Get cache entry details
 
-        result = self.retrieve_service().get_entry_refs(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
+        result = self.retrieve_service().retrieve_by_id__refs(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
         return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
-        # if details is None:
-        #     error = self.retrieve_service().get_not_found_error(cache_id=cache_id, namespace=namespace)
-        #     raise HTTPException(status_code=404, detail=error.json())
-        #
-        # return details
 
     def retrieve__cache_id__refs__all(self, cache_id: Random_Guid,
                                             namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE

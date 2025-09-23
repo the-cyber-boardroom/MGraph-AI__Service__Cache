@@ -108,7 +108,7 @@ class test_Service__Cache__Retrieve(TestCase):
             content_paths = _.content_paths
 
         with self.retrieve_service as _:
-            entry_refs = _.get_entry_refs(cache_id, self.namespace)
+            entry_refs = _.retrieve_by_id__refs(cache_id, self.namespace)
             assert entry_refs.obj() == __(cache_id      = cache_id                        ,
                                           cache_hash    = 'e15b31f87df1896e'              ,
                                           namespace     = CACHE__TEST__FIXTURES__NAMESPACE,

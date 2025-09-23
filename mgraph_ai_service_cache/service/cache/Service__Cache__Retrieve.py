@@ -70,28 +70,28 @@ class Service__Cache__Retrieve(Type_Safe):                                      
         return self.cache_service.retrieve_by_id__config(cache_id, namespace)                #
 
     @type_safe
-    def get_entry_refs(self, cache_id  : Random_Guid,
-                             namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
-                        ) -> Schema__Cache__Entry__Details:                                # Get detailed information about cache entry
-        details = self.cache_service.retrieve_by_id__refs(cache_id, namespace)            #
-        if details:
-            return Schema__Cache__Entry__Details(cache_id      = details.get("cache_id"         ),                              # todo: we don't need to do this here (since this should had been provided by self.retrieve_service.get_entry_details)
-                                                 cache_hash    = details.get("hash"             ),
-                                                 namespace     = details.get("namespace"        ),
-                                                 strategy      = details.get("strategy"         ),
-                                                 all_paths     = details.get("all_paths"        ),
-                                                 content_paths = details.get("content_paths"    ),
-                                                 file_type     = details.get("file_type", "json"),
-                                                 timestamp     = details.get("timestamp")       )
-        else:
-            return None
+    def retrieve_by_id__refs(self, cache_id  : Random_Guid,
+                                   namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
+                             ) -> Schema__Cache__Entry__Details:                                # Get detailed information about cache entry
+        return self.cache_service.retrieve_by_id__refs(cache_id, namespace)                     #
+        # if details:
+        #     return (cache_id      = details.get("cache_id"         ),                              # todo: we don't need to do this here (since this should had been provided by self.retrieve_service.get_entry_details)
+        #                                          cache_hash    = details.get("hash"             ),
+        #                                          namespace     = details.get("namespace"        ),
+        #                                          strategy      = details.get("strategy"         ),
+        #                                          all_paths     = details.get("all_paths"        ),
+        #                                          content_paths = details.get("content_paths"    ),
+        #                                          file_type     = details.get("file_type", "json"),
+        #                                          timestamp     = details.get("timestamp")       )
+        # else:
+        #     return None
 
 
 
     def get_entry_details__all(self, cache_id  : Random_Guid,
                                      namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
                                 ) -> Optional[Dict[str, Any]]:                                # Get detailed information about cache entry
-        details  = self.get_entry_refs(cache_id=cache_id, namespace=namespace)
+        details  = self.retrieve_by_id__refs(cache_id=cache_id, namespace=namespace)
         if not details:
             return None
 

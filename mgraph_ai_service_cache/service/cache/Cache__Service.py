@@ -10,6 +10,8 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           
 from osbot_utils.utils.Http                                                              import url_join_safe
 from osbot_utils.utils.Misc                                                              import timestamp_now
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
+
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details import Schema__Cache__Entry__Details
 from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                         import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.service.cache.Cache__Config                                 import Cache__Config
@@ -372,14 +374,18 @@ class Cache__Service(Type_Safe):                                                
 
     def retrieve_by_id__refs(self, cache_id  : Random_Guid,
                                    namespace : Safe_Str__Id    = None
-                                ) -> Optional[Dict[str, Any]]:                      #   Retrieve by cache ID using direct path from reference
+                                ) -> Schema__Cache__Entry__Details:                      #   Retrieve by cache ID using direct path from reference
         namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
 
         with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
-            if not ref_fs.exists():
+            #if not ref_fs.exists():
+            #    return None
+            json_data = ref_fs.content()                                                 # todo refactor this so that we get the Schema__Cache__Entry__Details directly from fs__refs_id
+            if json_data:
+                return Schema__Cache__Entry__Details.from_json(json_data)
+            else:
                 return None
-            return ref_fs.content()
 
     def determine_data_type(self, data) -> str:
         if isinstance(data, bytes):
