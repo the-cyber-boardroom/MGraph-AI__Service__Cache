@@ -11,10 +11,10 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.utils.Misc                                                      import list_set
 from osbot_utils.utils.Objects                                                   import base_classes, obj
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                    import Routes__Retrieve, TAG__ROUTES_RETRIEVE
-from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service import DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                 import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs        import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve              import Service__Cache__Retrieve
-from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store           import Service__Cache__Store
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store           import Cache__Service__Store
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Binary__Reference      import Schema__Cache__Binary__Reference
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type          import Enum__Cache__Data_Type
 from tests.unit.Service__Cache__Test_Objs                                        import setup__service__cache__test_objs
@@ -29,7 +29,7 @@ class test_Routes__Retrieve(TestCase):
         
         # Services using fixtures bucket
         cls.cache_service      = cls.cache_fixtures.cache_service
-        cls.store_service      = Service__Cache__Store   (cache_service    = cls.cache_service  )
+        cls.store_service      = Cache__Service__Store   (cache_service    = cls.cache_service)
         cls.routes             = Routes__Retrieve        (cache_service    = cls.cache_service  )
         cls.retrieve_service   = cls.routes.retrieve_service
 

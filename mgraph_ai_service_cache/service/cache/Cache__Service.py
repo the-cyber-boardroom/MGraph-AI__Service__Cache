@@ -20,7 +20,7 @@ from mgraph_ai_service_cache.service.cache.Cache__Handler                       
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                           import Cache__Hash__Config
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator                        import Cache__Hash__Generator
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
-from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store__With_Strategy    import Service__Cache__Store__With_Strategy
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__With_Strategy    import Cache__Service__Store__With_Strategy
 
 
 class Cache__Service(Type_Safe):                                                    # Main cache service orchestrator
@@ -232,7 +232,7 @@ class Cache__Service(Type_Safe):                                                
                                          content_encoding = content_encoding ,
                                          handler          = handler          )
 
-        store_strategy = Service__Cache__Store__With_Strategy()
+        store_strategy = Cache__Service__Store__With_Strategy()
         return store_strategy.execute(context)                                                  # Execute storage strategy
 
     def retrieve_by_hash(self, cache_hash : Safe_Str__Cache_Hash,
@@ -284,7 +284,7 @@ class Cache__Service(Type_Safe):                                                
             else:
                 data = storage.file__json(content_path)
 
-            # Read metadata
+            # Read metadata                                         # todo: review the use of metadata here, since this probably one extra call we don't need to make (since we already have the data from the by-refs file
             metadata_path = content_path + '.metadata'              # todo: review this usage since we should have a much better way to do this using Memory_FS
             metadata_data = {}
 

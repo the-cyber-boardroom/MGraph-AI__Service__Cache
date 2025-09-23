@@ -9,7 +9,7 @@ from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Store__Paths    
 from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Hash__Reference          import Schema__Cache__Hash__Reference, Schema__Cache__Hash__Entry
 from mgraph_ai_service_cache.schemas.cache.store.Schema__Store__Context                  import Schema__Store__Context
 
-class Service__Cache__Store__With_Strategy(Type_Safe):                                       # Orchestrates the storage of cache entries with different strategies
+class Cache__Service__Store__With_Strategy(Type_Safe):                                       # Orchestrates the storage of cache entries with different strategies
 
     def execute(self, context: Schema__Store__Context                                        # Main orchestration method that coordinates all storage operations
                 ) -> Schema__Cache__Store__Response:

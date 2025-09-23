@@ -7,7 +7,7 @@ from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Pat
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.utils.Objects                                                           import base_classes
-from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store                   import Service__Cache__Store
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                   import Cache__Service__Store
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
@@ -15,7 +15,7 @@ from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input 
 from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
 
 
-class test_Service__Cache__Store(TestCase):
+class test_Cache__Service__Store(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                              # ONE-TIME expensive setup
@@ -24,7 +24,7 @@ class test_Service__Cache__Store(TestCase):
 
         # Service using fixtures bucket
         cls.cache_service      = cls.cache_fixtures.cache_service
-        cls.store_service      = Service__Cache__Store(cache_service = cls.cache_service)
+        cls.store_service      = Cache__Service__Store(cache_service = cls.cache_service)
 
         # Use different namespace to avoid conflicts with fixtures
         cls.test_namespace     = Safe_Str__Id("test-store-service")
@@ -48,8 +48,8 @@ class test_Service__Cache__Store(TestCase):
         return response
 
     def test__init__(self):                                                          # Test auto-initialization
-        with Service__Cache__Store() as _:
-            assert type(_)               is Service__Cache__Store
+        with Cache__Service__Store() as _:
+            assert type(_) is Cache__Service__Store
             assert base_classes(_)       == [Type_Safe, object]
             assert type(_.cache_service) is Cache__Service
 

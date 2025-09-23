@@ -11,10 +11,10 @@ from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input 
 from mgraph_ai_service_cache.service.cache.Cache__Service                            import Cache__Service
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response            import Schema__Cache__Store__Response
 
-# todo: rename to Cache__Service__Store
 
 
-class Service__Cache__Store(Type_Safe):                                               # Service layer for cache store operations
+
+class Cache__Service__Store(Type_Safe):                                               # Service layer for cache store operations
     cache_service : Cache__Service                                                    # Underlying cache service
 
     @type_safe

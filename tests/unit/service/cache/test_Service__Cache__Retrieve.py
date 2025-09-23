@@ -18,7 +18,7 @@ from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Gone          
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Not_Found              import Schema__Cache__Error__Not_Found
 from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve                      import Service__Cache__Retrieve
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
-from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store                   import Service__Cache__Store
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                   import Cache__Service__Store
 from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
 
 
@@ -31,7 +31,7 @@ class test_Service__Cache__Retrieve(TestCase):
         cls.fixtures_namespace = cls.cache_fixtures.namespace
         cls.cache_service      = cls.cache_fixtures.cache_service
         cls.retrieve_service   = Service__Cache__Retrieve(cache_service  = cls.cache_service  )
-        cls.store_service      = Service__Cache__Store   (cache_service  = cls.cache_service  )
+        cls.store_service      = Cache__Service__Store   (cache_service  = cls.cache_service)
         cls.namespace          = cls.fixtures_namespace
         cls.test_string        = "test retrieve string data"
         cls.test_json          = {"key": "value", "number": 42}

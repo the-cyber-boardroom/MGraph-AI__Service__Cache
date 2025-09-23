@@ -16,11 +16,11 @@ from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                     
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace                           import Routes__Namespace
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                            import Routes__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.Routes__Store                               import Routes__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service import DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                         import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
-from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store                   import Service__Cache__Store
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                   import Cache__Service__Store
 from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
 
 
@@ -51,7 +51,7 @@ class test_Routes__Store(TestCase):
             assert type(_)                 is Routes__Store
             assert base_classes(_)         == [Fast_API__Routes, Type_Safe, object]
             assert _.tag                   == TAG__ROUTES_STORE
-            assert type(_.store_service()) is Service__Cache__Store
+            assert type(_.store_service()) is Cache__Service__Store
 
     def test_store__string(self):                                                             # Test string storage endpoint
         target_string   = "a different string"

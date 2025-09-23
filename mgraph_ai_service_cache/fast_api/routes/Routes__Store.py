@@ -10,7 +10,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                  import DEFAULT_CACHE__STORE__STRATEGY
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.schemas.consts.const__Fast_API                       import FAST_API__PARAM__NAMESPACE
-from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store            import Service__Cache__Store
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store            import Cache__Service__Store
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response         import Schema__Cache__Store__Response
 
 TAG__ROUTES_STORE                  = 'store'
@@ -33,7 +33,7 @@ class Routes__Store(Fast_API__Routes):                                          
 
     @cache_on_self
     def store_service(self):                                                                            # Service layer for business logic
-        return Service__Cache__Store(cache_service=self.cache_service)                                  # create Service__Cache__Store object (once, using the shared Cache_Service)
+        return Cache__Service__Store(cache_service=self.cache_service)                                  # create Cache__Service__Store object (once, using the shared Cache_Service)
 
 
     def store__string(self, data      : str = Body(...),
