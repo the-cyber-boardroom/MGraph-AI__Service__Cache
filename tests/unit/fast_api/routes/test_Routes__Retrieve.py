@@ -11,6 +11,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.utils.Misc                                                      import list_set
 from osbot_utils.utils.Objects                                                   import base_classes, obj
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                    import Routes__Retrieve, TAG__ROUTES_RETRIEVE
+from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs        import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve              import Service__Cache__Retrieve
 from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store           import Service__Cache__Store
@@ -226,12 +227,12 @@ class test_Routes__Retrieve(TestCase):
 
     def test_default_namespace(self):                                                       # Test default namespace
         with self.routes as _:
-            result = self.store_service.store_string(data = "default test",                 # Store with None namespace
-                                                     namespace = None)
+            result = self.store_service.store_string(data = "default test")                 # Store with None namespace
+
             cache_id = result.cache_id
             
             # Retrieve with None namespace
-            result = _.retrieve__cache_id(cache_id, namespace = None)
+            result = _.retrieve__cache_id(cache_id, namespace = DEFAULT_CACHE__NAMESPACE)
             
             assert result.data == "default test"
 

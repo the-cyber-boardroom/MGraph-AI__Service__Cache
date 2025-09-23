@@ -103,10 +103,10 @@ class test_Cache__Test__Fixtures(TestCase):
 
             # Check specific fixture
             string_fixture = _.fixtures.get('string_simple')
-            assert string_fixture is not None
-            assert 'cache_id' in string_fixture
-            assert 'hash'     in string_fixture
-            assert 'type'     in string_fixture
+            assert string_fixture        is not None
+            assert 'cache_id'            in string_fixture
+            assert 'cache_hash'          in string_fixture
+            assert 'type'                in string_fixture
             assert string_fixture['type'] == 'str'
 
             # Verify different types

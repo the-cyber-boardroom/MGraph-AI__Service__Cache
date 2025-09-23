@@ -7,7 +7,7 @@ from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Hash__Entry     
 
 
 class Schema__Cache__Hash__Reference(Type_Safe):           # Hash-to-ID reference structure
-    hash           : Safe_Str__Cache_Hash                  # The hash value
+    cache_hash     : Safe_Str__Cache_Hash                  # The hash value
     cache_ids      : List[Schema__Cache__Hash__Entry]      # All cache IDs with this hash
     latest_id      : Random_Guid                           # Most recent cache ID
     total_versions : Safe_UInt

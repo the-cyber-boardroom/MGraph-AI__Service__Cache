@@ -21,7 +21,7 @@ class Service__Cache__Store(Type_Safe):                                         
     def store_string(self, data      : str                                                          ,       # todo: we should we using a Type_Safe class for these params
                            strategy  : Enum__Cache__Store__Strategy = DEFAULT_CACHE__STORE__STRATEGY,
                            namespace : Safe_Str__Id                 = DEFAULT_CACHE__NAMESPACE      ,
-                           cache_key : Safe_Str__File__Path         = None,
+                           cache_key : Safe_Str__File__Path         = None                          ,
                            file_id   : Safe_Str__Id                 = None
                      ) -> Schema__Cache__Store__Response:                               # Store string data
 
@@ -41,7 +41,7 @@ class Service__Cache__Store(Type_Safe):                                         
                                                       namespace    = namespace  )
 
     @type_safe
-    def store_json(self, data       : dict,
+    def store_json(self, data      : dict                         = None                          ,
                          strategy  : Enum__Cache__Store__Strategy = DEFAULT_CACHE__STORE__STRATEGY,
                          namespace : Safe_Str__Id                 = DEFAULT_CACHE__NAMESPACE      ,
                          cache_key : Safe_Str__File__Path         = None                          ,

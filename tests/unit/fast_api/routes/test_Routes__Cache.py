@@ -80,7 +80,7 @@
 #                                  'by_id'  : [ f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json'           ,
 #                                               f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json.config'    ,
 #                                               f'refs/by-id/{cache_id__path_1}/{cache_id__path_2}/{cache_id}.json.metadata'  ]}
-#             assert _.json() == { 'hash'     : cache_hash    ,
+#             assert _.json() == { 'cache_hash'     : cache_hash    ,
 #                                  'cache_id' : cache_id      ,
 #                                  'namespace': 'test-api'    ,
 #                                  'paths'    : files_created ,
@@ -151,7 +151,7 @@
 #         with self.routes as _:
 #             #self.request.state.body = self.test_string.encode()
 #             response__store          = _.store__string__strategy__namespace      (data= self.test_string, namespace=self.test_namespace)      # Store first
-#             response__retrieve       = _.retrieve__by_hash__cache_hash__namespace(response__store.hash  , self.test_namespace)       # Retrieve
+#             response__retrieve       = _.retrieve__by_hash__cache_hash__namespace(response__store.cache_hash  , self.test_namespace)       # Retrieve
 #
 #             assert response__retrieve is not None
 #             assert "data" in response__retrieve

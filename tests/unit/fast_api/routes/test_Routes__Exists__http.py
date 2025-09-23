@@ -46,9 +46,9 @@ class test_Routes__Exists__http(TestCase):                                      
 
         assert exists_response.status_code == 200
         result = exists_response.json()
-        assert result['exists']    is True
-        assert result['hash']      == fixture_hash
-        assert result['namespace'] == str(self.fixtures_namespace)
+        assert result['exists'    ]    is True
+        assert result['cache_hash']      == fixture_hash
+        assert result['namespace' ] == str(self.fixtures_namespace)
 
     def test_03_not_exists_hash(self):                                                # Test non-existent hash
         fake_hash = "0000000000000000"
@@ -57,9 +57,9 @@ class test_Routes__Exists__http(TestCase):                                      
 
         assert response.status_code == 200
         result = response.json()
-        assert result['exists']    is False
-        assert result['hash']      == fake_hash
-        assert result['namespace'] == self.test_namespace
+        assert result['exists'    ] is False
+        assert result['cache_hash'] == fake_hash
+        assert result['namespace' ] == self.test_namespace
 
     def test_04_namespace_isolation_with_fixtures(self):                              # Test namespace isolation using fixtures
         fixture_hash = self.cache_fixtures.get_fixture_hash("json_simple")
@@ -178,11 +178,11 @@ class test_Routes__Exists__http(TestCase):                                      
                 url          = f"{self.base_url}/{self.fixtures_namespace}/exists/hash/{fixture_hash}"
                 response     = requests.get(url, headers=self.headers)
 
-                assert response.status_code        == 200
+                assert response.status_code == 200
                 result = response.json()
-                assert result['exists']            is True
-                assert result['hash']              == fixture_hash
-                assert result['namespace']         == str(self.fixtures_namespace)
+                assert result['exists'    ]  is True
+                assert result['cache_hash'] == fixture_hash
+                assert result['namespace' ] == str(self.fixtures_namespace)
 
     def test_12_integration_with_retrieve(self):                                      # Test integration with retrieve using fixtures
         fixture_name = "json_complex"

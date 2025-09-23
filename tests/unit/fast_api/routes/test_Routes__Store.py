@@ -16,6 +16,7 @@ from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                     
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace                           import Routes__Namespace
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                            import Routes__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.Routes__Store                               import Routes__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
@@ -63,28 +64,28 @@ class test_Routes__Store(TestCase):
             cache_hash       = '50c167dc0fbacd1a'                                             # Consistent hash
 
             assert _.obj () == __(cache_id   = cache_id           ,
-                                   hash      = cache_hash         ,
-                                   namespace = self.test_namespace,
-                                   paths     = __SKIP__           ,
-                                   size      = 20                 )
+                                  cache_hash = cache_hash         ,
+                                  namespace  = self.test_namespace,
+                                  paths      = __SKIP__           ,
+                                  size       = 20                 )
 
-            assert type(_)          is Schema__Cache__Store__Response
-            assert type(_.cache_id) is Random_Guid
-            assert type(_.hash)     is Safe_Str__Cache_Hash
+            assert type(_)            is Schema__Cache__Store__Response
+            assert type(_.cache_id  ) is Random_Guid
+            assert type(_.cache_hash) is Safe_Str__Cache_Hash
 
     def test_store__json(self):                                                               # Test JSON storage endpoint
         response__store = self.routes.store__json(data      = self.test_json                        ,
                                                   strategy  = Enum__Cache__Store__Strategy.TEMPORAL ,
-                                                  namespace = self.test_namespace                  )
+                                                  namespace = self.test_namespace                   )
 
         with response__store as _:
-            assert type(_)          is Schema__Cache__Store__Response
-            assert type(_.cache_id) is Random_Guid
-            assert type(_.hash)     is Safe_Str__Cache_Hash
-            assert _.hash           == '96af669d785b90b6'                                     # Consistent hash
+            assert type(_)              is Schema__Cache__Store__Response
+            assert type(_.cache_id)     is Random_Guid
+            assert type(_.cache_hash)   is Safe_Str__Cache_Hash
+            assert _.cache_hash         == '96af669d785b90b6'                                       # Consistent hash
 
-    def test_store__binary(self):                                                             # Test binary storage
-        binary_data = b'\x89PNG\r\n\x1a\n' + b'\x00' * 100                                   # Fake PNG header
+    def test_store__binary(self):                                                                   # Test binary storage
+        binary_data = b'\x89PNG\r\n\x1a\n' + b'\x00' * 100                                          # Fake PNG header
 
         with self.routes as _:
             response_store = _.store__binary(body      = binary_data                        ,
@@ -122,10 +123,10 @@ class test_Routes__Store(TestCase):
                                       strategy  = Enum__Cache__Store__Strategy.TEMPORAL_VERSIONED,
                                       namespace = self.test_namespace                            )
 
-            assert type(response)          is Schema__Cache__Store__Response
-            assert type(response.cache_id) is Random_Guid
-            assert type(response.hash)     is Safe_Str__Cache_Hash
-            assert response.size           == len(binary_data)
+            assert type(response)            is Schema__Cache__Store__Response
+            assert type(response.cache_id  ) is Random_Guid
+            assert type(response.cache_hash) is Safe_Str__Cache_Hash
+            assert response.size             == len(binary_data)
 
     def test_all_storage_strategies(self):                                                    # Test all strategies work
         skip__if_not__in_github_actions()
@@ -143,7 +144,7 @@ class test_Routes__Store(TestCase):
                                               namespace = Safe_Str__Id(f"strat-{strategy}")   )
 
                     assert type(response.cache_id) is Random_Guid
-                    assert response.hash is not None
+                    assert response.cache_hash     is not None
                     assert 'paths' in response.json()
 
     def test_namespace_default_handling(self):                                                # Test default namespace
@@ -152,7 +153,7 @@ class test_Routes__Store(TestCase):
         with self.routes as _:
             response_store = _.store__string(data      = test_data                          ,
                                             strategy  = Enum__Cache__Store__Strategy.DIRECT ,
-                                            namespace = None                                )
+                                            namespace = DEFAULT_CACHE__NAMESPACE            )
 
             assert type(response_store)          is Schema__Cache__Store__Response
             assert type(response_store.cache_id) is Random_Guid
@@ -173,7 +174,7 @@ class test_Routes__Store(TestCase):
 
             assert type(response_store)          is Schema__Cache__Store__Response
             assert type(response_store.cache_id) is Random_Guid
-            assert response_store.hash is not None
+            assert response_store.cache_hash     is not None
 
     def test_multiple_stores_same_data(self):                                                 # Test same data multiple times
         test_data = "duplicate data test"
@@ -187,10 +188,10 @@ class test_Routes__Store(TestCase):
                                        strategy  = Enum__Cache__Store__Strategy.TEMPORAL,
                                        namespace = self.test_namespace                  )
 
-            assert response1.hash     == response2.hash                                       # Same hash
-            assert response1.cache_id != response2.cache_id                                   # Different IDs
+            assert response1.cache_hash  == response2.cache_hash                                    # Same hash
+            assert response1.cache_id    != response2.cache_id                                      # Different IDs
 
-    def test_store_empty_string(self):                                                        # Test empty string
+    def test_store_empty_string(self):                                                              # Test empty string
         with self.routes as _:
             with pytest.raises(HTTPException) as exception:
                 response = _.store__string(data      = ""                                ,
@@ -218,7 +219,7 @@ class test_Routes__Store(TestCase):
 
             assert type(response)          is Schema__Cache__Store__Response
             assert type(response.cache_id) is Random_Guid
-            assert response.hash           == '44136fa355b3678a'
+            assert response.cache_hash     == '44136fa355b3678a'
             assert response.namespace      == self.test_namespace
 
     def test_store_large_json(self):                                                          # Test large JSON
@@ -275,10 +276,10 @@ class test_Routes__Store(TestCase):
 
         response__store            = self.routes.store__string__cache_key(**kwargs)
         cache_id                   = response__store.cache_id
-        cache_hash                 = response__store.hash
+        cache_hash                 = response__store.cache_hash
 
         assert response__store.obj() == __(cache_id     = cache_id ,
-                                           hash         = 'f7fc607505c67177',
+                                           cache_hash   = 'f7fc607505c67177',
                                            namespace    = 'default',
                                            paths        = __(data   = [ 'default/data/semantic-file/aaa/bbb/page-structure.json'         ,
                                                                         'default/data/semantic-file/aaa/bbb/page-structure.json.config'  ,

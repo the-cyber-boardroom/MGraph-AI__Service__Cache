@@ -39,9 +39,9 @@ class Routes__Exists(Fast_API__Routes):
         with handler.fs__refs_hash.file__json(file_id) as ref_fs:
             exists = ref_fs.exists()
 
-        return {"exists"    : exists         ,
-                "hash"      : str(cache_hash),
-                "namespace" : str(namespace )}
+        return {"exists"     : exists         ,
+                "cache_hash" : str(cache_hash),
+                "namespace"  : str(namespace )}
 
     def setup_routes(self):
         self.add_route_get(self.exists__hash__cache_hash)

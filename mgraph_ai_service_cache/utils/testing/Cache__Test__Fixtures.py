@@ -90,9 +90,9 @@ class Cache__Test__Fixtures(Type_Safe):                                         
                                                        strategy     = "direct"     ,   # Use direct for test fixtures
                                                        namespace    = self.namespace)
 
-                self.fixtures[name] = { "cache_id" : str(cache_id)          ,         # Update fixtures map
-                                       "hash"      : str(cache_hash)        ,
-                                       "type"      : type(data).__name__    }
+                self.fixtures[name] = { "cache_id"   : str(cache_id)          ,         # Update fixtures map
+                                        "cache_hash" : str(cache_hash)        ,
+                                        "type"       : type(data).__name__    }
 
     def save_manifest(self):                                                          # Save fixture manifest to cache
         manifest_data = { "fixtures"   : self.fixtures     ,
@@ -128,7 +128,7 @@ class Cache__Test__Fixtures(Type_Safe):                                         
     def get_fixture_hash(self, name: str) -> Optional[str]:                           # Get hash for fixture
         fixture_info = self.get_fixture(name)
         if fixture_info:
-            return fixture_info["hash"]
+            return fixture_info["cache_hash"]
         return None
 
     def cleanup_fixtures(self):                                                       # Delete all fixtures (optional cleanup)

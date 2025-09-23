@@ -110,7 +110,7 @@
 #
 #             # Hash should be deterministic for same data
 #             expected_hash = _.cache_service.hash_from_json(self.test_json)
-#             assert result.hash == expected_hash
+#             assert result.cache_hash == expected_hash
 #
 #             self.created_children.append(Safe_Str__Id("child-json-001"))
 #

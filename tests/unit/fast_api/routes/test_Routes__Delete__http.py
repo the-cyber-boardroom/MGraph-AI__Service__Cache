@@ -270,7 +270,7 @@ class test_Routes__Delete__http(TestCase):                                      
 
         assert response.status_code == 200
         cache_id   = response.json()['cache_id']
-        cache_hash = response.json()['hash']
+        cache_hash = response.json()['cache_hash']
 
         # Check exists via Routes__Exists
         exists_url = f"{self.base_url}/{namespace}/exists/hash/{cache_hash}"

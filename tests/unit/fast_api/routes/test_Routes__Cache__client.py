@@ -40,7 +40,7 @@
 #         assert response.status_code == 200
 #         result     = response.json()
 #         cache_id   = result.get('cache_id')
-#         cache_hash = result.get('hash')
+#         cache_hash = result.get('cache_hash')
 #
 #         assert is_guid(cache_id) is True
 #         assert type(cache_hash) is str
@@ -62,7 +62,7 @@
 #         assert response.status_code == 200
 #         result = response.json()
 #         cache_id = result.get('cache_id')
-#         cache_hash = result.get('hash')
+#         cache_hash = result.get('cache_hash')
 #
 #         assert is_guid(cache_id) is True
 #         assert type(cache_hash) is str
@@ -159,15 +159,15 @@
 #     #
 #     #     assert response.status_code == 200
 #     #     result = response.json()
-#     #     assert 'hash' in result
-#     #     assert len(result['hash']) == 16
+#     #     assert 'cache_hash' in result
+#     #     assert len(result['cache_hash']) == 16
 #     #
 #     #     # Calculate hash from JSON
 #     #     response = self.client.post('/cache/hash/calculate', json={"json_data": self.test_json})
 #     #
 #     #     assert response.status_code == 200
 #     #     result = response.json()
-#     #     assert 'hash' in result
+#     #     assert 'cache_hash' in result
 #     #
 #     #     # With field exclusion
 #     #     response = self.client.post(
@@ -177,7 +177,7 @@
 #     #
 #     #     assert response.status_code == 200
 #     #     result = response.json()
-#     #     assert 'hash' in result
+#     #     assert 'cache_hash' in result
 #
 #     def test__cache__exists(self):                                                  # Test existence check via HTTP
 #         # Store first
@@ -248,7 +248,7 @@
 #         assert store_response.status_code == 200
 #         store_result = store_response.json()
 #         cache_id = store_result['cache_id']
-#         cache_hash = store_result['hash']
+#         cache_hash = store_result['cache_hash']
 #
 #         # 2. Check exists
 #         exists_response = self.client.get(f'/cache/exists/{cache_hash}/{namespace}')
@@ -305,7 +305,7 @@
 #             assert response.status_code == 200
 #             result = response.json()
 #             assert 'cache_id' in result
-#             assert 'hash' in result
+#             assert 'cache_hash' in result
 #             assert 'paths' in result
 #
 #             # Verify appropriate paths are created for each strategy
@@ -382,7 +382,7 @@
 #
 #         assert response_store.status_code == 200
 #         cache_id   = response_store.json()['cache_id']
-#         cache_hash = response_store.json()['hash']
+#         cache_hash = response_store.json()['cache_hash']
 #
 #         # Test all retrieval endpoints
 #         endpoints = [
@@ -447,7 +447,7 @@
 #                                          headers = {"Content-Type": "application/octet-stream"})
 #
 #         assert response_store.status_code == 200
-#         cache_hash = response_store.json()['hash']
+#         cache_hash = response_store.json()['cache_hash']
 #
 #         # Retrieve as binary by hash
 #         response = self.client.get(f'/cache/retrieve/binary/by-hash/{cache_hash}/{self.test_namespace}')
@@ -463,7 +463,7 @@
 #                                          headers = {"Content-Type": "text/plain"}                     )
 #
 #         assert response_store.status_code == 200
-#         cache_hash = response_store.json()['hash']
+#         cache_hash = response_store.json()['cache_hash']
 #
 #         # Retrieve as string by hash
 #         response = self.client.get(f'/cache/retrieve/string/by-hash/{cache_hash}/{self.test_namespace}')
@@ -478,7 +478,7 @@
 #                                          json = self.test_json                                         )
 #
 #         assert response_store.status_code == 200
-#         cache_hash = response_store.json()['hash']
+#         cache_hash = response_store.json()['cache_hash']
 #
 #         # Retrieve as JSON by hash
 #         response = self.client.get(f'/cache/retrieve/json/by-hash/{cache_hash}/{self.test_namespace}')
@@ -618,7 +618,7 @@
 #
 #         assert response_store.status_code == 200
 #         cache_id   = response_store.json()['cache_id']
-#         cache_hash = response_store.json()['hash']
+#         cache_hash = response_store.json()['cache_hash']
 #
 #         # Retrieve without explicit namespace
 #         response_retrieve = self.client.get(f'/cache/retrieve/by-id/{cache_id}/default')
@@ -662,7 +662,7 @@
 #
 #         assert response_store.status_code == 200
 #         cache_id   = response_store.json()['cache_id']
-#         cache_hash = response_store.json()['hash']
+#         cache_hash = response_store.json()['cache_hash']
 #
 #         # Try generic retrieval by ID - should redirect
 #         response_by_id = self.client.get(f'/cache/retrieve/by-id/{cache_id}/{self.test_namespace}')

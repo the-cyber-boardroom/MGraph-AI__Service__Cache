@@ -38,9 +38,9 @@ class test_Routes__Exists__client(TestCase):                                    
 
         assert response.status_code == 200
         result = response.json()
-        assert result == {"exists"    : True                         ,
-                          "hash"      : fixture_hash                  ,
-                          "namespace" : str(self.fixtures_namespace) }
+        assert result == { "exists"     : True                         ,
+                           "cache_hash" : fixture_hash                  ,
+                           "namespace"  : str(self.fixtures_namespace) }
 
     def test__exists__hash__non_existent(self):                                       # Test checking non-existent hash
         non_existent = "0000000000000000"
@@ -48,9 +48,9 @@ class test_Routes__Exists__client(TestCase):                                    
 
         assert response.status_code == 200
         result = response.json()
-        assert result == {"exists"    : False                  ,
-                         "hash"      : non_existent            ,
-                         "namespace" : self.test_namespace     }
+        assert result == { "exists"     : False                  ,
+                           "cache_hash" : non_existent            ,
+                           "namespace"  : self.test_namespace     }
 
     def test__exists__hash__namespace_isolation(self):                                # Test namespace isolation with fixtures
         # Use fixture hash from fixtures namespace
@@ -77,9 +77,9 @@ class test_Routes__Exists__client(TestCase):                                    
                 response = self.client.get(f'/{self.test_namespace}/exists/hash/{test_hash}')
                 assert response.status_code == 200
                 result = response.json()
-                assert result["exists"]    is False                                   # None should exist in test namespace
-                assert result["namespace"] == self.test_namespace
-                assert result["hash"] == test_hash
+                assert result["exists"    ]    is False                                   # None should exist in test namespace
+                assert result["namespace" ] == self.test_namespace
+                assert result["cache_hash"] == test_hash
 
         # Test invalid hash format
         not_an_hash = "test-hash-with-dash"
@@ -116,11 +116,11 @@ class test_Routes__Exists__client(TestCase):                                    
 
         assert response.status_code == 200
         result = response.json()
-        assert result["exists"] is False
-        assert result["hash"]   == test_hash
+        assert result["exists"    ] is False
+        assert result["cache_hash"]   == test_hash
         # Namespace should be sanitized
-        assert result["namespace"] != special_ns                                      # Changed due to sanitization
-        assert result["namespace"] == 'test-namespace________'
+        assert result["namespace" ] != special_ns                                      # Changed due to sanitization
+        assert result["namespace" ] == 'test-namespace________'
 
     def test__exists__auth_required(self):                                            # Test authentication requirement
         auth_header = self.client.headers.pop(TEST_API_KEY__NAME)                     # Remove auth header temporarily

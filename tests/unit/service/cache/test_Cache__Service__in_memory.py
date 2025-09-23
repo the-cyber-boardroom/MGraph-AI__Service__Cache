@@ -37,8 +37,8 @@
 #                                           strategy     = "direct",
 #                                           namespace    = self.test_namespace)
 #
-#             assert result.cache_id == cache_id
-#             assert result.hash == cache_hash
+#             assert result.cache_id   == cache_id
+#             assert result.cache_hash == cache_hash
 #
 #             # Retrieve by ID - should be instant in memory
 #             retrieved = _.retrieve_by_id(cache_id, self.test_namespace)

@@ -292,11 +292,11 @@ class test_Cache__Handler(TestCase):                                            
                              f'{self.namespace}/{path_prefix}/do/c-/doc-001.json.metadata']
             # Save id->hash mapping
             file_fs = _.fs__refs_id.file__json(test_id)
-            assert file_fs.create()                    == files_created
-            assert file_fs.update({"hash": test_hash}) == files_updated
+            assert file_fs.create()                          == files_created
+            assert file_fs.update({"cache_hash": test_hash}) == files_updated
 
             # Verify retrieval
-            assert file_fs.content()                  == {"hash": test_hash}
+            assert file_fs.content()                  == {"cache_hash": test_hash}
 
             # Clean up
             assert file_fs.delete()                   == files_created

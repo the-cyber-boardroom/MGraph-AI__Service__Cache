@@ -70,11 +70,11 @@ class test_Service__Cache__Store(TestCase):
                                    namespace = self.test_namespace                  )
             self._track_cache_id(result)
 
-            assert type(result)          is Schema__Cache__Store__Response
-            assert type(result.cache_id) is Random_Guid
-            assert type(result.hash)     is Safe_Str__Cache_Hash
-            assert result.namespace      == self.test_namespace
-            assert result.size           > 0
+            assert type(result)            is Schema__Cache__Store__Response
+            assert type(result.cache_id  ) is Random_Guid
+            assert type(result.cache_hash) is Safe_Str__Cache_Hash
+            assert result.namespace        == self.test_namespace
+            assert result.size              > 0
 
     def test_store_string__empty(self):                                              # Test empty string handling
         with self.store_service as _:
@@ -99,7 +99,7 @@ class test_Service__Cache__Store(TestCase):
             assert type(result)    is Schema__Cache__Store__Response
 
             expected_hash = _.cache_service.hash_from_string(cache_key)         # Hash based on cache_key not data
-            assert result.hash == expected_hash
+            assert result.cache_hash == expected_hash
 
     def test_store_json__using_fixture(self):                                        # Test JSON storage with fixture
         with self.store_service as _:
@@ -108,18 +108,18 @@ class test_Service__Cache__Store(TestCase):
                                  namespace = self.test_namespace                         )
             self._track_cache_id(result)
 
-            assert type(result)          is Schema__Cache__Store__Response
-            assert type(result.cache_id) is Random_Guid
-            assert type(result.hash)     is Safe_Str__Cache_Hash
-            assert result.size           > 0
+            assert type(result)            is Schema__Cache__Store__Response
+            assert type(result.cache_id  ) is Random_Guid
+            assert type(result.cache_hash) is Safe_Str__Cache_Hash
+            assert result.size             > 0
 
     def test_store_json__empty_object(self):                                         # Test empty JSON
         with self.store_service as _:
             empty_json = self.cache_fixtures.get_fixture_data('json_empty')          # Use fixture empty JSON
 
             result = _.store_json(data      = empty_json                           ,
-                                 strategy  = Enum__Cache__Store__Strategy.DIRECT  ,
-                                 namespace = self.test_namespace                  )
+                                  strategy  = Enum__Cache__Store__Strategy.DIRECT  ,
+                                  namespace = self.test_namespace                  )
             self._track_cache_id(result)
 
             assert type(result) is Schema__Cache__Store__Response
@@ -210,8 +210,8 @@ class test_Service__Cache__Store(TestCase):
                                     namespace = self.test_namespace                  )
             self._track_cache_id(result2)
 
-            assert result1.hash     == result2.hash                                  # Same hash
-            assert result1.cache_id != result2.cache_id                              # Different IDs
+            assert result1.cache_hash  == result2.cache_hash                                  # Same hash
+            assert result1.cache_id    != result2.cache_id                              # Different IDs
 
     def test_store_with_different_fixtures(self):                                    # Test variety of fixture data
         skip__if_not__in_github_actions()

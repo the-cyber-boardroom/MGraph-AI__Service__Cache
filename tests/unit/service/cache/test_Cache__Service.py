@@ -102,9 +102,9 @@ class test_Cache__Service(TestCase):
 
             self.created_ids.append(cache_id)                              # Track for cleanup
 
-            assert result.cache_id  == cache_id
-            assert result.hash      == cache_hash
-            assert result.namespace == self.test_namespace
+            assert result.cache_id    == cache_id
+            assert result.cache_hash  == cache_hash
+            assert result.namespace   == self.test_namespace
             assert result.size      > 0
             assert 'data' in result.paths
             assert 'by_hash' in result.paths

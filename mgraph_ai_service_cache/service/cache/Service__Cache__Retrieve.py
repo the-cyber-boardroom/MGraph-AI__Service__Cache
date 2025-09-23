@@ -49,7 +49,7 @@ class Service__Cache__Retrieve(Type_Safe):                                      
     
     @type_safe
     def retrieve_by_id(self, cache_id  : Random_Guid,
-                             namespace : Safe_Str__Id = None
+                             namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
                         ) -> Optional[Schema__Cache__Retrieve__Success]:                # Retrieve entry by cache ID
 
         result = self.cache_service.retrieve_by_id(cache_id, namespace)                 # Use cache service to get the data

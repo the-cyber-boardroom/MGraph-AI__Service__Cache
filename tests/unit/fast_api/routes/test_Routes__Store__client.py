@@ -29,8 +29,8 @@ class test_Routes__Store__client(TestCase):                                     
 
         assert response.status_code == 200
         result     = response.json()
-        cache_id   = result.get('cache_id')
-        cache_hash = result.get('hash')
+        cache_id   = result.get('cache_id'  )
+        cache_hash = result.get('cache_hash')
 
         assert is_guid(cache_id)    is True
         assert type(cache_hash)     is str
@@ -49,8 +49,8 @@ class test_Routes__Store__client(TestCase):                                     
 
         assert response.status_code == 200
         result     = response.json()
-        cache_id   = result.get('cache_id')
-        cache_hash = result.get('hash')
+        cache_id   = result.get('cache_id'  )
+        cache_hash = result.get('cache_hash')
 
         assert is_guid(cache_id)    is True
         assert type(cache_hash)     is str
@@ -67,8 +67,8 @@ class test_Routes__Store__client(TestCase):                                     
 
         assert response.status_code == 200
         result     = response.json()
-        cache_id   = result['cache_id']
-        cache_hash = result['hash']
+        cache_id   = result['cache_id'  ]
+        cache_hash = result['cache_hash']
 
         assert is_guid(cache_id)    is True
         assert type(cache_hash)     is str
@@ -87,14 +87,14 @@ class test_Routes__Store__client(TestCase):                                     
 
             assert response.status_code == 200
             result = response.json()
-            assert 'cache_id' in result
-            assert 'hash'     in result
-            assert 'paths'    in result
+            assert 'cache_id'   in result
+            assert 'cache_hash' in result
+            assert 'paths'      in result
 
             paths = result['paths']                                                     # Verify appropriate paths
-            assert 'data'     in paths
-            assert 'by_hash'  in paths
-            assert 'by_id'    in paths
+            assert 'data'       in paths
+            assert 'by_hash'    in paths
+            assert 'by_id'      in paths
 
     def test__store__compressed_data(self):                                             # Test compressed data via HTTP
         original_text   = "This will be compressed" * 100
@@ -122,8 +122,8 @@ class test_Routes__Store__client(TestCase):                                     
         assert response.status_code == 200
         result = response.json()
 
-        assert 'cache_id' in result
-        assert 'hash'     in result
+        assert 'cache_id'                  in result
+        assert 'cache_hash'                in result
         assert is_guid(result['cache_id']) is True
 
     def test__store__json_with_nulls(self):                                             # Test JSON with null values
@@ -138,8 +138,8 @@ class test_Routes__Store__client(TestCase):                                     
         assert response.status_code == 200
         result = response.json()
 
-        assert 'cache_id' in result
-        assert 'hash'     in result
+        assert 'cache_id'                  in result
+        assert 'cache_hash'                in result
         assert is_guid(result['cache_id']) is True
 
     def test__store__large_json(self):                                                  # Test large JSON storage
@@ -206,8 +206,8 @@ class test_Routes__Store__client(TestCase):                                     
         result1 = response1.json()
         result2 = response2.json()
 
-        assert result1['cache_id'] != result2['cache_id']                               # Different IDs
-        assert result1['hash']     == result2['hash']                                   # Same hash
+        assert result1['cache_id'  ] != result2['cache_id']                               # Different IDs
+        assert result1['cache_hash'] == result2['cache_hash']                                   # Same hash
 
     def test__store__workflow_complete(self):                                           # Test complete workflow
         skip__if_not__in_github_actions()
@@ -220,7 +220,7 @@ class test_Routes__Store__client(TestCase):                                     
         assert store_response.status_code == 200
         store_result = store_response.json()
         cache_id     = store_result['cache_id']
-        cache_hash   = store_result['hash']
+        cache_hash   = store_result['cache_hash']
 
         assert is_guid(cache_id) is True
         assert len(cache_hash)   == 16
@@ -260,8 +260,8 @@ class test_Routes__Store__client(TestCase):                                     
         result1 = response1.json()
         result2 = response2.json()
 
-        assert result1['hash']     == result2['hash']                                   # Same hash
-        assert result1['cache_id'] != result2['cache_id']                               # Different IDs
+        assert result1['cache_hash'] == result2['cache_hash']                                   # Same hash
+        assert result1['cache_id'  ] != result2['cache_id']                               # Different IDs
 
     def test__store__default_namespace(self):                                           # Test default namespace
         response = self.client.post(url     = '/default/direct/store/string'       ,
@@ -271,8 +271,8 @@ class test_Routes__Store__client(TestCase):                                     
         assert response.status_code == 200
         result = response.json()
 
-        assert 'cache_id' in result
-        assert 'hash'     in result
+        assert 'cache_id'                  in result
+        assert 'cache_hash'                in result
         assert is_guid(result['cache_id']) is True
 
     def test__store__large_binary_file(self):                                           # Test large binary files
@@ -299,8 +299,8 @@ class test_Routes__Store__client(TestCase):                                     
         assert response.status_code == 200
         result = response.json()
 
-        assert 'cache_id' in result
-        assert 'hash'     in result
+        assert 'cache_id'                  in result
+        assert 'cache_hash'                in result
         assert is_guid(result['cache_id']) is True
 
     def test__store__binary_that_looks_like_text(self):                                 # Test text-like binary

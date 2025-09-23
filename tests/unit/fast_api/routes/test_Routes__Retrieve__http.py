@@ -61,8 +61,8 @@ class test_Routes__Retrieve__http(TestCase):                                    
         assert response.status_code == 200
 
         result     = response.json()
-        cache_id   = result.get('cache_id')
-        cache_hash = result.get('hash')
+        cache_id   = result.get('cache_id'  )
+        cache_hash = result.get('cache_hash')
 
         self.created_resources.append({'cache_id' : cache_id ,                                # Track for cleanup
                                       'namespace': namespace ,
@@ -186,7 +186,7 @@ class test_Routes__Retrieve__http(TestCase):                                    
                                                    binary_url   = f'/{self.test_namespace}/retrieve/{cache_id}/binary',
                                                    metadata     = __(cache_id           = cache_id                    ,
                                                                      cache_hash         = '17e88db187afd62c'          ,
-                                                                     cache_key          = 'None'                      ,
+                                                                     cache_key          = ''                          ,
                                                                      file_id            = cache_id                    ,
                                                                      namespace          = self.test_namespace         ,
                                                                      strategy           = 'temporal'                  ,
@@ -333,7 +333,7 @@ class test_Routes__Retrieve__http(TestCase):                                    
                                  binary_url = f'/{self.test_namespace}/retrieve/{cache_id}/binary'  ,
                                  metadata   = __(cache_id          = cache_id                       ,
                                                  cache_hash        = 'fbbab289f7f94b25'             ,
-                                                 cache_key         = 'None'                         ,
+                                                 cache_key         = ''                             ,
                                                  file_id           = cache_id                       ,
                                                  namespace         = self.test_namespace            ,
                                                  strategy          = 'temporal'                     ,

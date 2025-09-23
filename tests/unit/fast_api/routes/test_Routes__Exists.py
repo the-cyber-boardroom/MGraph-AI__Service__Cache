@@ -63,17 +63,17 @@ class test_Routes__Exists(TestCase):
             result = _.exists__hash__cache_hash(cache_hash = Safe_Str__Cache_Hash(fixture_hash),
                                                 namespace  = self.fixtures_namespace)
 
-            assert result == {"exists"    : True                    ,
-                             "hash"      : fixture_hash             ,
-                             "namespace" : str(self.fixtures_namespace)}
+            assert result == { "exists"     : True                        ,
+                               "cache_hash" : fixture_hash                ,
+                               "namespace"  : str(self.fixtures_namespace)}
 
             # Check non-existent hash
             non_existent = _.exists__hash__cache_hash(cache_hash = self.test_hash      ,
                                                       namespace  = self.test_namespace)
 
-            assert non_existent == {"exists"    : False                   ,
-                                   "hash"      : str(self.test_hash)     ,
-                                   "namespace" : str(self.test_namespace)}
+            assert non_existent == { "exists"     : False                   ,
+                                     "cache_hash" : str(self.test_hash)     ,
+                                     "namespace"  : str(self.test_namespace)}
 
     def test_exists__hash__cache_hash__default_namespace(self):                       # Test default namespace handling
         with self.routes as _:
@@ -81,9 +81,9 @@ class test_Routes__Exists(TestCase):
             result = _.exists__hash__cache_hash(cache_hash = self.test_hash,
                                                 namespace  = None          )
 
-            assert result == {"exists"    : False           ,
-                             "hash"      : str(self.test_hash),
-                             "namespace" : "default"        }
+            assert result == { "exists"     : False             ,
+                               "cache_hash" : str(self.test_hash),
+                               "namespace"  : "default"         }
 
     def test_exists__hash__cache_hash__multiple_namespaces(self):                     # Test namespace isolation using fixtures
         with self.routes as _:
@@ -106,8 +106,8 @@ class test_Routes__Exists(TestCase):
             valid_hash = Safe_Str__Cache_Hash("abc0123456789def")
             result = _.exists__hash__cache_hash(cache_hash = valid_hash        ,
                                                 namespace  = self.test_namespace)
-            assert type(result) is dict
-            assert result["hash"] == str(valid_hash)
+            assert type(result)         is dict
+            assert result["cache_hash"] == str(valid_hash)
 
             # Valid Safe_Str__Id namespace
             valid_namespace = Safe_Str__Id("valid-namespace")
@@ -119,7 +119,7 @@ class test_Routes__Exists(TestCase):
             # String to Safe_Str__Cache_Hash (auto-conversion)
             result = _.exists__hash__cache_hash(cache_hash = "stringhash123456",
                                                 namespace  = self.test_namespace)
-            assert result["hash"] == "stringhash123456"                              # Auto-converted
+            assert result["cache_hash"] == "stringhash123456"                              # Auto-converted
 
             # String to Safe_Str__Id (auto-conversion)
             result = _.exists__hash__cache_hash(cache_hash = self.test_hash    ,

@@ -164,7 +164,7 @@
 #         # 1. Store data
 #         store_result = self._store_string(test_data, strategy="direct")
 #         cache_id = store_result['cache_id']
-#         cache_hash = store_result['hash']
+#         cache_hash = store_result['cache_hash']
 #
 #         self.assertTrue(is_guid(cache_id))
 #         self.assertEqual(len(cache_hash), 16)
@@ -259,12 +259,12 @@
 #     #     hash_response = requests.post(hash_url, json={"json_data": test_json}, headers=self.headers)
 #     #
 #     #     self.assertEqual(hash_response.status_code, 200)
-#     #     calculated_hash = hash_response.json()['hash']
+#     #     calculated_hash = hash_response.json()['cache_hash']
 #     #
 #     #     # 2. Store JSON
 #     #     store_result = self._store_json(test_json)
 #     #     cache_id = store_result['cache_id']
-#     #     stored_hash = store_result['hash']
+#     #     stored_hash = store_result['cache_hash']
 #     #
 #     #     # Hashes should match
 #     #     self.assertEqual(stored_hash, calculated_hash)
@@ -306,7 +306,7 @@
 #             self.assertNotEqual(cache_id1, cache_id2)
 #
 #             # But hashes should be the same (same data)
-#             self.assertEqual(result1['hash'], result2['hash'])
+#             self.assertEqual(result1['cache_hash'], result2['cache_hash'])
 #
 #             # Cross-namespace retrieval should fail
 #             cross_url = f"{self.base_url}/cache/retrieve/by-id/{cache_id1}/{ns2}"
@@ -460,7 +460,7 @@
 #             # Store binary data
 #             store_result = self._store_binary(test_binary, strategy="direct")
 #             cache_id = store_result['cache_id']
-#             cache_hash = store_result['hash']
+#             cache_hash = store_result['cache_hash']
 #
 #             # Try generic endpoint - should redirect
 #             generic_url = f"{self.base_url}/cache/retrieve/by-id/{cache_id}/{self.test_namespace}"
@@ -667,7 +667,7 @@
 #             # Store JSON data
 #             store_result = self._store_json(test_data, strategy="temporal_versioned")
 #             cache_id = store_result['cache_id']
-#             cache_hash = store_result['hash']
+#             cache_hash = store_result['cache_hash']
 #
 #             # Generic hash endpoint
 #             generic_url = f"{self.base_url}/cache/retrieve/by-hash/{cache_hash}/{self.test_namespace}"

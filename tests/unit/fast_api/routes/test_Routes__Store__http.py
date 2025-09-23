@@ -120,8 +120,8 @@ class test_Routes__Store__http(TestCase):                                       
         test_data    = f"HTTP test data at {time.time()}"
         store_result = self._store_string(test_data, strategy="direct")
 
-        cache_id   = store_result['cache_id']
-        cache_hash = store_result['hash']
+        cache_id   = store_result['cache_id'  ]
+        cache_hash = store_result['cache_hash']
 
         assert is_guid(cache_id) is True
         assert len(cache_hash)   == 16
@@ -136,8 +136,8 @@ class test_Routes__Store__http(TestCase):                                       
                                   "data" : "nested_value"}}
 
         store_result = self._store_json(test_json)
-        cache_id     = store_result['cache_id']
-        cache_hash   = store_result['hash']
+        cache_id     = store_result['cache_id'  ]
+        cache_hash   = store_result['cache_hash']
 
         assert is_guid(cache_id) is True
         assert len(cache_hash)   == 16
@@ -181,8 +181,8 @@ class test_Routes__Store__http(TestCase):                                       
         cache_id1 = result1['cache_id']
         cache_id2 = result2['cache_id']
 
-        assert cache_id1 != cache_id2                                                         # Different IDs
-        assert result1['hash'] == result2['hash']                                             # Same hash
+        assert cache_id1             != cache_id2                                             # Different IDs
+        assert result1['cache_hash'] == result2['cache_hash']                                 # Same hash
 
         self.created_resources.clear()                                                        # Clean up tracking
 
@@ -245,7 +245,7 @@ class test_Routes__Store__http(TestCase):                                       
         store_result   = self._store_string(special_string, strategy="temporal")
 
         assert is_guid(store_result['cache_id']) is True
-        assert 'hash' in store_result
+        assert 'cache_hash' in store_result
 
         self.created_resources.clear()                                                        # Clean up tracking
 
@@ -256,21 +256,21 @@ class test_Routes__Store__http(TestCase):                                       
         result1 = self._store_string(test_data, strategy="temporal")                          # Store twice
         result2 = self._store_string(test_data, strategy="temporal")
 
-        assert result1['hash']     == result2['hash']                                         # Same hash
-        assert result1['cache_id'] != result2['cache_id']                                     # Different IDs
+        assert result1['cache_hash'] == result2['cache_hash']                                 # Same hash
+        assert result1['cache_id'  ] != result2['cache_id']                                   # Different IDs
 
         self.created_resources.clear()                                                        # Clean up tracking
 
     def test_13_json_with_nulls(self):                                                        # Test JSON with nulls
-        json_with_nulls = {"key1"  : None              ,
-                          "key2"  : "value"            ,
-                          "key3"  : [1, None, 3]       ,
-                          "key4"  : {"nested": None}   }
+        json_with_nulls = { "key1"  : None               ,
+                            "key2"  : "value"            ,
+                            "key3"  : [1, None, 3]       ,
+                            "key4"  : {"nested": None}   }
 
         store_result = self._store_json(json_with_nulls, strategy="temporal_latest")
 
         assert is_guid(store_result['cache_id']) is True
-        assert 'hash' in store_result
+        assert 'cache_hash'                      in store_result
 
         self.created_resources.clear()                                                        # Clean up tracking
 
@@ -294,8 +294,8 @@ class test_Routes__Store__http(TestCase):                                       
         assert is_guid(json_result['cache_id'])   is True
         assert is_guid(binary_result['cache_id']) is True
 
-        assert 'hash' in string_result                                                        # Verify all have hashes
-        assert 'hash' in json_result
-        assert 'hash' in binary_result
+        assert 'cache_hash' in string_result                                                        # Verify all have hashes
+        assert 'cache_hash' in json_result
+        assert 'cache_hash' in binary_result
 
         self.created_resources.clear()                                                        # Clean up tracking

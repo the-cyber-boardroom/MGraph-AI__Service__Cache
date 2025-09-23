@@ -10,16 +10,18 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.utils.Files                                                             import file_extension, file_name_without_extension
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
 from osbot_utils.utils.Http                                                              import url_join_safe
-from osbot_utils.utils.Misc                                                              import timestamp_now
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                         import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.schemas.cache.store.Schema__Store__Context                  import Schema__Store__Context
 from mgraph_ai_service_cache.service.cache.Cache__Config                                 import Cache__Config
 from mgraph_ai_service_cache.service.cache.Cache__Handler                                import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                           import Cache__Hash__Config
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator                        import Cache__Hash__Generator
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
+from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store__With_Strategy    import Service__Cache__Store__With_Strategy
+
 
 class Cache__Service(Type_Safe):                                                    # Main cache service orchestrator
     cache_config      : Cache__Config                                               # Configuration object
@@ -69,12 +71,12 @@ class Cache__Service(Type_Safe):                                                
                 if ref_fs.exists():
                     refs                   = ref_fs.content()
                     refs["cache_ids"]      = [entry for entry in refs["cache_ids"]                  # Remove this cache_id from the list
-                                              if entry["id"] != str(cache_id)]
+                                              if entry["cache_id"] != str(cache_id)]
                     refs["total_versions"] -= 1
 
                     if refs["total_versions"] > 0:
                         if refs["latest_id"] == str(cache_id) and refs["cache_ids"]:                # Update the latest_id if needed
-                            refs["latest_id"] = refs["cache_ids"][-1]["id"]
+                            refs["latest_id"] = refs["cache_ids"][-1]["cache_id"]
                         ref_fs.update(file_data=refs)
                     else:
                         for path in all_paths.get("by_hash", []):                                   # No more versions, delete the hash reference files
@@ -201,86 +203,37 @@ class Cache__Service(Type_Safe):                                                
     def get_storage_info(self) -> Dict[str, Any]:                                  # Get information about current storage configuration
         return self.cache_config.get_storage_info()
 
-    # todo: same as with the delete method above,  this logic is starting to be too complex to be all in one method
-    def store_with_strategy(self, storage_data     : Any                                   ,
-                                  cache_hash       : Safe_Str__Cache_Hash                  ,
-                                  strategy         : Enum__Cache__Store__Strategy          ,
-                                  cache_id         : Random_Guid                  = None   ,
-                                  cache_key        : Safe_Str__File__Path         = None   ,
-                                  file_id          : Safe_Str__Id                 = None   ,
-                                  namespace        : Safe_Str__Id                 = None   ,
-                                  content_encoding : Safe_Str__Id                 = None
-                            ) -> Schema__Cache__Store__Response:
+    # todo: see if we can't use the Schema__Store__Context as the main param here
+    def store_with_strategy(self, storage_data     : Any                                             ,
+                                  cache_hash       : Safe_Str__Cache_Hash                            ,
+                                  strategy         : Enum__Cache__Store__Strategy                    ,
+                                  cache_id         : Random_Guid           = None                    ,
+                                  cache_key        : Safe_Str__File__Path  = None                    ,
+                                  file_id          : Safe_Str__Id          = None                    ,
+                                  namespace        : Safe_Str__Id          = DEFAULT_CACHE__NAMESPACE,
+                                  content_encoding : Safe_Str__Id          = None
+                            ) -> Schema__Cache__Store__Response:                    # Store data using the specified strategy
+
         if not cache_hash:
-            raise ValueError("in Cache__Service.store_with_strategy, the cache_hash must be provided")                      # todo: see if it makes sense for use to calculate the hash here
+            raise ValueError("in Cache__Service.store_with_strategy, the cache_hash must be provided")          # Validate inputs
 
+        # todo this logic can be refactored to store_strategy.execute
         cache_id  = cache_id or Random_Guid()
-        namespace = namespace or Safe_Str__Id("default")
+        cache_key = Safe_Str__File__Path(cache_key) if cache_key else None
+        file_id   = Safe_Str__Id(file_id or cache_id or Random_Guid())
         handler   = self.get_or_create_handler(namespace)
-        fs_data   = handler.get_fs_for_strategy(strategy)
-        all_paths = { "data": [], "by_hash": [], "by_id" : []     }
+        context = Schema__Store__Context(storage_data     = storage_data     ,                                  # Build context with all parameters
+                                         cache_hash       = cache_hash       ,
+                                         cache_id         = cache_id         ,
+                                         cache_key        = cache_key        ,
+                                         file_id          = file_id          ,
+                                         namespace        = namespace        ,
+                                         strategy         = strategy         ,
+                                         content_encoding = content_encoding ,
+                                         handler          = handler          )
 
-        file_id   =  Safe_Str__Id  (file_id or cache_id )               # if not provided use the cache_id as file_id (needs casting to Safe_Str__Id)
-        file_key  = Safe_Str__File__Path(cache_key)                     # use cache_key as file_key
-        if isinstance(storage_data, bytes):                             # Determine file type based on storage data
-            file_fs = fs_data.file__binary(file_id=file_id, file_key=file_key)
-            file_type = "binary"
-        else:
-            file_fs = fs_data.file__json(file_id=file_id, file_key=file_key)
-            file_type = "json"
-
-        # Store actual data
-        with file_fs:
-            all_paths['data']  = file_fs.create(storage_data)
-            content_file_paths = file_fs.file_fs__paths().paths__content()          # get the file paths for the content files
-            content_file_paths = file_fs.file_fs__paths().paths__content()
-
-            # Add metadata
-            metadata = { "cache_hash"       : str(cache_hash)    ,                              # this should be a Type_Safe class
-                         "cache_key"        : str(cache_key)     ,
-                         "cache_id"         : str(cache_id)      ,
-                         "content_encoding" : content_encoding   ,
-                         "file_id"          : str(file_id)       ,
-                         "stored_at"        : timestamp_now()    ,
-                         "strategy"         : strategy           ,
-                         "namespace"        : str(namespace)     ,
-                         "file_type"        : file_type          }
-            file_fs.metadata__update(metadata)
-            file_size = file_fs.metadata().content__size
-
-        # Update hash->ID reference
-        with handler.fs__refs_hash.file__json(Safe_Str__Id(cache_hash)) as ref_fs:
-            if ref_fs.exists():
-                refs = ref_fs.content()
-                refs["cache_ids"     ].append({"id": str(cache_id), "timestamp": timestamp_now()})
-                refs["latest_id"     ] = str(cache_id)
-                refs["total_versions"] += 1
-                paths__hash_to_id =  ref_fs.update(file_data=refs)
-            else:
-                refs = {"cache_hash"     : str(cache_hash)                                      ,
-                        "cache_ids"      : [{"id": str(cache_id), "timestamp": timestamp_now()}],
-                        "latest_id"      : str(cache_id)                                        ,
-                        "total_versions" : 1                                                    }
-                paths__hash_to_id = ref_fs.create(file_data=refs)
-            all_paths["by_hash"] = paths__hash_to_id
-
-        # Update ID->hash reference WITH content path and file type
-        with handler.fs__refs_id.file__json(Safe_Str__Id(str(cache_id))) as ref_fs:
-            all_paths["by_id"] = ref_fs.paths()
-            ref_fs.create({ "all_paths"        : all_paths          ,                               # this should be a Type_Safe class
-                            "cache_id"         : str(cache_id)     ,
-                            "cache_hash"       : str(cache_hash)   ,
-                            "namespace"        : str(namespace)    ,
-                            "strategy"         : strategy          ,
-                            "content_paths"    : content_file_paths,
-                            "file_type"        : file_type         ,
-                            "timestamp"        : timestamp_now()   })
-
-        return Schema__Cache__Store__Response(cache_id   = cache_id     ,
-                                              hash       = cache_hash   ,
-                                              namespace  = namespace    ,
-                                              paths      = all_paths    ,
-                                              size       = file_size    )
+        store_strategy = Service__Cache__Store__With_Strategy()
+        return store_strategy.execute(context)                                                  # Execute storage strategy
 
     def retrieve_by_hash(self, cache_hash : Safe_Str__Cache_Hash,
                                namespace  : Safe_Str__Id = None
@@ -302,10 +255,9 @@ class Cache__Service(Type_Safe):                                                
     # todo: same as with the delete method above,  this logic is starting to be too complex to be all in one method
     #       also I think we are doing too much here, with far too many calls to the file system
     #       at least we should just return the data (i.e. we don't need to return the metadata here (since there is an enpoint to get that)
-    def retrieve_by_id(self, cache_id : Random_Guid,
-                             namespace : Safe_Str__Id = None
+    def retrieve_by_id(self, cache_id  : Random_Guid,
+                             namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
                         ) -> Optional[Dict[str, Any]]:
-        namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
 
         # Get ID reference with content path
