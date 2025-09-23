@@ -98,7 +98,6 @@ jobs:
   check-aws-credentials:
     name: Check AWS Credentials
     runs-on: ubuntu-latest
-    needs: run-tests
     outputs:
       has-credentials: ${{ steps.check.outputs.has-credentials }}
     steps:
