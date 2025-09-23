@@ -2,6 +2,7 @@ import base64
 import json
 from typing                                                                              import Union, Dict
 from fastapi                                                                             import HTTPException, Response, Path
+from memory_fs.schemas.Schema__Memory_FS__File__Config                                   import Schema__Memory_FS__File__Config
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
 from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
@@ -79,7 +80,7 @@ class Routes__Retrieve(Fast_API__Routes):                                       
 
     def retrieve__cache_id__config(self, cache_id  : Random_Guid,
                                          namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                                    ) -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:             # Retrieve by cache ID with metadata
+                                    ) -> Schema__Memory_FS__File__Config:                                           # Retrieve by cache ID with metadata
 
         response_data = self.retrieve_service().retrieve_by_id__config(cache_id, namespace)
         return self.handle_not_found(response_data, cache_id=cache_id, namespace=namespace)
@@ -88,15 +89,14 @@ class Routes__Retrieve(Fast_API__Routes):                                       
                                        namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                   ) -> Schema__Cache__File__Refs:                                                    # Get cache entry details
 
-        result = self.retrieve_service().retrieve_by_id__refs(cache_id, namespace)                                              # todo: this class should return Schema__Cache__File__Refs
+        result = self.retrieve_service().retrieve_by_id__refs(cache_id, namespace)
         return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
 
     def retrieve__cache_id__metadata(self, cache_id : Random_Guid,
                                            namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                       ) -> Schema__Cache__File__Refs:                                                    # Get cache entry details
-        raise NotImplementedError()
-        # result = self.retrieve_service().retrieve_by_id__refs(cache_id, namespace)                                              # todo: this class should return Schema__Cache__File__Refs
-        # return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
+        result = self.retrieve_service().retrieve_by_id__metadata(cache_id, namespace)                                              # todo: this class should return Schema__Cache__File__Refs
+        return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
 
 
     def retrieve__cache_id__refs__all(self, cache_id: Random_Guid,

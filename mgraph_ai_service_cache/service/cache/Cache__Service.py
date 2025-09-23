@@ -1,6 +1,8 @@
 import gzip
 import json
 from typing                                                                              import Dict, Optional, Any, List
+from memory_fs.schemas.Schema__Memory_FS__File__Metadata                                 import Schema__Memory_FS__File__Metadata
+from memory_fs.schemas.Schema__Memory_FS__File__Config                                   import Schema__Memory_FS__File__Config
 from osbot_utils.decorators.methods.cache_on_self                                        import cache_on_self
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
@@ -361,22 +363,26 @@ class Cache__Service(Type_Safe):                                                
 
         return None
 
-    #todo: this method should return Schema__Cache__File__Refs (which should be the class used to save the file)
     def retrieve_by_id__config(self, cache_id  : Random_Guid,
-                                     namespace : Safe_Str__Id    = None
-                                ) -> Optional[Dict[str, Any]]:                      #   Retrieve by cache ID using direct path from reference
-        namespace = namespace or Safe_Str__Id("default")
+                                     namespace : Safe_Str__Id
+                                ) -> Schema__Memory_FS__File__Config:                    #   Retrieve by cache ID using direct path from reference
         handler   = self.get_or_create_handler(namespace)
 
         with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
             return ref_fs.config()
 
-    def retrieve_by_id__refs(self, cache_id  : Random_Guid,
-                                   namespace : Safe_Str__Id    = None
-                                ) -> Schema__Cache__File__Refs:                      #   Retrieve by cache ID using direct path from reference
-        namespace = namespace or Safe_Str__Id("default")
+    def retrieve_by_id__metadata(self, cache_id  : Random_Guid,
+                                     namespace : Safe_Str__Id
+                                ) -> Schema__Memory_FS__File__Metadata:                  #   Retrieve by cache ID using direct path from reference
         handler   = self.get_or_create_handler(namespace)
 
+        with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
+            return ref_fs.metadata()
+
+    def retrieve_by_id__refs(self, cache_id  : Random_Guid,
+                                   namespace : Safe_Str__Id
+                                ) -> Schema__Cache__File__Refs:                      #   Retrieve by cache ID using direct path from reference
+        handler   = self.get_or_create_handler(namespace)
         with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
             json_data = ref_fs.content()                                                 # todo refactor this so that we get the Schema__Cache__File__Refs directly from fs__refs_id
             if json_data:

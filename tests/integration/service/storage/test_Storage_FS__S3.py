@@ -9,7 +9,6 @@ from osbot_aws.AWS_Config                                                       
 from memory_fs.storage_fs.Storage_FS                                                import Storage_FS
 from mgraph_ai_service_cache.service.storage.Storage_FS__S3                         import Storage_FS__S3
 from tests.integration.Service__Cache__Test_Objs__Integration                       import setup__service__cache__test_objs__integration
-from tests.unit.Service__Cache__Test_Objs                                           import setup__service__cache__test_objs
 
 
 class test_Storage_FS__S3(TestCase):                                                 # Test S3 storage backend implementation
