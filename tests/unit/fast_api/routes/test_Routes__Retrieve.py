@@ -13,7 +13,7 @@ from osbot_utils.utils.Misc                                                     
 from osbot_utils.utils.Objects                                                            import base_classes, obj
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                             import Routes__Retrieve, TAG__ROUTES_RETRIEVE
 from mgraph_ai_service_cache.service.cache.Service__Cache__Retrieve                       import Service__Cache__Retrieve
-from mgraph_ai_service_cache.service.cache.Service__Cache__Store                          import Service__Cache__Store
+from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store                    import Service__Cache__Store
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Binary__Reference               import Schema__Cache__Binary__Reference
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Exists__Response                import Schema__Cache__Exists__Response
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                   import Enum__Cache__Data_Type
@@ -189,35 +189,18 @@ class test_Routes__Retrieve(TestCase):
             assert result.body       == self.test_binary
             assert result.media_type == "application/octet-stream"
 
-    def test_retrieve__details__cache_id(self):                                      # Test details with fixture
+    def test_retrieve__cache_id__refs(self):                                      # Test details with fixture
         with self.routes as _:
-            result = _.retrieve__details__cache_id(self.fixture_id_string, 
+            result = _.retrieve__cache_id__refs(self.fixture_id_string,
                                                    self.fixtures_namespace)
             
             assert result.cache_id   == self.fixture_id_string
             assert result.cache_hash == self.fixture_hash_string
             assert result.namespace  == str(self.fixtures_namespace)
             assert result.obj().contains(__(cache_id   = self.fixture_id_string,
-                                           cache_hash = self.fixture_hash_string))
+                                            cache_hash = self.fixture_hash_string))
 
-    def test_retrieve__exists__cache_hash(self):                                     # Test exists with fixture
-        with self.routes as _:
-            # Check fixture exists
-            result = _.retrieve__exists__cache_hash(self.fixture_hash_string, 
-                                                    self.fixtures_namespace)
-            
-            assert type(result)      is Schema__Cache__Exists__Response
-            assert result.exists     is True
-            assert result.cache_hash == self.fixture_hash_string
-            assert result.namespace  == self.fixtures_namespace
 
-    def test_retrieve__exists__cache_hash__not_found(self):                          # Test non-existent
-        with self.routes as _:
-            non_existent_hash = Safe_Str__Cache_Hash("0000000000000000")
-            
-            result = _.retrieve__exists__cache_hash(non_existent_hash, self.test_namespace)
-            
-            assert result.exists is False
 
     def test_cross_type_conversion(self):                                                   # Test type conversions with fixture
         with self.routes as _:

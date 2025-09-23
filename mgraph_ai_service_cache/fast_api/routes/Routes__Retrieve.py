@@ -2,6 +2,9 @@ import base64
 import json
 from typing                                                                              import Union, Dict
 from fastapi                                                                             import HTTPException, Response, Path
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from osbot_fast_api.api.decorators.route_path                                            import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                          import Fast_API__Routes
@@ -23,16 +26,17 @@ TAG__ROUTES_RETRIEVE                  = 'retrieve'
 PREFIX__ROUTES_RETRIEVE               = '/{namespace}'
 BASE_PATH__ROUTES_RETRIEVE            = f'{PREFIX__ROUTES_RETRIEVE}/{TAG__ROUTES_RETRIEVE}/'
 ROUTES_PATHS__RETRIEVE                = [ BASE_PATH__ROUTES_RETRIEVE + '{cache_id}'               ,
+                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/config'        ,
+                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/refs'          ,
+                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/refs/all'      ,
+                                          #BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/metadata'      ,
                                           BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/binary'        ,
                                           BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/json'          ,
                                           BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/string'        ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}'        ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/binary' ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/json'   ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/string' ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'details/{cache_id}'       ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'details/all/{cache_id}'   ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'exists/{cache_hash}'      ]
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/string' ]
 
 class Routes__Retrieve(Fast_API__Routes):                                             # FastAPI routes for cache retrieval operations
     tag            : Safe_Str__Fast_API__Route__Tag    = TAG__ROUTES_RETRIEVE
@@ -42,30 +46,72 @@ class Routes__Retrieve(Fast_API__Routes):                                       
     @cache_on_self
     def retrieve_service(self):                                                                             # Service layer for business logic
         return Service__Cache__Retrieve(cache_service=self.cache_service)                                   # create Service__Cache__Retrieve object (once, using the shared Cache_Service)
-    
+
+    @type_safe
+    def handle_not_found(self, result        : Union[Type_Safe, Dict] = None,                                 # Base method for 404 handling
+                               cache_id      : Random_Guid            = None,
+                               cache_hash    : Safe_Str__Cache_Hash   = None,
+                               namespace     : Safe_Str__Id           = None):
+        if result is None:
+            error = self.retrieve_service().get_not_found_error(cache_id   = cache_id  ,
+                                                                cache_hash = cache_hash,
+                                                                namespace  = namespace )
+            raise HTTPException(status_code=404, detail=error.json())
+        return result
+
     def retrieve__cache_id(self, cache_id  : Random_Guid,
                                  namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                             ) -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:             # Retrieve by cache ID with metadata
                 
         result = self.retrieve_service().retrieve_by_id(cache_id, namespace)                                              # Use service layer
         
-        if result is None:            
-            error = self.retrieve_service().get_not_found_error(cache_id=cache_id, namespace=namespace)                   # Return 404 Not Found
-            raise HTTPException(status_code=404, detail=error.json())
-        
-        # Handle binary data that can't be returned in JSON
-        if result.data_type == Enum__Cache__Data_Type.BINARY:
-            binary_url = f"/{namespace}/retrieve/{cache_id}/binary"
-            return Schema__Cache__Binary__Reference(message      = "Binary data requires separate endpoint"    ,        # todo: refactor this to use the Schema__Cache__Retrieve__Success
-                                                    data_type    = Enum__Cache__Data_Type.BINARY               ,        #       which is quite compatible with this logic 
-                                                    size         = result.metadata.content_size                ,        #       since this is still a retrieve success, but it just the
-                                                    cache_hash   = result.metadata.cache_hash                  ,        #       edge case where we don't return a binary here  
-                                                    cache_id     = result.metadata.cache_id                    ,        #       (to avoid having to convert bytes into base64)
-                                                    namespace    = namespace                                   ,
-                                                    binary_url   = binary_url                                  ,
-                                                    metadata     = result.metadata                             )
-        return result
-    
+        if result:
+            # todo: this logic should not be happeining in this routes class, this should be handled by retrieve_by_id
+            if result.data_type == Enum__Cache__Data_Type.BINARY:                           # Handle binary data that can't be returned in JSON
+                binary_url = f"/{namespace}/retrieve/{cache_id}/binary"
+                return Schema__Cache__Binary__Reference(message      = "Binary data requires separate endpoint"    ,        # todo: refactor this to use the Schema__Cache__Retrieve__Success
+                                                        data_type    = Enum__Cache__Data_Type.BINARY               ,        #       which is quite compatible with this logic
+                                                        size         = result.metadata.content_size                ,        #       since this is still a retrieve success, but it just the
+                                                        cache_hash   = result.metadata.cache_hash                  ,        #       edge case where we don't return a binary here
+                                                        cache_id     = result.metadata.cache_id                    ,        #       (to avoid having to convert bytes into base64)
+                                                        namespace    = namespace                                   ,
+                                                        binary_url   = binary_url                                  ,
+                                                        metadata     = result.metadata                             )
+        return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
+
+    def retrieve__cache_id__config(self, cache_id  : Random_Guid,
+                                         namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                    ) -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:             # Retrieve by cache ID with metadata
+
+        result = self.retrieve_service().retrieve_by_id__config(cache_id, namespace)
+        return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
+        # if result is None:
+        #     error = self.retrieve_service().get_not_found_error(cache_id=cache_id, namespace=namespace)
+        #     raise HTTPException(status_code=404, detail=error.json())
+        # return result
+
+    def retrieve__cache_id__refs(self, cache_id : Random_Guid,
+                                       namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                  ) -> Schema__Cache__Entry__Details:                                                    # Get cache entry details
+
+        result = self.retrieve_service().get_entry_refs(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
+        return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
+        # if details is None:
+        #     error = self.retrieve_service().get_not_found_error(cache_id=cache_id, namespace=namespace)
+        #     raise HTTPException(status_code=404, detail=error.json())
+        #
+        # return details
+
+    def retrieve__cache_id__refs__all(self, cache_id: Random_Guid,
+                                            namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                      ) -> Dict:
+        result = self.retrieve_service().get_entry_details__all(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
+        return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
+        # if details is None:
+        #     error = self.retrieve_service().get_not_found_error(cache_id=cache_id, namespace=namespace)
+        #     raise HTTPException(status_code=404, detail=error.json())
+        # return details
+
     @route_path("/retrieve/hash/{cache_hash}")
     def retrieve__hash__cache_hash(self, cache_hash : Safe_Str__Cache_Hash,
                                          namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
@@ -243,41 +289,14 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         
         return Response(content=content, media_type="application/octet-stream")
     
-    @route_path("/retrieve/details/{cache_id}")
-    def retrieve__details__cache_id(self, cache_id : Random_Guid,
-                                          namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                                     ) -> Schema__Cache__Entry__Details:                                                    # Get cache entry details
-        
-        details = self.retrieve_service().get_entry_details(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
-        
-        if details is None:
-            error = self.retrieve_service().get_not_found_error(cache_id=cache_id, namespace=namespace)
-            raise HTTPException(status_code=404, detail=error.json())
 
-        return details
 
-    def retrieve__details__all__cache_id(self, cache_id: Random_Guid,
-                                               namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                                          ) -> Dict:
-        details = self.retrieve_service().get_entry_details__all(cache_id, namespace)                                              # todo: this class should return Schema__Cache__Entry__Details
-
-        if details is None:
-            error = self.retrieve_service().get_not_found_error(cache_id=cache_id, namespace=namespace)
-            raise HTTPException(status_code=404, detail=error.json())
-
-    @route_path("/retrieve/exists/{cache_hash}")
-    def retrieve__exists__cache_hash(self, cache_hash : Safe_Str__Cache_Hash,
-                                           namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                                      ) -> Schema__Cache__Exists__Response:                                                 # Check if entry exists
-        
-        exists = self.retrieve_service().check_exists(cache_hash, namespace)                                                  # todo: this should return the type Schema__Cache__Exists__Response
-        
-        return Schema__Cache__Exists__Response(exists     = exists     ,                                                    # todo: we should need to do this conversion here
-                                               cache_hash = cache_hash ,
-                                               namespace  = namespace  )
-    
     def setup_routes(self):                                                                                                 # Configure all routes
         self.add_route_get(self.retrieve__cache_id                  )               # Generic retrieval (with metadata)
+        self.add_route_get(self.retrieve__cache_id__config          )
+        self.add_route_get(self.retrieve__cache_id__refs            )
+        self.add_route_get(self.retrieve__cache_id__refs__all       )
+
         self.add_route_get(self.retrieve__hash__cache_hash          )
 
         self.add_route_get(self.retrieve__cache_id__string          )               # Type-specific retrieval
@@ -286,7 +305,3 @@ class Routes__Retrieve(Fast_API__Routes):                                       
         self.add_route_get(self.retrieve__hash__cache_hash__string  )
         self.add_route_get(self.retrieve__hash__cache_hash__json    )
         self.add_route_get(self.retrieve__hash__cache_hash__binary  )
-
-        self.add_route_get(self.retrieve__details__cache_id         )               # Utility endpoints
-        self.add_route_get(self.retrieve__details__all__cache_id    )
-        self.add_route_get(self.retrieve__exists__cache_hash        )

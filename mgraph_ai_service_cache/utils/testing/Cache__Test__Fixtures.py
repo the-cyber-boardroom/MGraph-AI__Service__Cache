@@ -6,6 +6,7 @@ from osbot_utils.utils.Misc                                                     
 from mgraph_ai_service_cache.schemas.consts.const__Fast_API                       import CACHE__TEST__FIXTURES__NAMESPACE
 from mgraph_ai_service_cache.service.cache.Cache__Service                         import Cache__Service
 
+FILE_ID__CACHE__TEST__FIXTURES__MANIFEST = "00000000-0000-0000-0000-000000000001"
 
 class Cache__Test__Fixtures(Type_Safe):                                                         # Manages reusable test fixtures for cache service tests
     cache_service     : Cache__Service                    = None                                # Cache service instance for fixture storage
@@ -38,7 +39,7 @@ class Cache__Test__Fixtures(Type_Safe):                                         
             self.namespace = Safe_Str__Id("test-fixtures")
 
         if not self.manifest_cache_id:                                                # Use predictable GUID for manifest
-            self.manifest_cache_id = Random_Guid("00000000-0000-0000-0000-000000000001")
+            self.manifest_cache_id = Random_Guid(FILE_ID__CACHE__TEST__FIXTURES__MANIFEST)
 
         if self.load_manifest():                                                      # Try to load existing manifest
             #if self.verify_fixtures():
@@ -46,18 +47,21 @@ class Cache__Test__Fixtures(Type_Safe):                                         
             return self                                                               # i.e. there is no need to run this check on every request
 
         self.create_fixtures()                                                        # Create missing fixtures
-        #self.save_manifest()
+        self.save_manifest()
         self.setup_completed = True
         return self
 
     def load_manifest(self) -> bool:                                                  # Load fixture manifest from cache service
-        result = self.cache_service.retrieve_by_id(cache_id  = self.manifest_cache_id,
-                                                   namespace = self.namespace        )
+        result = self.load_manifest__data()
         if result:
             self.manifest = result.get("data")
             self.fixtures = self.manifest.get("fixtures", {})
             return True
         return False
+
+    def load_manifest__data(self):
+        return self.cache_service.retrieve_by_id(cache_id  = self.manifest_cache_id,
+                                                 namespace = self.namespace        )
 
     def verify_fixtures(self) -> bool:                                                # Check all fixtures still exist
         for fixture_name, fixture_info in self.fixtures.items():

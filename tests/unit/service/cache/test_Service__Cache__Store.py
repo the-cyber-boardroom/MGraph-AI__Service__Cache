@@ -7,7 +7,7 @@ from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Pat
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.utils.Objects                                                           import base_classes
-from mgraph_ai_service_cache.service.cache.Service__Cache__Store                         import Service__Cache__Store
+from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store                   import Service__Cache__Store
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy

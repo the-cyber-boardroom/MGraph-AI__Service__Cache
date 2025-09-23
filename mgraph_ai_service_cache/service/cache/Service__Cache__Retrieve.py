@@ -52,7 +52,14 @@ class Service__Cache__Retrieve(Type_Safe):                                      
         return Schema__Cache__Retrieve__Success(data      = result.get("data")     ,
                                                 metadata  = metadata               ,
                                                 data_type = self._determine_data_type(result))
-    
+
+    @type_safe
+    def retrieve_by_id__config(self, cache_id  : Random_Guid,
+                             namespace : Safe_Str__Id = None
+                        ) -> Optional[Schema__Cache__Retrieve__Success]:                    # Retrieve entry by cache ID
+
+        return self.cache_service.retrieve_by_id__config(cache_id, namespace)                #
+
     @type_safe
     def check_exists(self, cache_hash : Safe_Str__Cache_Hash,
                            namespace  : Safe_Str__Id        = DEFAULT_CACHE__NAMESPACE
@@ -64,25 +71,27 @@ class Service__Cache__Retrieve(Type_Safe):                                      
             return ref_fs.exists()
     
     @type_safe
-    def get_entry_details(self, cache_id  : Random_Guid,
-                                namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
-                          ) -> Schema__Cache__Entry__Details:                                # Get detailed information about cache entry
-        details = self.cache_service.retrieve_by_id__config(cache_id, namespace)            #
-
-        return Schema__Cache__Entry__Details(cache_id      = details.get("cache_id"         ),                              # todo: we don't need to do this here (since this should had been provided by self.retrieve_service.get_entry_details)
-                                             cache_hash    = details.get("hash"             ),
-                                             namespace     = details.get("namespace"        ),
-                                             strategy      = details.get("strategy"         ),
-                                             all_paths     = details.get("all_paths"        ),
-                                             content_paths = details.get("content_paths"    ),
-                                             file_type     = details.get("file_type", "json"),
-                                             timestamp     = details.get("timestamp")       )
+    def get_entry_refs(self, cache_id  : Random_Guid,
+                             namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
+                        ) -> Schema__Cache__Entry__Details:                                # Get detailed information about cache entry
+        details = self.cache_service.retrieve_by_id__refs(cache_id, namespace)            #
+        if details:
+            return Schema__Cache__Entry__Details(cache_id      = details.get("cache_id"         ),                              # todo: we don't need to do this here (since this should had been provided by self.retrieve_service.get_entry_details)
+                                                 cache_hash    = details.get("hash"             ),
+                                                 namespace     = details.get("namespace"        ),
+                                                 strategy      = details.get("strategy"         ),
+                                                 all_paths     = details.get("all_paths"        ),
+                                                 content_paths = details.get("content_paths"    ),
+                                                 file_type     = details.get("file_type", "json"),
+                                                 timestamp     = details.get("timestamp")       )
+        else:
+            return None
 
 
     def get_entry_details__all(self, cache_id  : Random_Guid,
                                      namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
                                 ) -> Optional[Dict[str, Any]]:                                # Get detailed information about cache entry
-        details  = self.get_entry_details(cache_id=cache_id, namespace=namespace)
+        details  = self.get_entry_refs(cache_id=cache_id, namespace=namespace)
         if not details:
             return None
 
@@ -92,10 +101,8 @@ class Service__Cache__Retrieve(Type_Safe):                                      
         for file_type, file_paths in details.all_paths.items():
             for file_path in file_paths:
                 if file_path not in content_paths:
-                    full_file_path             = url_join_safe(str(namespace), file_path)
-                    if full_file_path:
-                        file_contents          = storage_fs.file__json(full_file_path)          # all these files are json files
-                        all_details[file_path] = file_contents
+                    file_contents          = storage_fs.file__json(file_path)          # all these files are json files
+                    all_details[file_path] = file_contents
         return dict(by_id   =  details.json()   ,
                     details = all_details)
 

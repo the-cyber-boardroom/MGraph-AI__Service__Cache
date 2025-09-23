@@ -160,3 +160,23 @@ class test_Routes__Exists(TestCase):
             result = _.exists__hash__cache_hash(cache_hash = Safe_Str__Cache_Hash(large_binary_hash),
                                                 namespace  = self.fixtures_namespace)
             assert result["exists"] is True
+
+    # to add when refactoring of method with Schema__Cache__Exists__Response has been done
+    # def test_retrieve__exists__cache_hash(self):                                     # Test exists with fixture
+    #     with self.routes as _:
+    #         # Check fixture exists
+    #         result = _.retrieve__exists__cache_hash(self.fixture_hash_string,
+    #                                                 self.fixtures_namespace)
+    #
+    #         assert type(result)      is Schema__Cache__Exists__Response
+    #         assert result.exists     is True
+    #         assert result.cache_hash == self.fixture_hash_string
+    #         assert result.namespace  == self.fixtures_namespace
+    #
+    # def test_retrieve__exists__cache_hash__not_found(self):                          # Test non-existent
+    #     with self.routes as _:
+    #         non_existent_hash = Safe_Str__Cache_Hash("0000000000000000")
+    #
+    #         result = _.retrieve__exists__cache_hash(non_existent_hash, self.test_namespace)
+    #
+    #         assert result.exists is False

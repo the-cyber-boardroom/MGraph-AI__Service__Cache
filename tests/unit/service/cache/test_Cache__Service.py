@@ -244,7 +244,7 @@ class test_Cache__Service(TestCase):
             assert 'file_counts' in counts
             assert 'direct_files' in counts['file_counts']
 
-    def test_retrieve_by_id__config(self):                                 # Test retrieving configuration
+    def test_retrieve_by_id__refs(self):                                 # Test retrieving configuration
         with self.cache_service as _:
             # Store test data
             test_data = {"config": "test"}
@@ -259,15 +259,15 @@ class test_Cache__Service(TestCase):
 
             self.created_ids.append(cache_id)
 
-            # Get config
-            config = _.retrieve_by_id__config(cache_id, self.test_namespace)
+            # Get id refs
+            refs = _.retrieve_by_id__refs(cache_id, self.test_namespace)
 
-            assert config is not None
-            assert config['cache_id'] == str(cache_id)
-            assert config['hash']     == str(cache_hash)
-            assert config['strategy'] == Enum__Cache__Store__Strategy.TEMPORAL
-            assert 'all_paths' in config
-            assert 'content_paths' in config
+            assert refs is not None
+            assert refs['cache_id'] == str(cache_id)
+            assert refs['hash']     == str(cache_hash)
+            assert refs['strategy'] == Enum__Cache__Store__Strategy.TEMPORAL
+            assert 'all_paths' in refs
+            assert 'content_paths' in refs
 
     def test_multiple_versions_same_hash(self):                            # Test multiple versions with same hash
         with self.cache_service as _:

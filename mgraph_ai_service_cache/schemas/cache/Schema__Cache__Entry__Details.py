@@ -9,6 +9,7 @@ from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type         
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
 
 # Response for cache entry details
+# todo: rename to Schema__Cache__Entry__Refs (and see if 'Entry' is the best term to use here)
 class Schema__Cache__Entry__Details(Type_Safe):                                       # Detailed cache entry info
     cache_id       : Random_Guid                                                      # Cache ID
     cache_hash     : Safe_Str__Cache_Hash                                             # Content hash

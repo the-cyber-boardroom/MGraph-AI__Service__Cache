@@ -1,7 +1,7 @@
 import gzip
 import json
-from unittest                                                                            import TestCase
 import pytest
+from unittest                                                                            import TestCase
 from fastapi                                                                             import Request, HTTPException
 from osbot_fast_api_serverless.utils.testing.skip_tests                                  import skip__if_not__in_github_actions
 from osbot_utils.testing.__                                                              import __, __SKIP__
@@ -16,9 +16,10 @@ from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                     
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace                           import Routes__Namespace
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                            import Routes__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.Routes__Store                               import Routes__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Entry__Details import Schema__Cache__Entry__Details
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
-from mgraph_ai_service_cache.service.cache.Service__Cache__Store                         import Service__Cache__Store
+from mgraph_ai_service_cache.service.cache.store.Service__Cache__Store                   import Service__Cache__Store
 from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
 
 
@@ -276,12 +277,24 @@ class test_Routes__Store(TestCase):
         cache_id                   = response__store.cache_id
         cache_hash                 = response__store.hash
 
-        response__details          = self.routes_retrieve.retrieve__details__all__cache_id(cache_id=cache_id, namespace=namespace)
+        assert response__store.obj() == __(cache_id     = cache_id ,
+                                           hash         = 'f7fc607505c67177',
+                                           namespace    = 'default',
+                                           paths        = __(data   = [ 'default/data/semantic-file/aaa/bbb/page-structure.json'         ,
+                                                                        'default/data/semantic-file/aaa/bbb/page-structure.json.config'  ,
+                                                                        'default/data/semantic-file/aaa/bbb/page-structure.json.metadata'],
+                                                            by_hash = [ 'default/refs/by-hash/f7/fc/f7fc607505c67177.json'               ,
+                                                                        'default/refs/by-hash/f7/fc/f7fc607505c67177.json.config'        ,
+                                                                        'default/refs/by-hash/f7/fc/f7fc607505c67177.json.metadata'      ],
+                                                            by_id   = __SKIP__                                                           ),
+                                           size=18)
+
+        response__refs             = self.routes_retrieve.retrieve__cache_id__refs        (cache_id=cache_id, namespace=namespace)
         response__namespace_ids    = self.routes_namespace.file_ids                       (namespace=namespace)
         response__namespace_hashes = self.routes_namespace.file_hashes                    (namespace=namespace)
         response__delete           = self.routes_delete.delete__cache_id                  (cache_id=cache_id, namespace=namespace)
 
-        assert response__details                     is None
+        assert type(response__refs)                  is Schema__Cache__Entry__Details
         assert cache_id                              in response__namespace_ids
         assert cache_hash                            in response__namespace_hashes
         assert response__delete.get('deleted_count') == 9

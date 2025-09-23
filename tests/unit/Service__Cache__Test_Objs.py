@@ -23,14 +23,10 @@ class Service__Cache__Test_Objs(Type_Safe):
 
 service_fast_api_test_objs = Service__Cache__Test_Objs()
 
-
 def setup_cache_fixtures(cache_service: Cache__Service):
     cache_fixtures = Cache__Test__Fixtures(cache_service      = cache_service                                    ,
                                            namespace         = CACHE__TEST__FIXTURES__NAMESPACE                  ,
                                            manifest_cache_id = Random_Guid("00000000-0000-0000-0000-000000000001")) # Predictable
-    if False:               # todo: find better way to reset the db
-        cache_fixtures.setup()
-        cache_fixtures.cleanup_all()
     return cache_fixtures.setup()
 
 def setup__service__cache__test_objs():
@@ -39,7 +35,6 @@ def setup__service__cache__test_objs():
 
                 set_env(ENV_VAR__FAST_API__AUTH__API_KEY__NAME  , TEST_API_KEY__NAME                )
                 set_env(ENV_VAR__FAST_API__AUTH__API_KEY__VALUE , TEST_API_KEY__VALUE               )
-                #set_env(ENV_VAR__CACHE__SERVICE__BUCKET_NAME    , CACHE__TEST__FIXTURES__BUCKET_NAME)
 
                 with capture_duration() as load_duration:
                     _.fast_api         = Service__Fast_API().setup()
@@ -50,9 +45,6 @@ def setup__service__cache__test_objs():
                     _.cache_fixtures   = setup_cache_fixtures(cache_service = _.cache_service)
                     _.setup_completed  = True
 
-
-
                 _.duration = load_duration.seconds
-
 
             return _

@@ -188,8 +188,7 @@ class Cache__Service(Type_Safe):                                                
         }
 
     def get_or_create_handler(self, namespace: Safe_Str__Id = DEFAULT_CACHE__NAMESPACE) -> Cache__Handler:
-        if namespace not in self.cache_handlers:
-            # Create handler with shared storage backend and namespace
+        if namespace not in self.cache_handlers:                                                         # Create handler with shared storage backend and namespace
             handler = Cache__Handler(storage_backend  = self.storage_backend(),                          # Shared storage backend
                                      namespace        = str(namespace),                                  # Namespace for path prefixing
                                      cache_ttl_hours  = self.cache_config.default_ttl_hours).setup()
@@ -203,11 +202,11 @@ class Cache__Service(Type_Safe):                                                
     def store_with_strategy(self, storage_data     : Any                                   ,
                                   cache_hash       : Safe_Str__Cache_Hash                  ,
                                   strategy         : Enum__Cache__Store__Strategy          ,
-                                  cache_id         : Random_Guid                  = None                       ,
+                                  cache_id         : Random_Guid                  = None   ,
                                   cache_key        : Safe_Str__File__Path         = None   ,
-                                  file_id          : Safe_Str__Id                      = None   ,
-                                  namespace        : Safe_Str__Id                      = None   ,
-                                  content_encoding : Safe_Str__Id                      = None
+                                  file_id          : Safe_Str__Id                 = None   ,
+                                  namespace        : Safe_Str__Id                 = None   ,
+                                  content_encoding : Safe_Str__Id                 = None
                             ) -> Schema__Cache__Store__Response:
         if not cache_hash:
             raise ValueError("in Cache__Service.store_with_strategy, the cache_hash must be provided")                      # todo: see if it makes sense for use to calculate the hash here
@@ -362,6 +361,15 @@ class Cache__Service(Type_Safe):                                                
     #todo: this method should return Schema__Cache__Entry__Details (which should be the class used to save the file)
     def retrieve_by_id__config(self, cache_id  : Random_Guid,
                                      namespace : Safe_Str__Id    = None
+                                ) -> Optional[Dict[str, Any]]:                      #   Retrieve by cache ID using direct path from reference
+        namespace = namespace or Safe_Str__Id("default")
+        handler   = self.get_or_create_handler(namespace)
+
+        with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
+            return ref_fs.config()
+
+    def retrieve_by_id__refs(self, cache_id  : Random_Guid,
+                                   namespace : Safe_Str__Id    = None
                                 ) -> Optional[Dict[str, Any]]:                      #   Retrieve by cache ID using direct path from reference
         namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
