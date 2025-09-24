@@ -9,7 +9,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type import Enum__Cache__Data_Type
 
 
-class Schema__Cache__Store__Data__Response(Type_Safe):
+class Schema__Cache__Data__Store__Response(Type_Safe):
     cache_id           : Random_Guid                            = None
     data_files_created : List[Safe_Str__File__Path]             = None
     data_key           : Safe_Str__File__Path                   = None

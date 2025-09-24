@@ -1,24 +1,23 @@
 import pytest
-from unittest                                                                                 import TestCase
-from osbot_fast_api_serverless.utils.testing.skip_tests                                       import skip__if_not__in_github_actions
-from osbot_utils.testing.__                                                                   import __, __SKIP__
-from osbot_utils.type_safe.Type_Safe                                                          import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                         import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id               import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path             import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                  import Safe_Str__Text
-from osbot_utils.utils.Misc                                                                   import is_guid
-from osbot_utils.utils.Objects                                                                import base_classes
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                       import Enum__Cache__Data_Type
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy                 import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Store__Data__Request          import Schema__Cache__Store__Data__Request
-from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Store__Data__Response         import Schema__Cache__Store__Data__Response
-from mgraph_ai_service_cache.service.cache.Cache__Service                                     import Cache__Service
-from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve                  import Cache__Service__Retrieve
-from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                        import Cache__Service__Store
-from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__Data                  import Cache__Service__Store__Data
-from tests.unit.Service__Cache__Test_Objs                                                     import setup__service__cache__test_objs
-
+from unittest                                                                         import TestCase
+from osbot_fast_api_serverless.utils.testing.skip_tests                               import skip__if_not__in_github_actions
+from osbot_utils.testing.__                                                           import __, __SKIP__
+from osbot_utils.type_safe.Type_Safe                                                  import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                 import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id       import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path     import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text          import Safe_Str__Text
+from osbot_utils.utils.Misc                                                           import is_guid
+from osbot_utils.utils.Objects                                                        import base_classes
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type               import Enum__Cache__Data_Type
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy         import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__Store__Request   import Schema__Cache__Data__Store__Request
+from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__Store__Response  import Schema__Cache__Data__Store__Response
+from mgraph_ai_service_cache.service.cache.Cache__Service                             import Cache__Service
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve          import Cache__Service__Retrieve
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                import Cache__Service__Store
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__Data          import Cache__Service__Store__Data
+from tests.unit.Service__Cache__Test_Objs                                             import setup__service__cache__test_objs
 
 class test_Cache__Service__Store__Data(TestCase):
 
@@ -46,12 +45,12 @@ class test_Cache__Service__Store__Data(TestCase):
         cls.parent_cache_id  = cls.parent_response.cache_id
 
     def setUp(self):
-        self.request = Schema__Cache__Store__Data__Request(cache_id     = self.parent_cache_id           ,
-                                                           data         = self.test_string               ,
-                                                           data_type    = Enum__Cache__Data_Type.STRING ,
-                                                           data_key     = None                          ,
-                                                           data_file_id = None                          ,
-                                                           namespace    = self.test_namespace           )
+        self.request = Schema__Cache__Data__Store__Request(cache_id     = self.parent_cache_id,
+                                                           data         = self.test_string,
+                                                           data_type    = Enum__Cache__Data_Type.STRING,
+                                                           data_key     = None,
+                                                           data_file_id = None,
+                                                           namespace    = self.test_namespace)
 
     def test__init__(self):                                                                      # Test auto-initialization
         with Cache__Service__Store__Data() as _:
@@ -79,7 +78,7 @@ class test_Cache__Service__Store__Data(TestCase):
 
                 expected_data_file = f'{self.test_namespace}/data/semantic-file/logs/application/parent-001/data/{request.data_key}/{request.data_file_id}.txt'
 
-                assert type(result) is Schema__Cache__Store__Data__Response
+                assert type(result) is Schema__Cache__Data__Store__Response
                 assert result.obj() == __(cache_id           = self.parent_cache_id                  ,
                                           data_files_created = [expected_data_file]                  ,
                                           data_key           = 'an/data/folder'                      ,
@@ -102,7 +101,7 @@ class test_Cache__Service__Store__Data(TestCase):
 
                 expected_data_file = f'{self.test_namespace}/data/semantic-file/logs/application/parent-001/data/{request.data_key}/{request.data_file_id}.json'
 
-                assert type(result)          is Schema__Cache__Store__Data__Response
+                assert type(result) is Schema__Cache__Data__Store__Response
                 assert result.cache_id       == self.parent_cache_id
                 assert result.file_size      > 0
                 assert expected_data_file in result.data_files_created
@@ -119,7 +118,7 @@ class test_Cache__Service__Store__Data(TestCase):
 
                 expected_data_file = f'{self.test_namespace}/data/semantic-file/logs/application/parent-001/data/{request.data_key}/{request.data_file_id}.bin'
 
-                assert type(result)     is Schema__Cache__Store__Data__Response
+                assert type(result) is Schema__Cache__Data__Store__Response
                 assert result.file_size == len(self.test_binary)
                 assert expected_data_file in result.data_files_created
 
@@ -130,7 +129,7 @@ class test_Cache__Service__Store__Data(TestCase):
 
                 result = _.store_data(request)
 
-                assert type(result) is Schema__Cache__Store__Data__Response
+                assert type(result) is Schema__Cache__Data__Store__Response
                 assert len(result.data_files_created) > 0
 
                 created_file = result.data_files_created[0]
@@ -158,7 +157,7 @@ class test_Cache__Service__Store__Data(TestCase):
 
                 result = _.store_data(request)
 
-                assert type(result) is Schema__Cache__Store__Data__Response
+                assert type(result) is Schema__Cache__Data__Store__Response
                 assert len(result.data_files_created) >= 1                                      # If multiple handlers exist, would have multiple files created
 
     def test_get_extension_for_type(self):                                                      # Test file extension mapping
@@ -198,7 +197,7 @@ class test_Cache__Service__Store__Data(TestCase):
 
                 result = _.store_data(request)
 
-                assert type(result) is Schema__Cache__Store__Data__Response
+                assert type(result) is Schema__Cache__Data__Store__Response
                 created_file = result.data_files_created[0]
                 assert '2024/12/logs/log-001.txt' in created_file
 
@@ -211,7 +210,7 @@ class test_Cache__Service__Store__Data(TestCase):
 
                 result = _.store_data(request)
 
-                assert type(result) is Schema__Cache__Store__Data__Response
+                assert type(result) is Schema__Cache__Data__Store__Response
                 created_file = result.data_files_created[0]
                 assert f'/data/{request.data_file_id}.txt' in created_file
 
@@ -231,7 +230,7 @@ class test_Cache__Service__Store__Data(TestCase):
 
             assert len(results) == 3
             for result in results:
-                assert type(result)    is Schema__Cache__Store__Data__Response
+                assert type(result) is Schema__Cache__Data__Store__Response
                 assert result.cache_id == self.parent_cache_id
 
     def test_retrieve_service(self):                                                            # Test retrieve service caching
@@ -252,7 +251,7 @@ class test_Cache__Service__Store__Data(TestCase):
                 result = _.store_data(request)
 
                 # url_join_safe should sanitize the path
-                assert type(result) is Schema__Cache__Store__Data__Response
+                assert type(result) is Schema__Cache__Data__Store__Response
                 created_file = result.data_files_created[0]
                 # Path should be sanitized (no ../ sequences that could escape)
                 assert created_file == 'test-data-service/data/semantic-file/logs/application/parent-001/data/-/-/-/etc/passwd.txt'

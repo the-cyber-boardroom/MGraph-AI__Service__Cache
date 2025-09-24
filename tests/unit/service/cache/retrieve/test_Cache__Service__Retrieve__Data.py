@@ -1,22 +1,23 @@
 import pytest
-from unittest                                                                      import TestCase
-from osbot_fast_api_serverless.utils.testing.skip_tests                            import skip__if_not__in_github_actions
-from osbot_utils.testing.__                                                        import __
-from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid              import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id    import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path  import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text       import Safe_Str__Text
-from osbot_utils.type_safe.primitives.core.Safe_UInt                               import Safe_UInt
-from osbot_utils.utils.Objects                                                     import base_classes
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type            import Enum__Cache__Data_Type
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy      import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.service.cache.Cache__Service                          import Cache__Service
-from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve       import Cache__Service__Retrieve
-from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve__Data import Cache__Service__Retrieve__Data, Schema__Data__File__Info, Schema__Data__File__Content
-from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store             import Cache__Service__Store
-from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__Data       import Cache__Service__Store__Data
-from tests.unit.Service__Cache__Test_Objs                                          import setup__service__cache__test_objs
+from unittest                                                                           import TestCase
+from osbot_fast_api_serverless.utils.testing.skip_tests                                 import skip__if_not__in_github_actions
+from osbot_utils.testing.__                                                             import __
+from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                   import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id         import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text            import Safe_Str__Text
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                    import Safe_UInt
+from osbot_utils.utils.Objects                                                          import base_classes
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                 import Enum__Cache__Data_Type
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy           import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__Store__Request     import Schema__Cache__Data__Store__Request
+from mgraph_ai_service_cache.service.cache.Cache__Service                               import Cache__Service
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve            import Cache__Service__Retrieve
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve__Data      import Cache__Service__Retrieve__Data, Schema__Cache__Data__File__Info, Schema__Cache__Data__File__Content
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                  import Cache__Service__Store
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__Data            import Cache__Service__Store__Data
+from tests.unit.Service__Cache__Test_Objs                                               import setup__service__cache__test_objs
 
 
 class test_Cache__Service__Retrieve__Data(TestCase):
@@ -43,25 +44,23 @@ class test_Cache__Service__Retrieve__Data(TestCase):
 
         # Create test data files
         cls.test_data_files = {}
-        for data_type, data in [("string", "test data string"           ),
-                                ("json"  , {"data": "json", "id": 456} ),
-                                ("binary", b"test data bytes\x00\x01"  )]:
-            data_key     = Safe_Str__File__Path(f"test/{data_type}")
-            data_file_id = Safe_Str__Id(f"test-{data_type}-data")
+        for data_type, data in [(Enum__Cache__Data_Type.STRING , "test data string"          ),
+                                (Enum__Cache__Data_Type.JSON   , {"data": "json", "id": 456} ),
+                                (Enum__Cache__Data_Type.BINARY , b"test data bytes\x00\x01"  )]:
+            data_key     = Safe_Str__File__Path(f"test/{data_type.value}")
+            data_file_id = Safe_Str__Id(f"test-{data_type.value}-data")
+            data_request = Schema__Cache__Data__Store__Request(cache_id     = cls.parent_cache_id,
+                                                               data         = data,
+                                                               data_type    = data_type.value,
+                                                               data_key     = data_key,
+                                                               data_file_id = data_file_id,
+                                                               namespace    = cls.test_namespace)
+            data_response = cls.service__store_data.store_data(data_request)
 
-            result = cls.service__store_data.store_data(cache_id     = cls.parent_cache_id                       ,
-                                                        data         = data                                      ,
-                                                        data_type    = Enum__Cache__Data_Type[data_type.upper()],
-                                                        data_key     = data_key                                 ,
-                                                        data_file_id = data_file_id                             ,
-                                                        namespace    = cls.test_namespace                       )
-
-            cls.test_data_files[data_type] = {
-                "data"         : data                                                           ,
-                "data_key"     : data_key                                                       ,
-                "data_file_id" : data_file_id                                                   ,
-                "result"       : result
-            }
+            cls.test_data_files[data_type] = { "data"         : data          ,
+                                               "data_key"     : data_key      ,
+                                               "data_file_id" : data_file_id  ,
+                                               "result"       : data_response }
 
     def test__init__(self):                                                                     # Test auto-initialization
         with Cache__Service__Retrieve__Data() as _:
@@ -78,31 +77,43 @@ class test_Cache__Service__Retrieve__Data(TestCase):
                                     data_file_id = data_info["data_file_id"]                    ,
                                     namespace    = self.test_namespace                          )
 
-            assert type(result)         is Schema__Data__File__Content
+            assert type(result) is Schema__Cache__Data__File__Content
             assert result.data          == data_info["data"]
             assert result.data_type     == Enum__Cache__Data_Type.STRING
             assert result.data_file_id  == data_info["data_file_id"]
             assert result.data_key      == data_info["data_key"]
             assert type(result.full_path) is Safe_Str__File__Path
 
-            # Use .obj() for comprehensive comparison
-            assert result.obj().contains(__(data         = data_info["data"]                    ,
-                                           data_type    = Enum__Cache__Data_Type.STRING         ,
-                                           data_file_id = data_info["data_file_id"]             ))
+            assert result.obj().contains(__(data        = data_info["data"]             ,               # Use .obj() for comprehensive comparison
+                                           data_type    = Enum__Cache__Data_Type.STRING ,
+                                           data_file_id = data_info["data_file_id"]     ))
+            assert result.obj()      == __(data         = 'test data string',
+                                           data_type    = 'string'          ,
+                                           data_file_id = 'test-string-data',
+                                           data_key     = 'test/string'     ,
+                                           full_path    = 'test-retrieve-data/data/semantic-file/test/retrieve/retrieve-parent/data/test/string/test-string-data.txt',
+                                           size         = 16                )
 
     def test_retrieve_data__json(self):                                                         # Test retrieving JSON data
         with self.service__retrieve as _:
             data_info = self.test_data_files["json"]
 
-            result = _.retrieve_data(cache_id     = self.parent_cache_id                        ,
-                                    data_key     = data_info["data_key"]                        ,
-                                    data_file_id = data_info["data_file_id"]                    ,
-                                    namespace    = self.test_namespace                          )
+            result = _.retrieve_data(cache_id     = self.parent_cache_id      ,
+                                     data_key     = data_info["data_key"]     ,
+                                     data_file_id = data_info["data_file_id"] ,
+                                     namespace    = self.test_namespace       )
 
-            assert type(result)      is Schema__Data__File__Content
-            assert result.data       == data_info["data"]
-            assert result.data_type  == Enum__Cache__Data_Type.JSON
-            assert result.data_file_id == data_info["data_file_id"]
+            assert type(result) is Schema__Cache__Data__File__Content
+            assert result.data          == data_info["data"]
+            assert result.data_type     == Enum__Cache__Data_Type.JSON
+            assert result.data_file_id  == data_info["data_file_id"]
+            assert result.obj()         == __(data         = __(data        = 'json'  ,
+                                                                id          = 456     ),
+                                              data_type    = 'json'    ,
+                                              data_file_id = 'test-json-data'   ,
+                                              data_key     ='test/json'         ,
+                                              full_path    ='test-retrieve-data/data/semantic-file/test/retrieve/retrieve-parent/data/test/json/test-json-data.json',
+                                              size         = 27             )
 
     def test_retrieve_data__binary(self):                                                       # Test retrieving binary data
         with self.service__retrieve as _:
@@ -113,7 +124,7 @@ class test_Cache__Service__Retrieve__Data(TestCase):
                                     data_file_id = data_info["data_file_id"]                    ,
                                     namespace    = self.test_namespace                          )
 
-            assert type(result)      is Schema__Data__File__Content
+            assert type(result) is Schema__Cache__Data__File__Content
             assert result.data       == data_info["data"]
             assert result.data_type  == Enum__Cache__Data_Type.BINARY
             assert result.data_file_id == data_info["data_file_id"]
@@ -155,7 +166,7 @@ class test_Cache__Service__Retrieve__Data(TestCase):
             assert len(data_files) >= 3                                                         # At least our 3 test files
 
             for file_info in data_files:
-                assert type(file_info)              is Schema__Data__File__Info
+                assert type(file_info) is Schema__Cache__Data__File__Info
                 assert type(file_info.data_file_id) is Safe_Str__Id
                 assert type(file_info.data_key)     is Safe_Str__File__Path
                 assert type(file_info.full_path)    is Safe_Str__File__Path
@@ -321,8 +332,8 @@ class test_Cache__Service__Retrieve__Data(TestCase):
             assert type(retrieve1) is Cache__Service__Retrieve
 
     def test_schema__data__file__info(self):                                                    # Test Schema__Data__File__Info
-        with Schema__Data__File__Info() as _:
-            assert type(_)              is Schema__Data__File__Info
+        with Schema__Cache__Data__File__Info() as _:
+            assert type(_) is Schema__Cache__Data__File__Info
             assert base_classes(_)      == [Type_Safe, object]
             assert type(_.data_file_id) is Safe_Str__Id
             assert type(_.data_key)     is Safe_Str__File__Path
@@ -347,8 +358,8 @@ class test_Cache__Service__Retrieve__Data(TestCase):
                                 size         = 1024                                             )
 
     def test_schema__data__file__content(self):                                                 # Test Schema__Data__File__Content
-        with Schema__Data__File__Content() as _:
-            assert type(_)              is Schema__Data__File__Content
+        with Schema__Cache__Data__File__Content() as _:
+            assert type(_) is Schema__Cache__Data__File__Content
             assert base_classes(_)      == [Type_Safe, object]
             # Note: 'data' is Any type, so no type checking
             assert type(_.data_type)    is Enum__Cache__Data_Type

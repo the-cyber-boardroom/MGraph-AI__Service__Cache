@@ -1,34 +1,20 @@
-from typing                                                                                  import Any, List, Dict, Optional
-from osbot_utils.decorators.methods.cache_on_self                                            import cache_on_self
-from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path            import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                        import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id              import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text   import Safe_Str__Text
-from osbot_utils.type_safe.primitives.core.Safe_UInt                           import Safe_UInt
-from osbot_utils.utils.Http                                                    import url_join_safe
-from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service               import DEFAULT_CACHE__NAMESPACE
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type        import Enum__Cache__Data_Type
-from mgraph_ai_service_cache.service.cache.Cache__Service                      import Cache__Service
-from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve   import Cache__Service__Retrieve
+from typing                                                                         import List, Optional
+from osbot_utils.decorators.methods.cache_on_self                                   import cache_on_self
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text        import Safe_Str__Text
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                import Safe_UInt
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                      import type_safe
+from osbot_utils.utils.Http                                                         import url_join_safe
+from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                    import DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__File__Content  import Schema__Cache__Data__File__Content
+from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__File__Info     import Schema__Cache__Data__File__Info
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type             import Enum__Cache__Data_Type
+from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve        import Cache__Service__Retrieve
 
-
-class Schema__Data__File__Info(Type_Safe):                                                      # Information about a data file
-    data_file_id : Safe_Str__Id                                                                 # Data file identifier
-    data_key     : Safe_Str__File__Path                                                         # Path within data folder
-    full_path    : Safe_Str__File__Path                                                         # Full file path
-    data_type    : Enum__Cache__Data_Type                                                       # Data type: json, string, binary
-    extension    : Safe_Str__Text                                                               # File extension
-    size         : Safe_UInt                                                                    # File size in bytes
-
-
-class Schema__Data__File__Content(Type_Safe):                                                   # Data file with its content
-    data         : Any                                                                          # Actual file content
-    data_type    : Enum__Cache__Data_Type                                                       # Data type: json, string, binary
-    data_file_id : Safe_Str__Id                                                                 # Data file identifier
-    data_key     : Safe_Str__File__Path                                                         # Path within data folder
-    full_path    : Safe_Str__File__Path                                                         # Full file path
-    size         : Safe_UInt                                                                    # File size in bytes
 
 
 class Cache__Service__Retrieve__Data(Type_Safe):                                                # Service for retrieving data files
@@ -43,7 +29,7 @@ class Cache__Service__Retrieve__Data(Type_Safe):                                
                             data_key     : Safe_Str__File__Path         = None               ,  # Path within data folder
                             data_file_id : Safe_Str__Id                 = None               ,  # Specific file ID
                             namespace    : Safe_Str__Id                 = DEFAULT_CACHE__NAMESPACE
-                      ) -> Optional[Schema__Data__File__Content]:                               # Returns data content or None
+                      ) -> Optional[Schema__Cache__Data__File__Content]:                               # Returns data content or None
 
         if not cache_id:
             raise ValueError("cache_id is required to retrieve data")
@@ -83,19 +69,19 @@ class Cache__Service__Retrieve__Data(Type_Safe):                                
 
                     file_size = handler.storage_backend.file__size(full_path) if hasattr(handler.storage_backend, 'file__size') else len(str(data))
 
-                    return Schema__Data__File__Content(data         = data                          ,
-                                                       data_type    = data_type                      ,
-                                                       data_file_id = data_file_id or Safe_Str__Id(""),
-                                                       data_key     = data_key or Safe_Str__File__Path(""),
-                                                       full_path    = full_path                      ,
-                                                       size         = Safe_UInt(file_size)           )
+                    return Schema__Cache__Data__File__Content(data         = data,
+                                                              data_type    = data_type,
+                                                              data_file_id = data_file_id or Safe_Str__Id(""),
+                                                              data_key     = data_key or Safe_Str__File__Path(""),
+                                                              full_path    = full_path,
+                                                              size         = Safe_UInt(file_size))
         return None
 
     @type_safe
     def list_data_files(self, cache_id  : Random_Guid                                         ,  # Cache entry ID
                               data_key  : Safe_Str__File__Path          = None               ,  # Filter by path
                               namespace : Safe_Str__Id                  = DEFAULT_CACHE__NAMESPACE
-                        ) -> List[Schema__Data__File__Info]:                                    # List all data files
+                        ) -> List[Schema__Cache__Data__File__Info]:                                    # List all data files
 
         if not cache_id:
             raise ValueError("cache_id is required to list data files")
@@ -156,7 +142,7 @@ class Cache__Service__Retrieve__Data(Type_Safe):                                
                     # Get file size
                     file_size = handler.storage_backend.file__size(file_path) if hasattr(handler.storage_backend, 'file__size') else 0
 
-                    data_files.append(Schema__Data__File__Info(
+                    data_files.append(Schema__Cache__Data__File__Info(
                         data_file_id = Safe_Str__Id(file_id_part)           ,
                         data_key     = relative_key                         ,
                         full_path    = Safe_Str__File__Path(file_str)       ,

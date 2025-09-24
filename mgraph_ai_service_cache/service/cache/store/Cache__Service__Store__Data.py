@@ -8,8 +8,8 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  
 from osbot_utils.utils.Http                                                           import url_join_safe
 from osbot_utils.utils.Json                                                           import json_to_bytes
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type               import Enum__Cache__Data_Type
-from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Store__Data__Request  import Schema__Cache__Store__Data__Request
-from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Store__Data__Response import Schema__Cache__Store__Data__Response
+from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__Store__Request   import Schema__Cache__Data__Store__Request
+from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__Store__Response  import Schema__Cache__Data__Store__Response
 from mgraph_ai_service_cache.service.cache.Cache__Service                             import Cache__Service
 from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve          import Cache__Service__Retrieve
 
@@ -22,7 +22,7 @@ class Cache__Service__Store__Data(Type_Safe):                                   
         return Cache__Service__Retrieve(cache_service = self.cache_service)
 
     @type_safe
-    def store_data(self, request: Schema__Cache__Store__Data__Request) -> Schema__Cache__Store__Data__Response:                  #
+    def store_data(self, request: Schema__Cache__Data__Store__Request) -> Schema__Cache__Data__Store__Response:                  #
 
         # if not cache_id:                                                                         # Validate required parameters
         #     raise ValueError("cache_id is required for Cache__Service__Store__Data.store_data")
@@ -51,14 +51,14 @@ class Cache__Service__Store__Data(Type_Safe):                                   
                     raise RuntimeError(f"Failed to save child file at {data_path}")
 
 
-            return Schema__Cache__Store__Data__Response(cache_id           = request.cache_id       ,
-                                                        data_files_created = files_created          ,
-                                                        data_key           = request.data_key       ,
-                                                        data_type          = request.data_type      ,
-                                                        extension          = extension              ,
-                                                        file_size          = len(serialized_data)   ,
-                                                        file_id            = request.data_file_id   ,
-                                                        namespace          = request.namespace      )
+            return Schema__Cache__Data__Store__Response(cache_id           = request.cache_id,
+                                                        data_files_created = files_created,
+                                                        data_key           = request.data_key,
+                                                        data_type          = request.data_type,
+                                                        extension          = extension,
+                                                        file_size          = len(serialized_data),
+                                                        file_id            = request.data_file_id,
+                                                        namespace          = request.namespace)
         else:
             return None
 

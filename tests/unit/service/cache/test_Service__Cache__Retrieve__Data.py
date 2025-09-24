@@ -10,7 +10,7 @@ from osbot_utils.type_safe.primitives.core.Safe_UInt                            
 from osbot_utils.utils.Objects                                                     import base_classes
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy      import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.service.cache.Cache__Service                          import Cache__Service
-from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve__Data import Cache__Service__Retrieve__Data
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve__Data import Cache__Service__Retrieve__Data, Schema__Cache__Data__File__Content
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store             import Cache__Service__Store
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__Data import Cache__Service__Store__Data
 from tests.unit.Service__Cache__Test_Objs                                          import setup__service__cache__test_objs
@@ -41,19 +41,18 @@ class test_Cache__Service__Retrieve__Data(TestCase):
         cls.parent_file_id   = parent_response.cache_id if parent_response else Safe_Str__Id("retrieve-parent")
 
         # Create test children
-        cls.test_children = {}
-        for child_type, data in [("string", "test child string"          ),
+        cls.test_data = {}
+        for data_type, data in [("string", "test child string"          ),
                                  ("json"  , {"child": "json", "id": 123}),
                                  ("binary", b"test child bytes\x00\x01" )]:
-            child_id = Safe_Str__Id(f"test-{child_type}-child")
-            cls.data_store.store_data(data      = data,
-                                       data_type = Safe_Str__Text(child_type),
-                                       namespace = cls.test_namespace,
-                                       strategy  = cls.test_strategy,
-                                       cache_key = cls.test_cache_key,
-                                       file_id   = cls.parent_file_id,
-                                       child_id  = child_id)
-            cls.test_children[child_type] = {"id": child_id, "data": data}
+            data_response = cls.data_store.store_data(data      = data                     ,
+                                                      data_type = Safe_Str__Text(data_type),
+                                                      namespace = cls.test_namespace       ,
+                                                      strategy  = cls.test_strategy        ,
+                                                      cache_key = cls.test_cache_key       ,
+                                                      file_id   = cls.parent_file_id       )
+            cls.test_data[data_type] = { "id": data_response.cache_id,
+                                         "data": data}
 
     def test__init__(self):                                                                     # Test auto-initialization
         with Cache__Service__Retrieve__Data() as _:
@@ -63,14 +62,14 @@ class test_Cache__Service__Retrieve__Data(TestCase):
 
     def test_retrieve_child__string(self):                                                      # Test retrieving string child
         with self.child_retrieve as _:
-            child_info = self.test_children["string"]
-            result = _.retrieve_child(child_id  = child_info["id"]                          ,
+            child_info = self.test_data["string"]
+            result = _.retrieve_data(cache_id  = child_info["cache_id"]                          ,
                                      namespace = self.test_namespace                        ,
                                      strategy  = self.test_strategy                         ,
                                      cache_key = self.test_cache_key                        ,
                                      file_id   = self.parent_file_id                        )
 
-            assert type(result)       is Schema__Child__File__Data
+            assert type(result) is Schema__Cache__Data__File__Content
             assert result.data        == child_info["data"]
             assert result.data_type   == Safe_Str__Text("string")
             assert result.child_id    == child_info["id"]
@@ -83,7 +82,7 @@ class test_Cache__Service__Retrieve__Data(TestCase):
 
     def test_retrieve_child__json(self):                                                        # Test retrieving JSON child
         with self.child_retrieve as _:
-            child_info = self.test_children["json"]
+            child_info = self.test_data["json"]
             result = _.retrieve_child(child_id  = child_info["id"]                          ,
                                      namespace = self.test_namespace                        ,
                                      strategy  = self.test_strategy                         ,
@@ -97,7 +96,7 @@ class test_Cache__Service__Retrieve__Data(TestCase):
 
     def test_retrieve_child__binary(self):                                                      # Test retrieving binary child
         with self.child_retrieve as _:
-            child_info = self.test_children["binary"]
+            child_info = self.test_data["binary"]
             result = _.retrieve_child(child_id  = child_info["id"]                          ,
                                      namespace = self.test_namespace                        ,
                                      strategy  = self.test_strategy                         ,
@@ -172,7 +171,7 @@ class test_Cache__Service__Retrieve__Data(TestCase):
                 assert type(child.extension) is Safe_Str__Text
 
                 # Check our test children are in the list
-                if child.child_id in [c["id"] for c in self.test_children.values()]:
+                if child.child_id in [c["id"] for c in self.test_data.values()]:
                     assert child.data_type in ["string", "json", "binary"]
                     assert child.extension in ["txt", "json", "bin"]
 
