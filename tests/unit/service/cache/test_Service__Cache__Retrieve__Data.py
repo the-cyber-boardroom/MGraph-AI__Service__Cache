@@ -15,7 +15,7 @@ from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store          
 from tests.unit.Service__Cache__Test_Objs                                         import setup__service__cache__test_objs
 
 
-class test_Cache__Service__Retrieve__Child(TestCase):
+class test_Cache__Service__Retrieve__Data(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                                        # ONE-TIME expensive setup
@@ -45,13 +45,13 @@ class test_Cache__Service__Retrieve__Child(TestCase):
                                  ("json"  , {"child": "json", "id": 123}),
                                  ("binary", b"test child bytes\x00\x01" )]:
             child_id = Safe_Str__Id(f"test-{child_type}-child")
-            cls.child_store.store_child(data      = data                                     ,
-                                       data_type = Safe_Str__Text(child_type)                ,
-                                       namespace = cls.test_namespace                        ,
-                                       strategy  = cls.test_strategy                         ,
-                                       cache_key = cls.test_cache_key                        ,
-                                       file_id   = cls.parent_file_id                        ,
-                                       child_id  = child_id                                  )
+            cls.child_store.store_data(data      = data,
+                                       data_type = Safe_Str__Text(child_type),
+                                       namespace = cls.test_namespace,
+                                       strategy  = cls.test_strategy,
+                                       cache_key = cls.test_cache_key,
+                                       file_id   = cls.parent_file_id,
+                                       child_id  = child_id)
             cls.test_children[child_type] = {"id": child_id, "data": data}
 
     def test__init__(self):                                                                     # Test auto-initialization
@@ -230,13 +230,13 @@ class test_Cache__Service__Retrieve__Child(TestCase):
         with self.child_retrieve as _:
             # Create a child to delete
             delete_child_id = Safe_Str__Id("child-to-delete")
-            self.child_store.store_child(data      = "data to delete"                       ,
-                                        data_type = Safe_Str__Text("string")                ,
-                                        namespace = self.test_namespace                     ,
-                                        strategy  = self.test_strategy                      ,
-                                        cache_key = self.test_cache_key                     ,
-                                        file_id   = self.parent_file_id                     ,
-                                        child_id  = delete_child_id                         )
+            self.child_store.store_data(data      ="data to delete",
+                                        data_type = Safe_Str__Text("string"),
+                                        namespace = self.test_namespace,
+                                        strategy  = self.test_strategy,
+                                        cache_key = self.test_cache_key,
+                                        file_id   = self.parent_file_id,
+                                        child_id  = delete_child_id)
 
             # Verify it exists
             exists = _.retrieve_child(child_id  = delete_child_id                           ,
@@ -285,13 +285,13 @@ class test_Cache__Service__Retrieve__Child(TestCase):
 
             # Add multiple children
             for i in range(5):
-                self.child_store.store_child(data      = f"delete child {i}"                ,
-                                           data_type = Safe_Str__Text("string")             ,
-                                           namespace = self.test_namespace                  ,
-                                           strategy  = self.test_strategy                   ,
-                                           cache_key = Safe_Str__File__Path("delete/all")   ,
-                                           file_id   = delete_parent.cache_id               ,
-                                           child_id  = Safe_Str__Id(f"del-child-{i}")       )
+                self.child_store.store_data(data      =f"delete child {i}",
+                                            data_type = Safe_Str__Text("string"),
+                                            namespace = self.test_namespace,
+                                            strategy  = self.test_strategy,
+                                            cache_key = Safe_Str__File__Path("delete/all"),
+                                            file_id   = delete_parent.cache_id,
+                                            child_id  = Safe_Str__Id(f"del-child-{i}"))
 
             # Verify they exist
             count_before = _.count_children(namespace = self.test_namespace                 ,
