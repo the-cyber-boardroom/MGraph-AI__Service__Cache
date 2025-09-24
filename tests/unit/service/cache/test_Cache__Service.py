@@ -278,7 +278,8 @@ class test_Cache__Service(TestCase):
                                                                     'test-service/refs/by-hash/9e/db/9edb6ed62ec59b6c.json.config'          ,
                                                                     'test-service/refs/by-hash/9e/db/9edb6ed62ec59b6c.json.metadata'        ],
                                                        by_id     = __SKIP__                                                                 ),
-                                   content_paths    = [f'test-service/data/temporal/{self.path_now}/{cache_id}.json'],
+                                   file_paths       = __( content_files = [f'test-service/data/temporal/{self.path_now}/{cache_id}.json'],
+                                                          data_folders  = [f'test-service/data/temporal/{self.path_now}/{cache_id}/data']),
                                    file_type        = 'json',
                                    timestamp        = __SKIP__)
 
@@ -317,10 +318,10 @@ class test_Cache__Service(TestCase):
             cache_id = Random_Guid()
 
             result = _.store_with_strategy(storage_data = binary_data,
-                                          cache_hash   = cache_hash,
-                                          cache_id     = cache_id,
-                                          strategy     = Enum__Cache__Store__Strategy.DIRECT,
-                                          namespace    = self.test_namespace)
+                                           cache_hash   = cache_hash,
+                                           cache_id     = cache_id,
+                                           strategy     = Enum__Cache__Store__Strategy.DIRECT,
+                                           namespace    = self.test_namespace)
 
             self.created_ids.append(cache_id)
 

@@ -16,7 +16,7 @@ class Cache__Service__Store__With_Strategy(Type_Safe):                          
         self.initialize_context   (context)                                                 # Set defaults and initialize tracking
         self.store_data           (context)                                                 # Store the actual data using selected strategy
         self.update_hash_reference(context)                                                 # Update or create hash-to-ID reference
-        self.create_id_reference  (context)                                                 # Create ID-to-hash reference with metadata
+        self.create_file_refs  (context)                                                 # Create ID-to-hash reference with metadata
         return self.build_response(context)                                                 # Build and return the response
 
     def initialize_context(self, context: Schema__Store__Context):                          # Initialize context with defaults and tracking structures
@@ -42,11 +42,13 @@ class Cache__Service__Store__With_Strategy(Type_Safe):                          
             context.file_type = "json"
 
         with file_fs:                                                                         # Store data with metadata
-            context.all_paths.data = file_fs.create(context.storage_data)                    # Store directly to Type_Safe list
-            context.content_paths  = file_fs.file_fs__paths().paths__content()
+            context.all_paths.data            = file_fs.create(context.storage_data)                     # Store directly to Type_Safe list
+            context.file_paths.content_files  = file_fs.file_fs__paths().paths__content     ()
+            context.file_paths.data_folders   = file_fs.file_fs__paths().paths__data_folders()
+            context.metadata                  = self.build_metadata(context)                             # Build metadata as Type_Safe object
 
-            context.metadata = self.build_metadata(context)                                 # Build metadata as Type_Safe object
-            file_fs.metadata__update(context.metadata.json())                                # Convert to dict for storage
+            file_fs.metadata__update(context.metadata.json())                                 # Convert to dict for storage
+
             context.file_size = file_fs.metadata().content__size
 
     def build_metadata(self, context: Schema__Store__Context  # Build metadata Type_Safe object for the stored file
@@ -103,21 +105,21 @@ class Cache__Service__Store__With_Strategy(Type_Safe):                          
         paths_hash_to_id          = ref_fs.create(file_data=hash_ref.json())
         context.all_paths.by_hash = paths_hash_to_id
 
-    def create_id_reference(self, context: Schema__Store__Context):                         # Create the ID-to-hash reference with content paths
+    def create_file_refs(self, context: Schema__Store__Context):                         # Create the ID-to-hash reference with content paths
         file_id = Safe_Str__Id(str(context.cache_id))                                        # Use cache ID as file ID
 
         with context.handler.fs__refs_id.file__json(file_id) as ref_fs:
             context.all_paths.by_id = ref_fs.paths()                                         # Track paths
 
             # Build complete reference with Type_Safe
-            id_reference = Schema__Cache__File__Refs(all_paths     = context.all_paths      ,
-                                                     cache_id      = str(context.cache_id)  ,
-                                                     cache_hash    = str(context.cache_hash),
-                                                     namespace     = str(context.namespace) ,
-                                                     strategy      = context.strategy       ,
-                                                     content_paths = context.content_paths  ,
-                                                     file_type     = context.file_type      ,
-                                                     timestamp     = context.timestamp      )
+            id_reference = Schema__Cache__File__Refs(all_paths         = context.all_paths      ,
+                                                     cache_id          = str(context.cache_id)  ,
+                                                     cache_hash        = str(context.cache_hash),
+                                                     file_paths        = context.file_paths     ,
+                                                     namespace         = str(context.namespace) ,
+                                                     strategy          = context.strategy       ,
+                                                     file_type         = context.file_type      ,
+                                                     timestamp         = context.timestamp      )
 
             ref_fs.create(id_reference.json())                                               # Store as JSON
 

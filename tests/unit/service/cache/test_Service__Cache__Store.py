@@ -66,8 +66,8 @@ class test_Cache__Service__Store(TestCase):
     def test_store_string(self):                                                     # Test string storage using fixture data
         with self.store_service as _:
             result = _.store_string(data      = self.test_string                    ,
-                                   strategy  = Enum__Cache__Store__Strategy.TEMPORAL,
-                                   namespace = self.test_namespace                  )
+                                    strategy  = Enum__Cache__Store__Strategy.TEMPORAL,
+                                    namespace = self.test_namespace                  )
             self._track_cache_id(result)
 
             assert type(result)            is Schema__Cache__Store__Response

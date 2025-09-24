@@ -266,17 +266,17 @@ class Cache__Service(Type_Safe):                                                
                 return None
             ref_data = ref_fs.content()
 
-        content_paths = ref_data.get("content_paths", [])
+        paths__content = ref_data.get("file_paths", {}).get("content_files")
         file_type     = ref_data.get("file_type", "json")
 
-        if not content_paths:
+        if not paths__content:
             return None
 
         # Get the storage backend
         storage = handler.fs__refs_id.storage_fs
 
         # Read the content file directly (first path is the main content)
-        content_path = content_paths[0] if content_paths else None
+        content_path = paths__content[0] if paths__content else None
 
         if content_path and storage.file__exists(content_path):
             if file_type == "binary":

@@ -24,12 +24,12 @@ class test_Cache__Service__Store__Data(TestCase):
     @classmethod
     def setUpClass(cls):
         pytest.skip("needs refactoring of Cache__Service__Store__Child (namely how data files are stored)")
-        cls.test_objs          = setup__service__cache__test_objs()                              # Reuse shared test objects
-        cls.cache_fixtures     = cls.test_objs.cache_fixtures
-        cls.cache_service      = cls.cache_fixtures.cache_service
-        cls.store_service      = Cache__Service__Store      (cache_service = cls.cache_service)
-        cls.retrieve_service   = Cache__Service__Retrieve   (cache_service = cls.cache_service)
-        cls.store_data_service = Cache__Service__Store__Data(cache_service = cls.cache_service)
+        cls.test_objs           = setup__service__cache__test_objs()                              # Reuse shared test objects
+        cls.cache_fixtures      = cls.test_objs.cache_fixtures
+        cls.service__cache      = cls.cache_fixtures.cache_service
+        cls.service__store      = Cache__Service__Store      (cache_service = cls.service__cache)
+        cls.service__retrieve   = Cache__Service__Retrieve   (cache_service = cls.service__cache)
+        cls.service__store_data = Cache__Service__Store__Data(cache_service = cls.service__cache)
 
         cls.test_namespace   = Safe_Str__Id("test-child-service")                              # Test data setup
         cls.test_cache_key   = Safe_Str__File__Path("logs/application")
@@ -38,7 +38,7 @@ class test_Cache__Service__Store__Data(TestCase):
         cls.test_binary      = b"child binary data \x00\x01\x02"
 
         # Create parent file for testing
-        cls.parent_response   = cls.store_service.store_string(data      = "parent data"                          ,
+        cls.parent_response   = cls.service__store.store_string(data      = "parent data"                          ,
                                                                namespace = cls.test_namespace                      ,
                                                                strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE,
                                                                cache_key = cls.test_cache_key                     ,
@@ -49,9 +49,9 @@ class test_Cache__Service__Store__Data(TestCase):
         with Cache__Service__Store__Data() as _:
             assert type(_) is Cache__Service__Store__Data
             assert base_classes(_)       == [Type_Safe, object]
-            assert type(_.cache_service) is Cache__Service
+            assert type(_.service__cache) is Cache__Service
 
-            assert _.obj() == __(cache_service = __(cache_config     = __(storage_mode     = 'memory',
+            assert _.obj() == __(service__cache = __(cache_config     = __(storage_mode     = 'memory',
                                                                           default_bucket    = None    ,
                                                                           default_ttl_hours = 24      ,
                                                                           local_disk_path   = None    ,
@@ -62,16 +62,16 @@ class test_Cache__Service__Store__Data(TestCase):
                                                     hash_generator   = __(config = __(algorithm = 'sha256', length = 16))))
 
     def test_store_child__string(self):                                                        # Test string child storage
-        with self.retrieve_service as _:
+        with self.service__retrieve as _:
             #_.retrieve_by_id          (cache_id=self.parent_file_id, namespace=self.test_namespace).print()
-            _.retrieve_by_id__config  (cache_id=self.parent_file_id, namespace=self.test_namespace).print()
+            #_.retrieve_by_id__config  (cache_id=self.parent_file_id, namespace=self.test_namespace).print()
             #_.retrieve_by_id__metadata(cache_id=self.parent_file_id, namespace=self.test_namespace).print()
             _.retrieve_by_id__refs    (cache_id=self.parent_file_id, namespace=self.test_namespace).print()
 
-        with self.store_data_service as _:
+        with self.service__store_data as _:
             #self.parent_response.print()
             return
-            pprint(_.cache_service.retrieve_by_id__config(self.parent_file_id, namespace=self.test_namespace))
+            pprint(_.service__cache.retrieve_by_id__config(self.parent_file_id, namespace=self.test_namespace))
 
             result = _.store_child(data      = self.test_string                               ,
                                   data_type = Safe_Str__Text('string')                        ,
@@ -101,7 +101,7 @@ class test_Cache__Service__Store__Data(TestCase):
             self.created_children.append(Safe_Str__Id("child-001"))
 
     def test_store_child__json(self):                                                          # Test JSON child storage
-        with self.child_service as _:
+        with self.service__store_data as _:
             result = _.store_child(data      = self.test_json                                ,
                                   data_type = Safe_Str__Text('json')                         ,
                                   namespace = self.test_namespace                            ,
@@ -115,7 +115,7 @@ class test_Cache__Service__Store__Data(TestCase):
             assert result.size           > 0
 
             # Hash should be deterministic for same data
-            expected_hash = _.cache_service.hash_from_json(self.test_json)
+            expected_hash = _.service__cache.hash_from_json(self.test_json)
             assert result.cache_hash == expected_hash
 
     def test_store_child__binary(self):                                                        # Test binary child storage
@@ -327,7 +327,7 @@ class test_Cache__Service__Store__Data(TestCase):
         with self.child_service as _:
             # Time parent storage
             start_parent = time.time()
-            parent_result = self.store_service.store_string(data      = "parent performance test"                  ,
+            parent_result = self.service__store.store_string(data      = "parent performance test"                  ,
                                                            namespace = self.test_namespace                        ,
                                                            strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE ,
                                                            cache_key = Safe_Str__File__Path("perf/test")          ,

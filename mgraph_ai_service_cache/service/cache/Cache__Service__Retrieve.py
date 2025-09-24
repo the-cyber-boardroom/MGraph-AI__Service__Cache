@@ -91,11 +91,11 @@ class Cache__Service__Retrieve(Type_Safe):                                      
             return None
 
         all_details   = {}
-        content_paths = details.content_paths                                            # capture this path, since we don't want to show it (i.e. don't add the file's content)
+        paths__content = details.file_paths.content_files                                     # capture this path, since we don't want to show it (i.e. don't add the file's content)
         storage_fs    = self.cache_service.storage_fs()
         for file_type, file_paths in details.all_paths.json().items():
             for file_path in file_paths:
-                if file_path not in content_paths:
+                if file_path not in paths__content:
                     file_contents          = storage_fs.file__json(file_path)          # all these files are json files
                     all_details[file_path] = file_contents
         return dict(by_id   =  details.json()   ,
