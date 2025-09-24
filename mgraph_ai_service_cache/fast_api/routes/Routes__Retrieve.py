@@ -19,7 +19,7 @@ from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Binary__Reference     
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success              import Schema__Cache__Retrieve__Success
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                  import Enum__Cache__Data_Type
 from mgraph_ai_service_cache.schemas.consts.const__Fast_API                              import FAST_API__PARAM__NAMESPACE
-from mgraph_ai_service_cache.service.cache.Cache__Service__Retrieve                      import Cache__Service__Retrieve
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve             import Cache__Service__Retrieve
 
 TAG__ROUTES_RETRIEVE                  = 'retrieve'
 PREFIX__ROUTES_RETRIEVE               = '/{namespace}'

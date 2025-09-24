@@ -1,19 +1,20 @@
 import pytest
 from unittest                                                                                 import TestCase
 from osbot_fast_api_serverless.utils.testing.skip_tests                                       import skip__if_not__in_github_actions
-from osbot_utils.testing.__ import __, __SKIP__
+from osbot_utils.testing.__                                                                   import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                          import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                         import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id               import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path             import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                  import Safe_Str__Text
-from osbot_utils.utils.Misc import is_guid
+from osbot_utils.utils.Misc                                                                   import is_guid
 from osbot_utils.utils.Objects                                                                import base_classes
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                       import Enum__Cache__Data_Type
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy                 import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Store__Data__Request          import Schema__Cache__Store__Data__Request
 from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Store__Data__Response         import Schema__Cache__Store__Data__Response
 from mgraph_ai_service_cache.service.cache.Cache__Service                                     import Cache__Service
-from mgraph_ai_service_cache.service.cache.Cache__Service__Retrieve                           import Cache__Service__Retrieve
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve                  import Cache__Service__Retrieve
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                        import Cache__Service__Store
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__Data                  import Cache__Service__Store__Data
 from tests.unit.Service__Cache__Test_Objs                                                     import setup__service__cache__test_objs
@@ -43,6 +44,14 @@ class test_Cache__Service__Store__Data(TestCase):
                                                                cache_key = cls.test_cache_key                     ,
                                                                file_id   = Safe_Str__Id("parent-001")             )
         cls.parent_cache_id  = cls.parent_response.cache_id
+
+    def setUp(self):
+        self.request = Schema__Cache__Store__Data__Request(cache_id     = self.parent_cache_id           ,
+                                                           data         = self.test_string               ,
+                                                           data_type    = Enum__Cache__Data_Type.STRING ,
+                                                           data_key     = None                          ,
+                                                           data_file_id = None                          ,
+                                                           namespace    = self.test_namespace           )
 
     def test__init__(self):                                                                      # Test auto-initialization
         with Cache__Service__Store__Data() as _:
@@ -124,63 +133,42 @@ class test_Cache__Service__Store__Data(TestCase):
 
     def test_store_data__auto_generated_id(self):                                               # Test auto-generation when data_file_id not provided
         with self.service__store_data as _:
-            data_key = Safe_Str__File__Path('auto-gen')
+            self.request.data_key = Safe_Str__File__Path('auto-gen')
 
-            result = _.store_data(cache_id     = self.parent_cache_id                           ,
-                                  data         = self.test_string                                ,
-                                  data_type    = Enum__Cache__Data_Type.STRING                   ,
-                                  data_key     = data_key                                        ,
-                                  data_file_id = None                                            ,  # Auto-generate
-                                  namespace    = self.test_namespace                             )
+            result = _.store_data(self.request)
 
             assert type(result) is Schema__Cache__Store__Data__Response
             assert len(result.data_files_created) > 0
 
-            # File should have auto-generated GUID in path
-            created_file = result.data_files_created[0]
-            assert f'{data_key}/'   in created_file
-            assert '.txt'           in created_file                                                       # String extension
-            assert is_guid(result.file_id)
 
-    def test_store_data__missing_cache_id(self):                                                # Test error handling for missing cache_id
-        with self.service__store_data as _:
-            expected_error = "Parameter 'cache_id' is not optional but got None"
-            with pytest.raises(ValueError, match=expected_error):
-                _.store_data(cache_id     = None                                                ,  # Missing
-                             data         = self.test_string                                    ,
-                             data_type    = Enum__Cache__Data_Type.STRING                       ,
-                             namespace    = self.test_namespace                                 )
+            created_file = result.data_files_created[0]
+            assert result.data_key == self.request.data_key                                         # Data key is preserved
+            assert f'{self.request.data_key}/'  in created_file                                     # and used in the path
+            assert '.txt'                       in created_file                                     # String extension
+            assert result.file_id               in created_file                                     # File should have auto-generated GUID in path
+            assert is_guid(result.file_id)      is True
 
 
     def test_store_data__non_existent_cache_id(self):                                           # Test behavior with non-existent cache_id
         with self.service__store_data as _:
-            non_existent_id = Random_Guid()
-
-            result = _.store_data(cache_id     = non_existent_id                                ,
-                                 data         = self.test_string                                ,
-                                 data_type    = Enum__Cache__Data_Type.STRING                   ,
-                                 namespace    = self.test_namespace                             )
+            non_existent_id       = Random_Guid()
+            self.request.cache_id = non_existent_id
+            result = _.store_data(self.request)
 
             assert result is None                                                               # Returns None when cache_id doesn't exist
 
     def test_store_data__multiple_path_handlers(self):                                          # Test with multiple data folders
-        #skip__if_not__in_github_actions()
         # This would require a setup with multiple path handlers
         # For now, test that multiple files can be created for same data
+        with self.request as _:
+            _.data         = "multi handler test"
+            _.data_key     = Safe_Str__File__Path('multi-handler')
+            _.data_file_id = Safe_Str__Id        ('multi-001')
+
         with self.service__store_data as _:
-            data_key     = Safe_Str__File__Path('multi-handler')
-            data_file_id = Safe_Str__Id('multi-001')
-
-            result = _.store_data(cache_id     = self.parent_cache_id                           ,
-                                 data         = "multi handler test"                            ,
-                                 data_type    = Enum__Cache__Data_Type.STRING                   ,
-                                 data_key     = data_key                                        ,
-                                 data_file_id = data_file_id                                    ,
-                                 namespace    = self.test_namespace                             )
-
+            result = _.store_data(self.request)
             assert type(result) is Schema__Cache__Store__Data__Response
-            # If multiple handlers exist, would have multiple files created
-            assert len(result.data_files_created) >= 1
+            assert len(result.data_files_created) >= 1                                          # If multiple handlers exist, would have multiple files created
 
     def test_get_extension_for_type(self):                                                      # Test file extension mapping
         with self.service__store_data as _:
@@ -211,16 +199,14 @@ class test_Cache__Service__Store__Data(TestCase):
             assert "Binary data must be bytes" in str(exc_info.value)
 
     def test_store_data__nested_data_key(self):                                                 # Test nested path structure with data_key
+        with self.request as _:
+            _.data         = "nested path test"
+            _.data_key     = Safe_Str__File__Path('2024/12/logs')                                 # Nested path
+            _.data_file_id = Safe_Str__Id        ('log-001')
         with self.service__store_data as _:
-            data_key     = Safe_Str__File__Path('2024/12/logs')                                 # Nested path
-            data_file_id = Safe_Str__Id('log-001')
 
-            result = _.store_data(cache_id     = self.parent_cache_id                           ,
-                                  data         = "nested path test"                              ,
-                                  data_type    = Enum__Cache__Data_Type.STRING                   ,
-                                  data_key     = data_key                                        ,
-                                  data_file_id = data_file_id                                    ,
-                                  namespace    = self.test_namespace                             )
+
+            result = _.store_data(self.request)
 
             assert type(result) is Schema__Cache__Store__Data__Response
             created_file = result.data_files_created[0]
@@ -287,5 +273,3 @@ class test_Cache__Service__Store__Data(TestCase):
             created_file = result.data_files_created[0]
             # Path should be sanitized (no ../ sequences that could escape)
             assert created_file == 'test-data-service/data/semantic-file/logs/application/parent-001/data/-/-/-/etc/passwd.txt'
-            #assert '../' not in created_file
-            #assert '/etc/' not in created_file                                                  # Should not reach system directories

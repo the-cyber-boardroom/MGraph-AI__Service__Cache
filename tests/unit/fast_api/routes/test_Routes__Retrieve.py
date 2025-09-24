@@ -13,7 +13,7 @@ from osbot_utils.utils.Objects                                                  
 from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                    import Routes__Retrieve, TAG__ROUTES_RETRIEVE
 from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                 import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs        import Schema__Cache__File__Refs
-from mgraph_ai_service_cache.service.cache.Cache__Service__Retrieve              import Cache__Service__Retrieve
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve     import Cache__Service__Retrieve
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store           import Cache__Service__Store
 from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Binary__Reference      import Schema__Cache__Binary__Reference
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type          import Enum__Cache__Data_Type

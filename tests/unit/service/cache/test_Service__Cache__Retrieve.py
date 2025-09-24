@@ -16,7 +16,7 @@ from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success     
 from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                  import Enum__Cache__Data_Type
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Gone                   import Schema__Cache__Error__Gone
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Not_Found              import Schema__Cache__Error__Not_Found
-from mgraph_ai_service_cache.service.cache.Cache__Service__Retrieve                      import Cache__Service__Retrieve
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve             import Cache__Service__Retrieve
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                   import Cache__Service__Store
 from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs

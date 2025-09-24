@@ -1,19 +1,17 @@
-from typing                                                                                 import Any, List, Union
-from osbot_utils.decorators.methods.cache_on_self                                           import cache_on_self
-from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path           import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id             import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                import Safe_Str__Text
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                              import type_safe
-from osbot_utils.utils.Http                                                                 import url_join_safe
-from osbot_utils.utils.Json                                                                 import json_to_bytes
-from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                            import  DEFAULT_CACHE__NAMESPACE
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                     import Enum__Cache__Data_Type
-from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Store__Data__Response       import Schema__Cache__Store__Data__Response
-from mgraph_ai_service_cache.service.cache.Cache__Service                                   import Cache__Service
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                   import Schema__Cache__Store__Response
-from mgraph_ai_service_cache.service.cache.Cache__Service__Retrieve                         import Cache__Service__Retrieve
+from typing                                                                           import Any
+from osbot_utils.decorators.methods.cache_on_self                                     import cache_on_self
+from osbot_utils.type_safe.Type_Safe                                                  import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                 import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id       import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text          import Safe_Str__Text
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                        import type_safe
+from osbot_utils.utils.Http                                                           import url_join_safe
+from osbot_utils.utils.Json                                                           import json_to_bytes
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type               import Enum__Cache__Data_Type
+from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Store__Data__Request  import Schema__Cache__Store__Data__Request
+from mgraph_ai_service_cache.schemas.cache.store.Schema__Cache__Store__Data__Response import Schema__Cache__Store__Data__Response
+from mgraph_ai_service_cache.service.cache.Cache__Service                             import Cache__Service
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve          import Cache__Service__Retrieve
 
 
 class Cache__Service__Store__Data(Type_Safe):                                                  # Service layer for lightweight child file storage
@@ -24,33 +22,27 @@ class Cache__Service__Store__Data(Type_Safe):                                   
         return Cache__Service__Retrieve(cache_service = self.cache_service)
 
     @type_safe
-    def store_data(self, cache_id    : Random_Guid                                 ,
-                         data        : Union[str, dict, bytes]                     ,  # Data to store as child
-                         data_type   : Enum__Cache__Data_Type                      ,  # Type: 'string', 'json', or 'binary'
-                         data_key    : Safe_Str__File__Path                 = None ,
-                         data_file_id: Safe_Str__Id                         = None ,
-                         namespace : Safe_Str__Id                           = DEFAULT_CACHE__NAMESPACE,
-                   ) -> Schema__Cache__Store__Data__Response:                  #
+    def store_data(self, request: Schema__Cache__Store__Data__Request) -> Schema__Cache__Store__Data__Response:                  #
 
-        if not cache_id:                                                                         # Validate required parameters
-            raise ValueError("cache_id is required for Cache__Service__Store__Data.store_data")
+        # if not cache_id:                                                                         # Validate required parameters
+        #     raise ValueError("cache_id is required for Cache__Service__Store__Data.store_data")
 
-        file_refs    = self.retrieve_service().retrieve_by_id__refs(cache_id=cache_id, namespace=namespace)
+        file_refs    = self.retrieve_service().retrieve_by_id__refs(cache_id=request.cache_id, namespace=request.namespace)
         if file_refs:
             files_created    = []
             data_folders     = file_refs.file_paths.data_folders
-            serialized_data  = self.serialize_data(data, data_type.value)                               # Serialize data based on type
-            extension        = self.get_extension_for_type(data_type)                            # Determine file extension
+            serialized_data  = self.serialize_data(request.data, request.data_type.value)                   # Serialize data based on type
+            extension        = self.get_extension_for_type(request.data_type)                               # Determine file extension
             for data_folder in data_folders:
                 data_path = data_folder
-                if data_key:
-                    data_path = url_join_safe(data_path, data_key)
-                if not data_file_id:
-                    data_file_id =  Safe_Str__Id(Random_Guid())
-                data_path = url_join_safe(data_path, data_file_id)
+                if request.data_key:
+                    data_path = url_join_safe(data_path, request.data_key)
+                if not request.data_file_id:
+                    request.data_file_id =  Safe_Str__Id(Random_Guid())
+                data_path = url_join_safe(data_path, request.data_file_id)
                 data_path  += f'.{extension}'
 
-                handler = self.cache_service.get_or_create_handler(namespace=namespace)
+                handler = self.cache_service.get_or_create_handler(namespace=request.namespace)
                 success = handler.storage_backend.file__save(data_path, serialized_data)              # Direct write without config/metadata
 
                 if success:
@@ -59,14 +51,14 @@ class Cache__Service__Store__Data(Type_Safe):                                   
                     raise RuntimeError(f"Failed to save child file at {data_path}")
 
 
-            return Schema__Cache__Store__Data__Response(cache_id           = Random_Guid(cache_id)  ,
+            return Schema__Cache__Store__Data__Response(cache_id           = request.cache_id       ,
                                                         data_files_created = files_created          ,
-                                                        data_key           = data_key               ,
-                                                        data_type          = data_type              ,
+                                                        data_key           = request.data_key       ,
+                                                        data_type          = request.data_type      ,
                                                         extension          = extension              ,
                                                         file_size          = len(serialized_data)   ,
-                                                        file_id            = data_file_id           ,
-                                                        namespace          = namespace              )
+                                                        file_id            = request.data_file_id   ,
+                                                        namespace          = request.namespace      )
         else:
             return None
 

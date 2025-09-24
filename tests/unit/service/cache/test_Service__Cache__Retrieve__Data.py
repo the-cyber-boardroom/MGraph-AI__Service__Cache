@@ -1,18 +1,19 @@
 import pytest
-from unittest                                                                     import TestCase
-from osbot_fast_api_serverless.utils.testing.skip_tests                           import skip__if_not__in_github_actions
-from osbot_utils.testing.__                                                       import __
-from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id   import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text      import Safe_Str__Text
-from osbot_utils.type_safe.primitives.core.Safe_UInt                              import Safe_UInt
-from osbot_utils.utils.Objects                                                    import base_classes
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.service.cache.Cache__Service                         import Cache__Service
-from mgraph_ai_service_cache.service.cache.Cache__Service__Retrieve__Data         import Cache__Service__Retrieve__Data, Schema__Child__File__Info, Schema__Child__File__Data
-from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store            import Cache__Service__Store
-from tests.unit.Service__Cache__Test_Objs                                         import setup__service__cache__test_objs
+from unittest                                                                      import TestCase
+from osbot_fast_api_serverless.utils.testing.skip_tests                            import skip__if_not__in_github_actions
+from osbot_utils.testing.__                                                        import __
+from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id    import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path  import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text       import Safe_Str__Text
+from osbot_utils.type_safe.primitives.core.Safe_UInt                               import Safe_UInt
+from osbot_utils.utils.Objects                                                     import base_classes
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy      import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.service.cache.Cache__Service                          import Cache__Service
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve__Data import Cache__Service__Retrieve__Data
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store             import Cache__Service__Store
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__Data import Cache__Service__Store__Data
+from tests.unit.Service__Cache__Test_Objs                                          import setup__service__cache__test_objs
 
 
 class test_Cache__Service__Retrieve__Data(TestCase):
@@ -24,7 +25,7 @@ class test_Cache__Service__Retrieve__Data(TestCase):
         cls.cache_fixtures   = cls.test_objs.cache_fixtures
         cls.cache_service    = cls.cache_fixtures.cache_service
         cls.store_service    = Cache__Service__Store         (cache_service = cls.cache_service)
-        cls.child_store      = Cache__Service__Store__Child  (cache_service = cls.cache_service)
+        cls.data_store       = Cache__Service__Store__Data   (cache_service = cls.cache_service)
         cls.child_retrieve   = Cache__Service__Retrieve__Data(cache_service = cls.cache_service)
 
         cls.test_namespace   = Safe_Str__Id("test-retrieve-child")                              # Test data
@@ -45,7 +46,7 @@ class test_Cache__Service__Retrieve__Data(TestCase):
                                  ("json"  , {"child": "json", "id": 123}),
                                  ("binary", b"test child bytes\x00\x01" )]:
             child_id = Safe_Str__Id(f"test-{child_type}-child")
-            cls.child_store.store_data(data      = data,
+            cls.data_store.store_data(data      = data,
                                        data_type = Safe_Str__Text(child_type),
                                        namespace = cls.test_namespace,
                                        strategy  = cls.test_strategy,
@@ -230,7 +231,7 @@ class test_Cache__Service__Retrieve__Data(TestCase):
         with self.child_retrieve as _:
             # Create a child to delete
             delete_child_id = Safe_Str__Id("child-to-delete")
-            self.child_store.store_data(data      ="data to delete",
+            self.data_store.store_data(data      ="data to delete",
                                         data_type = Safe_Str__Text("string"),
                                         namespace = self.test_namespace,
                                         strategy  = self.test_strategy,
@@ -285,7 +286,7 @@ class test_Cache__Service__Retrieve__Data(TestCase):
 
             # Add multiple children
             for i in range(5):
-                self.child_store.store_data(data      =f"delete child {i}",
+                self.data_store.store_data(data      =f"delete child {i}",
                                             data_type = Safe_Str__Text("string"),
                                             namespace = self.test_namespace,
                                             strategy  = self.test_strategy,

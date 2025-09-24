@@ -177,11 +177,11 @@ class Routes__Store(Fast_API__Routes):                                          
         content_encoding = request.headers.get('content-encoding') if request else None                             # Check for compression
 
         result = self.store_service().store_binary(data             = body            ,                               # Use service layer
-                                                 strategy         = strategy        ,                               # todo: we should we using a Type_Safe class for these params
-                                                 namespace        = namespace       ,
-                                                 cache_key        = cache_key       ,
-                                                 file_id          = file_id         ,
-                                                 content_encoding = content_encoding)
+                                                   strategy         = strategy        ,                               # todo: we should we using a Type_Safe class for these params
+                                                   namespace        = namespace       ,
+                                                   cache_key        = cache_key       ,
+                                                   file_id          = file_id         ,
+                                                   content_encoding = content_encoding)
 
         if result is None:
             raise HTTPException(status_code=500, detail="Failed to store data")
