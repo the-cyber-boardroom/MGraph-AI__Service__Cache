@@ -25,14 +25,11 @@ class Cache__Service__Retrieve__Data(Type_Safe):                                
         return Cache__Service__Retrieve(cache_service = self.cache_service)
 
     @type_safe
-    def retrieve_data(self, cache_id     : Random_Guid                                        ,  # Cache entry ID
-                            data_key     : Safe_Str__File__Path         = None               ,  # Path within data folder
-                            data_file_id : Safe_Str__Id                 = None               ,  # Specific file ID
+    def retrieve_data(self, cache_id     : Random_Guid                                              ,  # Cache entry ID
+                            data_key     : Safe_Str__File__Path         = None                      ,  # Path within data folder
+                            data_file_id : Safe_Str__Id                 = None                      ,  # Specific file ID
                             namespace    : Safe_Str__Id                 = DEFAULT_CACHE__NAMESPACE
                       ) -> Optional[Schema__Cache__Data__File__Content]:                               # Returns data content or None
-
-        if not cache_id:
-            raise ValueError("cache_id is required to retrieve data")
 
         file_refs = self.retrieve_service().retrieve_by_id__refs(cache_id=cache_id, namespace=namespace)
         if not file_refs:
@@ -103,13 +100,7 @@ class Cache__Service__Retrieve__Data(Type_Safe):                                
                 search_path = url_join_safe(search_path, data_key)
 
             # List files in the folder
-            if hasattr(handler.storage_backend, 'folder__files'):
-                files = handler.storage_backend.folder__files(search_path, return_full_path=True)
-            else:
-                # Fallback to filtering all files
-                all_files = handler.storage_backend.files__paths()
-                search_str = str(search_path) + '/'
-                files = [f for f in all_files if str(f).startswith(search_str)]
+            files = handler.storage_backend.folder__files__all(search_path)
 
             # Parse file information
             for file_path in files:
@@ -142,13 +133,12 @@ class Cache__Service__Retrieve__Data(Type_Safe):                                
                     # Get file size
                     file_size = handler.storage_backend.file__size(file_path) if hasattr(handler.storage_backend, 'file__size') else 0
 
-                    data_files.append(Schema__Cache__Data__File__Info(
-                        data_file_id = Safe_Str__Id(file_id_part)           ,
-                        data_key     = relative_key                         ,
-                        full_path    = Safe_Str__File__Path(file_str)       ,
-                        data_type    = data_type                            ,
-                        extension    = Safe_Str__Text(extension)            ,
-                        size         = Safe_UInt(file_size)                 ))
+                    data_files.append(Schema__Cache__Data__File__Info(data_key     = relative_key                         ,
+                                                                      data_type    = data_type                            ,
+                                                                      extension    = Safe_Str__Text(extension)            ,
+                                                                      file_id      = Safe_Str__Id(file_id_part)           ,
+                                                                      file_size    = Safe_UInt(file_size)                 ,
+                                                                      full_path    = Safe_Str__File__Path(file_str)       ))
 
         return data_files
 
@@ -224,6 +214,7 @@ class Cache__Service__Retrieve__Data(Type_Safe):                                
         total_size = Safe_UInt(0)
 
         for file_info in data_files:
+            #file_info.print()
             total_size = Safe_UInt(total_size + file_info.size)
 
         return total_size

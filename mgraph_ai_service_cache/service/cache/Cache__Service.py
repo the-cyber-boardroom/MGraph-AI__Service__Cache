@@ -334,13 +334,13 @@ class Cache__Service(Type_Safe):                                                
     def retrieve_by_id__refs(self, cache_id  : Random_Guid,
                                    namespace : Safe_Str__Id
                                 ) -> Schema__Cache__File__Refs:                      #   Retrieve by cache ID using direct path from reference
-        handler   = self.get_or_create_handler(namespace)
-        with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
-            json_data = ref_fs.content()                                                 # todo refactor this so that we get the Schema__Cache__File__Refs directly from fs__refs_id
-            if json_data:
-                return Schema__Cache__File__Refs.from_json(json_data)
-            else:
-                return None
+        if cache_id:
+            handler   = self.get_or_create_handler(namespace)
+            with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
+                json_data = ref_fs.content()                                                 # todo refactor this so that we get the Schema__Cache__File__Refs directly from fs__refs_id
+                if json_data:
+                    return Schema__Cache__File__Refs.from_json(json_data)
+        return None
 
     def determine_data_type(self, data) -> str:
         if isinstance(data, bytes):

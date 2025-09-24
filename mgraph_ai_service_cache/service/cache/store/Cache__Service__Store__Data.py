@@ -23,10 +23,6 @@ class Cache__Service__Store__Data(Type_Safe):                                   
 
     @type_safe
     def store_data(self, request: Schema__Cache__Data__Store__Request) -> Schema__Cache__Data__Store__Response:                  #
-
-        # if not cache_id:                                                                         # Validate required parameters
-        #     raise ValueError("cache_id is required for Cache__Service__Store__Data.store_data")
-
         file_refs    = self.retrieve_service().retrieve_by_id__refs(cache_id=request.cache_id, namespace=request.namespace)
         if file_refs:
             files_created    = []

@@ -13,4 +13,4 @@ class Schema__Cache__Data__File__Info(Type_Safe):                               
     full_path    : Safe_Str__File__Path                                                         # Full file path
     data_type    : Enum__Cache__Data_Type                                                       # Data type: json, string, binary
     extension    : Safe_Str__Text                                                               # File extension
-    size         : Safe_UInt
+    file_size    : Safe_UInt

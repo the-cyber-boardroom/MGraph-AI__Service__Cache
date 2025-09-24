@@ -140,13 +140,12 @@ class test_Cache__Service__Retrieve__Data(TestCase):
 
     def test_retrieve_data__missing_cache_id(self):                                             # Test parameter validation
         with self.service__retrieve as _:
-            with pytest.raises(ValueError) as exc_info:
+            error_message = "Parameter 'cache_id' is not optional but got None"
+            with pytest.raises(ValueError, match=error_message):
                 _.retrieve_data(cache_id     = None                                             ,  # Missing
-                               data_key     = Safe_Str__File__Path("test")                     ,
-                               data_file_id = Safe_Str__Id("test")                              ,
-                               namespace    = self.test_namespace                               )
-
-            assert "cache_id is required" in str(exc_info.value)
+                                data_key     = Safe_Str__File__Path("test")                     ,
+                                data_file_id = Safe_Str__Id("test")                              ,
+                                namespace    = self.test_namespace                               )
 
     def test_retrieve_data__non_existent_cache_id(self):                                        # Test with non-existent cache
         with self.service__retrieve as _:
@@ -187,7 +186,7 @@ class test_Cache__Service__Retrieve__Data(TestCase):
             assert len(string_files) == 1
 
     def test_list_data_files__empty_cache(self):                                                # Test listing when no data files exist
-        skip__if_not__in_github_actions()
+        #skip__if_not__in_github_actions()
         with self.service__retrieve as _:
             # Create cache entry with no data files
             empty_parent = self.service__store.store_string(data      = "empty parent"                           ,
@@ -204,11 +203,10 @@ class test_Cache__Service__Retrieve__Data(TestCase):
 
     def test_list_data_files__missing_cache_id(self):                                           # Test parameter validation for list
         with self.service__retrieve as _:
-            with pytest.raises(ValueError) as exc_info:
+            expected_message = "Parameter 'cache_id' is not optional but got None"
+            with pytest.raises(ValueError, match=expected_message):
                 _.list_data_files(cache_id  = None                                              ,  # Missing
                                  namespace = self.test_namespace                                )
-
-            assert "cache_id is required" in str(exc_info.value)
 
     def test_count_data_files(self):                                                            # Test counting data files
         with self.service__retrieve as _:
@@ -266,37 +264,42 @@ class test_Cache__Service__Retrieve__Data(TestCase):
     def test_delete_data_file__missing_parameters(self):                                        # Test parameter validation
         with self.service__retrieve as _:
             # Missing cache_id
-            with pytest.raises(ValueError) as exc_info:
+            expected_error_1 = "Parameter 'cache_id' is not optional but got None"
+            expected_error_2 = "data_file_id is required to delete specific data file"
+            with pytest.raises(ValueError, match=expected_error_1):
                 _.delete_data_file(cache_id     = None                                          ,
-                                  data_file_id = Safe_Str__Id("test")                           ,
-                                  namespace    = self.test_namespace                            )
-            assert "cache_id is required" in str(exc_info.value)
+                                   data_file_id = Safe_Str__Id("test")                           ,
+                                   namespace    = self.test_namespace                            )
 
             # Missing data_file_id
-            with pytest.raises(ValueError) as exc_info:
+            with pytest.raises(ValueError, match=expected_error_2):
                 _.delete_data_file(cache_id     = self.parent_cache_id                          ,
                                   data_file_id = None                                           ,
                                   namespace    = self.test_namespace                            )
-            assert "data_file_id is required" in str(exc_info.value)
 
     def test_delete_all_data_files(self):                                                       # Test deleting all data files
-        skip__if_not__in_github_actions()
+        #skip__if_not__in_github_actions()
         with self.service__retrieve as _:
             # Create cache with data files to delete
             delete_parent = self.service__store.store_string(data      = "parent for delete all"                ,
-                                                            namespace = self.test_namespace                      ,
-                                                            strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE,
-                                                            cache_key = Safe_Str__File__Path("delete/all")       ,
-                                                            file_id   = Safe_Str__Id("delete-parent")            )
+                                                             namespace = self.test_namespace                      ,
+                                                             strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE,
+                                                             cache_key = Safe_Str__File__Path("delete/all")       ,
+                                                             file_id   = Safe_Str__Id("delete-parent")            )
 
             # Add multiple data files
             for i in range(5):
-                self.service__store_data.store_data(cache_id     = delete_parent.cache_id       ,
-                                                   data         = f"delete data {i}"            ,
-                                                   data_type    = Enum__Cache__Data_Type.STRING ,
-                                                   data_key     = Safe_Str__File__Path("batch")  ,
-                                                   data_file_id = Safe_Str__Id(f"del-data-{i}")  ,
-                                                   namespace    = self.test_namespace           )
+                request = Schema__Cache__Data__Store__Request(cache_id     = delete_parent.cache_id       ,
+                                                              data         = f"delete data {i}"            ,
+                                                              data_type    = Enum__Cache__Data_Type.STRING ,
+                                                              data_key     = Safe_Str__File__Path("batch")  ,
+                                                              data_file_id = Safe_Str__Id(f"del-data-{i}")  ,
+                                                              namespace    = self.test_namespace           )
+                response =  self.service__store_data.store_data(request)
+                assert response.cache_id  == delete_parent.cache_id
+                assert response.data_type == Enum__Cache__Data_Type.STRING
+                assert response.file_id   == Safe_Str__Id(f"del-data-{i}")
+
 
             # Verify they exist
             count_before = _.count_data_files(cache_id  = delete_parent.cache_id                ,
@@ -318,7 +321,7 @@ class test_Cache__Service__Retrieve__Data(TestCase):
     def test_get_data_folder_size(self):                                                        # Test calculating total size
         with self.service__retrieve as _:
             total_size = _.get_data_folder_size(cache_id  = self.parent_cache_id                ,
-                                               namespace = self.test_namespace                   )
+                                                namespace = self.test_namespace                   )
 
             assert type(total_size) is Safe_UInt
             assert total_size > 0                                                               # Should have some size
@@ -360,13 +363,12 @@ class test_Cache__Service__Retrieve__Data(TestCase):
     def test_schema__data__file__content(self):                                                 # Test Schema__Data__File__Content
         with Schema__Cache__Data__File__Content() as _:
             assert type(_) is Schema__Cache__Data__File__Content
-            assert base_classes(_)      == [Type_Safe, object]
-            # Note: 'data' is Any type, so no type checking
-            assert type(_.data_type)    is Enum__Cache__Data_Type
-            assert type(_.data_file_id) is Safe_Str__Id
-            assert type(_.data_key)     is Safe_Str__File__Path
-            assert type(_.full_path)    is Safe_Str__File__Path
-            assert type(_.size)         is Safe_UInt
+            assert base_classes(_) == [Type_Safe, object]
+            assert _.data_type     is None
+            assert _.data_file_id  is None
+            assert _.data_key      is None
+            assert _.full_path     is None
+            assert _.size          is None
 
             # Test with string data
             _.data         = "test content data"
@@ -384,23 +386,24 @@ class test_Cache__Service__Retrieve__Data(TestCase):
                                 size         = 17                                               )
 
     def test_retrieve_data__without_data_key(self):                                             # Test retrieval without data_key
-        skip__if_not__in_github_actions()
+        #skip__if_not__in_github_actions()
         with self.service__retrieve as _:
             # Store data without data_key
             direct_file_id = Safe_Str__Id("direct-file")
-            self.service__store_data.store_data(cache_id     = self.parent_cache_id             ,
-                                               data         = "direct data"                     ,
-                                               data_type    = Enum__Cache__Data_Type.STRING     ,
-                                               data_key     = None                              ,  # No key
-                                               data_file_id = direct_file_id                    ,
-                                               namespace    = self.test_namespace               )
+            request = Schema__Cache__Data__Store__Request(cache_id     = self.parent_cache_id             ,
+                                                          data         = "direct data"                     ,
+                                                          data_type    = Enum__Cache__Data_Type.STRING     ,
+                                                          data_key     = None                              ,  # No key
+                                                          data_file_id = direct_file_id                    ,
+                                                          namespace    = self.test_namespace               )
+            self.service__store_data.store_data(request)
 
             # Retrieve it
             result = _.retrieve_data(cache_id     = self.parent_cache_id                        ,
-                                    data_key     = None                                         ,
-                                    data_file_id = direct_file_id                               ,
-                                    namespace    = self.test_namespace                          )
+                                     data_key     = None                                         ,
+                                     data_file_id = direct_file_id                               ,
+                                     namespace    = self.test_namespace                          )
 
-            assert result is not None
-            assert result.data == "direct data"
+            assert result              is not None
+            assert result.data         == "direct data"
             assert result.data_file_id == direct_file_id
