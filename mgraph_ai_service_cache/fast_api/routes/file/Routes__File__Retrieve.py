@@ -37,7 +37,7 @@ ROUTES_PATHS__RETRIEVE                = [ BASE_PATH__ROUTES_RETRIEVE + '{cache_i
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/json'   ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/string' ]
 
-class Routes__Retrieve(Fast_API__Routes):                                             # FastAPI routes for cache retrieval operations
+class Routes__File__Retrieve(Fast_API__Routes):                                             # FastAPI routes for cache retrieval operations
     tag            : Safe_Str__Fast_API__Route__Tag    = TAG__ROUTES_RETRIEVE
     prefix         : Safe_Str__Fast_API__Route__Prefix = PREFIX__ROUTES_RETRIEVE
     cache_service : Cache__Service                                                                          # get cache_service via Dependency Injection

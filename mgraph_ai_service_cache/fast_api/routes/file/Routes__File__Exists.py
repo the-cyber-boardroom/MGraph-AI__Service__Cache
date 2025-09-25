@@ -12,7 +12,7 @@ BASE_PATH__ROUTES_EXISTS            = f'{PREFIX__ROUTES_EXISTS}/{TAG__ROUTES_EXI
 ROUTES_PATHS__EXISTS                = [ BASE_PATH__ROUTES_EXISTS + 'hash/{cache_hash}']
 
 
-class Routes__Exists(Fast_API__Routes):
+class Routes__File__Exists(Fast_API__Routes):
     tag           : Safe_Str__Fast_API__Route__Tag     = TAG__ROUTES_EXISTS
     prefix        : Safe_Str__Fast_API__Route__Prefix  =  PREFIX__ROUTES_EXISTS
     cache_service : Cache__Service

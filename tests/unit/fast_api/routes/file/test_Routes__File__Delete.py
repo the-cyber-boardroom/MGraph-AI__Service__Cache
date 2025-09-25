@@ -5,12 +5,12 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
 from osbot_utils.utils.Objects                                                      import base_classes
-from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                         import Routes__Delete, TAG__ROUTES_DELETE, PREFIX__ROUTES_DELETE, BASE_PATH__ROUTES_DELETE, ROUTES_PATHS__DELETE
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Delete              import Routes__File__Delete, TAG__ROUTES_DELETE, PREFIX__ROUTES_DELETE, BASE_PATH__ROUTES_DELETE, ROUTES_PATHS__DELETE
 from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service
 from tests.unit.Service__Cache__Test_Objs                                           import setup__service__cache__test_objs
 
 
-class test_Routes__Delete(TestCase):
+class test_Routes__File__Delete(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                              # ONE-TIME expensive setup
@@ -18,7 +18,7 @@ class test_Routes__Delete(TestCase):
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
         cls.fixtures_namespace = cls.cache_fixtures.namespace
         cls.cache_service      = cls.cache_fixtures.cache_service
-        cls.routes             = Routes__Delete(cache_service=cls.cache_service)
+        cls.routes             = Routes__File__Delete(cache_service=cls.cache_service)
 
         cls.test_namespace     = Safe_Str__Id("test-delete-routes")                     # Use different namespace for deletable test data
 
@@ -46,8 +46,8 @@ class test_Routes__Delete(TestCase):
         return cache_id
 
     def test__init__(self):                                                           # Test initialization
-        with Routes__Delete() as _:
-            assert type(_)               is Routes__Delete
+        with Routes__File__Delete() as _:
+            assert type(_) is Routes__File__Delete
             assert base_classes(_)       == [Fast_API__Routes, Type_Safe, object]
             assert _.tag                 == TAG__ROUTES_DELETE
             assert _.prefix              == PREFIX__ROUTES_DELETE

@@ -1,15 +1,16 @@
+from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store       import Routes__Data__Store
 from mgraph_ai_service_cache.service.cache.Cache__Service                   import Cache__Service
 from osbot_fast_api.api.routes.Routes__Set_Cookie                           import Routes__Set_Cookie
 from osbot_fast_api_serverless.fast_api.Serverless__Fast_API                import Serverless__Fast_API
 from mgraph_ai_service_cache.config                                         import FAST_API__TITLE
-from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                 import Routes__Delete
-from mgraph_ai_service_cache.fast_api.routes.Routes__Exists                 import Routes__Exists
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Delete      import Routes__File__Delete
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Exists      import Routes__File__Exists
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve    import Routes__File__Retrieve
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Store       import Routes__File__Store
 from mgraph_ai_service_cache.fast_api.routes.Routes__Info                   import Routes__Info
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace              import Routes__Namespace
-from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve               import Routes__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.Routes__Server                 import Routes__Server
 from mgraph_ai_service_cache.fast_api.routes.admin.Routes__Admin__Storage   import Routes__Admin__Storage
-from mgraph_ai_service_cache.fast_api.routes.Routes__Store                  import Routes__Store
 from mgraph_ai_service_cache.utils.Version                                  import version__mgraph_ai_service_cache
 
 
@@ -21,11 +22,12 @@ class Service__Fast_API(Serverless__Fast_API):
 
 
     def setup_routes(self):
+        self.add_routes(Routes__Data__Store   )
         self.add_routes(Routes__Admin__Storage)
-        self.add_routes(Routes__Store         )
-        self.add_routes(Routes__Retrieve      )
-        self.add_routes(Routes__Exists        )
-        self.add_routes(Routes__Delete        )
+        self.add_routes(Routes__File__Store   )
+        self.add_routes(Routes__File__Retrieve)
+        self.add_routes(Routes__File__Exists  )
+        self.add_routes(Routes__File__Delete  )
         self.add_routes(Routes__Namespace     )
         self.add_routes(Routes__Server        )
         self.add_routes(Routes__Info          )

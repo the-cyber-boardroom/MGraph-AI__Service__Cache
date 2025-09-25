@@ -4,7 +4,7 @@ from tests.unit.Service__Cache__Test_Objs                                       
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 
 
-class test_Routes__Exists__client(TestCase):                                          # Test exists routes via FastAPI TestClient
+class test_Routes__File__Exists__client(TestCase):                                          # Test exists routes via FastAPI TestClient
 
     @classmethod
     def setUpClass(cls):                                                              # ONE-TIME expensive setup

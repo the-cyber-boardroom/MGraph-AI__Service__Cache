@@ -6,14 +6,15 @@ from osbot_fast_api.schemas.consts__Fast_API                                impo
 from osbot_utils.utils.Env                                                  import get_env
 from starlette.testclient                                                   import TestClient
 from mgraph_ai_service_cache.fast_api.Service__Fast_API                     import Service__Fast_API
-from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                 import ROUTES_PATHS__DELETE
-from mgraph_ai_service_cache.fast_api.routes.Routes__Exists                 import ROUTES_PATHS__EXISTS
+from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store import ROUTES_PATHS__STORE__DATA
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Delete      import ROUTES_PATHS__DELETE
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Exists      import ROUTES_PATHS__EXISTS
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve    import ROUTES_PATHS__RETRIEVE
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Store       import ROUTES_PATHS__STORE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Info                   import ROUTES_PATHS__INFO, ROUTES_INFO__HEALTH__RETURN_VALUE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace              import ROUTES_PATHS__NAMESPACE
-from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve               import ROUTES_PATHS__RETRIEVE
 from mgraph_ai_service_cache.fast_api.routes.Routes__Server                 import ROUTES_PATHS__SERVER
 from mgraph_ai_service_cache.fast_api.routes.admin.Routes__Admin__Storage   import ROUTES_PATHS__STORAGE
-from mgraph_ai_service_cache.fast_api.routes.Routes__Store                  import ROUTES_PATHS__STORE
 from tests.unit.Service__Cache__Test_Objs                                   import setup__service__cache__test_objs, Service__Cache__Test_Objs, TEST_API_KEY__NAME
 
 
@@ -71,7 +72,8 @@ class test_Service__Fast_API__client(TestCase):
                         ROUTES_PATHS__DELETE         +
                         ROUTES_PATHS__NAMESPACE      +
                         ROUTES_PATHS__SERVER         +
-                        ROUTES_PATHS__STORAGE        )
+                        ROUTES_PATHS__STORAGE        +
+                        ROUTES_PATHS__STORE__DATA    )
         for raw_path in raw_paths:
             routes_paths.append(Safe_Str__Fast_API__Route__Prefix(raw_path))
         assert self.fast_api.routes_paths() == sorted(routes_paths)                     # this creates a better diff

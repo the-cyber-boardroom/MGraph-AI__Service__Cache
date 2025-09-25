@@ -23,7 +23,7 @@ ROUTES_PATHS__STORE                = [ f'{PREFIX__ROUTES_STORE}/{TAG__ROUTES_STO
                                        f'{PREFIX__ROUTES_STORE}/{TAG__ROUTES_STORE}/' + 'binary/{cache_key:path}' ]
 
 
-class Routes__Store(Fast_API__Routes):                                                                  # FastAPI routes for cache store operations
+class Routes__File__Store(Fast_API__Routes):                                                                  # FastAPI routes for cache store operations
     tag           : Safe_Str__Fast_API__Route__Tag    = TAG__ROUTES_STORE
     prefix        : Safe_Str__Fast_API__Route__Prefix = PREFIX__ROUTES_STORE
     cache_service : Cache__Service                                                                     # get cache_service via Dependency Injection

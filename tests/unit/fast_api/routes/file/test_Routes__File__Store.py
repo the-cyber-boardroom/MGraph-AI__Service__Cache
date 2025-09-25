@@ -12,10 +12,10 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from osbot_utils.utils.Objects                                                           import base_classes
 from osbot_fast_api.api.routes.Fast_API__Routes                                          import Fast_API__Routes
-from mgraph_ai_service_cache.fast_api.routes.Routes__Delete                              import Routes__Delete
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Delete                   import Routes__File__Delete
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve                 import Routes__File__Retrieve
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Store                    import Routes__File__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace                           import Routes__Namespace
-from mgraph_ai_service_cache.fast_api.routes.Routes__Retrieve                            import Routes__Retrieve
-from mgraph_ai_service_cache.fast_api.routes.Routes__Store                               import Routes__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                         import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
@@ -24,16 +24,16 @@ from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store          
 from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
 
 
-class test_Routes__Store(TestCase):
+class test_Routes__File__Store(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                                      # ONE-TIME expensive setup
         cls.test_objs          = setup__service__cache__test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
         cls.cache_service      = cls.cache_fixtures.cache_service
-        cls.routes             = Routes__Store           (cache_service    = cls.cache_service   )
-        cls.routes_delete      = Routes__Delete          (cache_service    = cls.cache_service   )
-        cls.routes_retrieve    = Routes__Retrieve        (cache_service    = cls.cache_service   )
+        cls.routes             = Routes__File__Store           (cache_service    = cls.cache_service)
+        cls.routes_delete      = Routes__File__Delete          (cache_service    = cls.cache_service)
+        cls.routes_retrieve    = Routes__File__Retrieve        (cache_service    = cls.cache_service)
         cls.routes_namespace   = Routes__Namespace       (cache_service    = cls.cache_service   )
         cls.retrieve_service   = cls.routes_retrieve.retrieve_service()
 
@@ -47,8 +47,8 @@ class test_Routes__Store(TestCase):
         self.request = Request(scope=self.scope)                                              # Simple Request for state.body
 
     def test__init__(self):                                                                   # Test initialization
-        with Routes__Store() as _:
-            assert type(_)                 is Routes__Store
+        with Routes__File__Store() as _:
+            assert type(_) is Routes__File__Store
             assert base_classes(_)         == [Fast_API__Routes, Type_Safe, object]
             assert _.tag                   == TAG__ROUTES_STORE
             assert type(_.store_service()) is Cache__Service__Store
