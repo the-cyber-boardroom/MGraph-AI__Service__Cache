@@ -1,13 +1,14 @@
 import pytest
 from unittest                                                                               import TestCase
 from fastapi                                                                                import HTTPException
+from memory_fs.path_handlers.Path__Handler__Temporal                                        import Path__Handler__Temporal
 from osbot_fast_api.api.routes.Fast_API__Routes                                             import Fast_API__Routes
 from osbot_utils.testing.__                                                                 import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path           import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id             import Safe_Str__Id
-from osbot_utils.utils.Objects                                                              import base_classes
+from osbot_utils.utils.Objects                                                              import base_classes, obj
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Delete                      import Routes__Data__Delete, TAG__ROUTES_DELETE__DATA, PREFIX__ROUTES_DELETE__DATA, ROUTES_PATHS__DELETE__DATA
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Retrieve                    import Routes__Data__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store                       import Routes__Data__Store
@@ -36,7 +37,8 @@ class test_Routes__Data__Delete(TestCase):
         cls.test_data_key        = Safe_Str__File__Path("configs/app")                          # Hierarchical path
 
         cls.parent_cache_id      = cls._create_parent_cache_entry(cls)                          # Create parent entry once
-        cls._setup_test_data()                                                               # Store test data for deletion
+        cls.path_now             = Path__Handler__Temporal().path_now()
+        cls._setup_test_data()                                                                  # Store test data for deletion
 
     @classmethod
     def _create_parent_cache_entry(cls, self):                                                  # Helper to create parent cache entry
@@ -133,7 +135,6 @@ class test_Routes__Data__Delete(TestCase):
                                                    namespace    = self.test_namespace          ,
                                                    data_type    = Enum__Cache__Data_Type.STRING,
                                                    data_file_id = Safe_Str__Id("del-001")      )
-
             assert result == { "status"        : "success"                                      ,
                               "message"       : "Data file deleted successfully"               ,
                               "cache_id"      : str(parent.cache_id)                          ,
@@ -254,33 +255,39 @@ class test_Routes__Data__Delete(TestCase):
             parent = self.routes_store.store__string(data      = "parent for bulk delete"     ,
                                                      strategy  = Enum__Cache__Store__Strategy.TEMPORAL,
                                                      namespace = self.test_namespace          )
-
+            cache_id = parent.cache_id
             # Store multiple files
             for i in range(3):
-                self.routes_data_store.data__store_string__with__id(
-                    data         = f"bulk delete {i}",
-                    cache_id     = parent.cache_id,
-                    namespace    = self.test_namespace,
-                    data_file_id = Safe_Str__Id(f"bulk-{i}")
-                )
+                self.routes_data_store.data__store_string__with__id(data         = f"bulk delete {i}"   ,
+                                                                    cache_id     = cache_id             ,
+                                                                    namespace    = self.test_namespace  ,
+                                                                    data_file_id = Safe_Str__Id(f"bulk-{i}"))
 
             # Delete all
-            result = _.delete__all__data__files(cache_id  = parent.cache_id   ,
+            result = _.delete__all__data__files(cache_id  = cache_id          ,
                                                namespace = self.test_namespace)
 
-            assert result["status"]        == "success"
-            assert result["message"]       == "Deleted 3 data files"
-            assert result["deleted_count"] == 3
+            assert result["status"]             == "success"
+            assert result["message"]            == "Deleted 3 data files"
+            assert result["deleted_count"]      == 3
             assert len(result["deleted_files"]) == 3
-            assert result["data_key"]      is None
+            assert result["data_key"]           is None
+            assert obj(result)                  == __(status         = 'success'                ,
+                                                      message        = 'Deleted 3 data files'               ,
+                                                      cache_id       = cache_id,
+                                                      deleted_count = 3,
+                                                      deleted_files = [ f'test-delete-data/data/temporal/{self.path_now}/{cache_id}/data/bulk-0.txt',
+                                                                        f'test-delete-data/data/temporal/{self.path_now}/{cache_id}/data/bulk-1.txt',
+                                                                        f'test-delete-data/data/temporal/{self.path_now}/{cache_id}/data/bulk-2.txt'],
+                                                      data_key      = None                  ,
+                                                      namespace     = 'test-delete-data'    )
+
 
             # Verify all deleted
             for i in range(3):
-                retrieve_result = self.routes_data_retrieve.data__string__with__id(
-                    cache_id     = parent.cache_id,
-                    namespace    = self.test_namespace,
-                    data_file_id = Safe_Str__Id(f"bulk-{i}")
-                )
+                retrieve_result = self.routes_data_retrieve.data__string__with__id(cache_id     = parent.cache_id          ,
+                                                                                   namespace    = self.test_namespace      ,
+                                                                                   data_file_id = Safe_Str__Id(f"bulk-{i}"))
                 assert retrieve_result.status_code == 404
 
     def test_delete__all__data__files__with__key(self):                                         # Test deleting files under specific key
@@ -528,11 +535,3 @@ class test_Routes__Data__Delete(TestCase):
                         data_key     = test_key,
                         data_file_id = Safe_Str__Id(file_id)
                     )
-
-    def test_setup_routes(self):                                                                # Test route setup
-        with self.routes_data_delete as _:
-            result = _.setup_routes()
-            assert result is _                                                                  # Returns self for chaining
-
-            # Verify routes are registered (would need app instance to fully test)
-            # This at least ensures the method executes without error

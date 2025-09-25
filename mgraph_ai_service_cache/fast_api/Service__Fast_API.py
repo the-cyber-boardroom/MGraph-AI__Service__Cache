@@ -1,3 +1,4 @@
+from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Delete      import Routes__Data__Delete
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Retrieve    import Routes__Data__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store       import Routes__Data__Store
 from mgraph_ai_service_cache.service.cache.Cache__Service                   import Cache__Service
@@ -23,14 +24,15 @@ class Service__Fast_API(Serverless__Fast_API):
 
 
     def setup_routes(self):
-        self.add_routes(Routes__Data__Store   )
-        self.add_routes(Routes__Data__Retrieve)
-        self.add_routes(Routes__Admin__Storage)
         self.add_routes(Routes__File__Store   )
         self.add_routes(Routes__File__Retrieve)
         self.add_routes(Routes__File__Exists  )
         self.add_routes(Routes__File__Delete  )
+        self.add_routes(Routes__Data__Store   )
+        self.add_routes(Routes__Data__Retrieve)
+        self.add_routes(Routes__Data__Delete  )
         self.add_routes(Routes__Namespace     )
+        self.add_routes(Routes__Admin__Storage)
         self.add_routes(Routes__Server        )
         self.add_routes(Routes__Info          )
         self.add_routes(Routes__Set_Cookie    )

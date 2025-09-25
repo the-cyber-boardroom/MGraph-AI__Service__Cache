@@ -71,18 +71,18 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
         deleted = self.delete_service().delete_data_file(request)
 
         if not deleted:
-            error_detail = { "error_type"   : "NOT_FOUND"                                       ,
-                            "message"      : f"Data file {data_file_id} not found"             ,
-                            "cache_id"     : str(cache_id)                                     ,
-                            "data_file_id" : str(data_file_id)                                 ,
-                            "data_type"    : str(data_type)                                    }
+            error_detail = { "error_type"   : "NOT_FOUND"                                       ,           # todo: refactor to use Type_Safe classes
+                             "message"      : f"Data file {data_file_id} not found"             ,
+                             "cache_id"     : str(cache_id)                                     ,
+                             "data_file_id" : str(data_file_id)                                 ,
+                             "data_type"    : str(data_type)                                    }
             raise HTTPException(status_code=404, detail=error_detail)
 
-        return { "status"        : "success"                                                    ,
+        return { "status"        : "success"                                                    ,           # todo: refactor to use Type_Safe classes
                 "message"       : "Data file deleted successfully"                             ,
                 "cache_id"      : str(cache_id)                                                ,
                 "data_file_id"  : str(data_file_id)                                            ,
-                "data_type"     : str(data_type)                                               ,
+                "data_type"     : data_type.value                                              ,
                 "data_key"      : str(data_key) if data_key else None                          ,
                 "namespace"     : str(namespace)                                               }
 
@@ -104,10 +104,10 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
                                                              namespace = namespace,
                                                              data_key  = data_key )
 
-        deleted_count = result["deleted_count"]
+        deleted_count = result.deleted_count
 
         if deleted_count == 0:
-            return { "status"        : "success"                                                ,
+            return { "status"        : "success"                                                ,               # todo: refactor to use Type_Safe classes
                     "message"       : "No data files to delete"                                ,
                     "cache_id"      : str(cache_id)                                            ,
                     "deleted_count" : 0                                                        ,
@@ -115,10 +115,10 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
                     "namespace"     : str(namespace)                                           }
 
         return { "status"        : "success"                                                   ,
-                "message"       : f"Deleted {deleted_count} data files"                       ,
+                "message"       : f"Deleted {deleted_count} data files"                       ,                 # todo: refactor to use Type_Safe classes
                 "cache_id"      : str(cache_id)                                               ,
                 "deleted_count" : deleted_count                                               ,
-                "deleted_files" : result["deleted_files"]                                     ,
+                "deleted_files" : result.deleted_files                                        ,
                 "data_key"      : str(data_key) if data_key else None                         ,
                 "namespace"     : str(namespace)                                              }
 
