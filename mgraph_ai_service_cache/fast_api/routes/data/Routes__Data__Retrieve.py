@@ -21,13 +21,10 @@ TAG__ROUTES_RETRIEVE__DATA       = Safe_Str__Fast_API__Route__Tag('data')
 PREFIX__ROUTES_RETRIEVE__DATA    = Safe_Str__Fast_API__Route__Prefix('/{namespace}/cache/{cache_id}')
 BASE_PATH__ROUTES_RETRIEVE__DATA = f'{PREFIX__ROUTES_RETRIEVE__DATA}/{TAG__ROUTES_RETRIEVE__DATA}/'
 
-ROUTES_PATHS__RETRIEVE__DATA = [ BASE_PATH__ROUTES_RETRIEVE__DATA + 'json'                                 ,
-                                 BASE_PATH__ROUTES_RETRIEVE__DATA + 'json/{data_file_id}'                  ,
+ROUTES_PATHS__RETRIEVE__DATA = [ BASE_PATH__ROUTES_RETRIEVE__DATA + 'json/{data_file_id}'                  ,
                                  BASE_PATH__ROUTES_RETRIEVE__DATA + 'json/{data_key:path}/{data_file_id}'  ,
-                                 BASE_PATH__ROUTES_RETRIEVE__DATA + 'string'                               ,
                                  BASE_PATH__ROUTES_RETRIEVE__DATA + 'string/{data_file_id}'                ,
                                  BASE_PATH__ROUTES_RETRIEVE__DATA + 'string/{data_key:path}/{data_file_id}',
-                                 BASE_PATH__ROUTES_RETRIEVE__DATA + 'binary'                               ,
                                  BASE_PATH__ROUTES_RETRIEVE__DATA + 'binary/{data_file_id}'                ,
                                  BASE_PATH__ROUTES_RETRIEVE__DATA + 'binary/{data_key:path}/{data_file_id}']
 
@@ -126,44 +123,31 @@ class Routes__Data__Retrieve(Fast_API__Routes):                                 
                                data_file_id  : Safe_Str__Id           = None):
         if result is None or (hasattr(result, 'found') and not result.found):
             error_detail = { "error_type"   : "NOT_FOUND"                                                     ,
-                            "message"      : "Data file not found"                                            ,
-                            "cache_id"     : str(cache_id) if cache_id else None                              ,
-                            "data_file_id" : str(data_file_id) if data_file_id else None                      }
+                             "message"      : "Data file not found"                                            ,
+                             "cache_id"     : str(cache_id) if cache_id else None                              ,
+                             "data_file_id" : str(data_file_id) if data_file_id else None                      }
             raise HTTPException(status_code=404, detail=error_detail)
         return result
-
-    @type_safe
-    def handle_wrong_type(self, result        : Schema__Cache__Data__Retrieve__Response,                       # Handle wrong data type errors
-                               expected_type : Enum__Cache__Data_Type):
-        if result and result.data_type != expected_type:
-            error_detail = { "error_type"    : "UNSUPPORTED_MEDIA_TYPE"                                       ,
-                            "message"       : f"Data is {result.data_type}, not {expected_type}"              ,
-                            "expected_type" : str(expected_type)                                              ,
-                            "actual_type"   : str(result.data_type)                                           }
-            raise HTTPException(status_code=415, detail=error_detail)
 
     def handle_json_result(self, result: Schema__Cache__Data__Retrieve__Response,                              # Handle JSON-specific result processing
                                  cache_id: Random_Guid = None,
                                  data_file_id: Safe_Str__Id = None) -> dict:
         self.handle_not_found(result, cache_id=cache_id, data_file_id=data_file_id)
-        self.handle_wrong_type(result, expected_type=Enum__Cache__Data_Type.JSON)
         return result.data
 
     def handle_string_result(self, result: Schema__Cache__Data__Retrieve__Response) -> Response:               # Handle string-specific result processing
         if not result or not result.found:
             return Response(content="Not found", status_code=404)
-        if result.data_type != Enum__Cache__Data_Type.STRING:
-            return Response(content=f"Wrong type: {result.data_type}", status_code=415)
+
         return Response(content=result.data, media_type="text/plain")
 
     def handle_binary_result(self, result: Schema__Cache__Data__Retrieve__Response) -> Response:               # Handle binary-specific result processing
         if not result or not result.found:
             return Response(content=b"Not found", status_code=404)
-        if result.data_type != Enum__Cache__Data_Type.BINARY:
-            return Response(content=f"Wrong type: {result.data_type}".encode(), status_code=415)
+
         return Response(content=result.data, media_type="application/octet-stream")
 
-    def setup_routes(self) -> 'Routes__Data__Retrieve':                                                        # Configure all data retrieval routes
+    def setup_routes(self):                                                        # Configure all data retrieval routes
         self.add_route_get(self.data__json__with__id           )                                               # json endpoints
         self.add_route_get(self.data__json__with__id_and_key   )
 
@@ -172,4 +156,3 @@ class Routes__Data__Retrieve(Fast_API__Routes):                                 
 
         self.add_route_get(self.data__binary__with__id         )                                               # binary endpoints
         self.add_route_get(self.data__binary__with__id_and_key )
-        return self

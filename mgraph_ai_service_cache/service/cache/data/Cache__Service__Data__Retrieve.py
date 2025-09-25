@@ -147,6 +147,4 @@ class Cache__Service__Data__Retrieve(Type_Safe):                                
         elif data_type == Enum__Cache__Data_Type.STRING:
             return len(data.encode('utf-8')) if data else 0
         elif data_type == Enum__Cache__Data_Type.JSON:
-            return len(json_to_bytes(data)) if data else 0
-        else:
-            return 0
+            return len(json_to_bytes(data)) if data else 0        

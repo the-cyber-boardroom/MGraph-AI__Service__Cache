@@ -6,7 +6,8 @@ from osbot_fast_api.schemas.consts__Fast_API                                impo
 from osbot_utils.utils.Env                                                  import get_env
 from starlette.testclient                                                   import TestClient
 from mgraph_ai_service_cache.fast_api.Service__Fast_API                     import Service__Fast_API
-from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store import ROUTES_PATHS__STORE__DATA
+from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Retrieve    import ROUTES_PATHS__RETRIEVE__DATA
+from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store       import ROUTES_PATHS__STORE__DATA
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Delete      import ROUTES_PATHS__DELETE
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Exists      import ROUTES_PATHS__EXISTS
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve    import ROUTES_PATHS__RETRIEVE
@@ -73,7 +74,8 @@ class test_Service__Fast_API__client(TestCase):
                         ROUTES_PATHS__NAMESPACE      +
                         ROUTES_PATHS__SERVER         +
                         ROUTES_PATHS__STORAGE        +
-                        ROUTES_PATHS__STORE__DATA    )
+                        ROUTES_PATHS__STORE__DATA    +
+                        ROUTES_PATHS__RETRIEVE__DATA )
         for raw_path in raw_paths:
             routes_paths.append(Safe_Str__Fast_API__Route__Prefix(raw_path))
         assert self.fast_api.routes_paths() == sorted(routes_paths)                     # this creates a better diff
