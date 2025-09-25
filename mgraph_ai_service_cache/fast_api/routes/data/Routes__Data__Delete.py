@@ -75,7 +75,7 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
                              "message"      : f"Data file {data_file_id} not found"             ,
                              "cache_id"     : str(cache_id)                                     ,
                              "data_file_id" : str(data_file_id)                                 ,
-                             "data_type"    : str(data_type)                                    }
+                             "data_type"    : data_type.value                                   }
             raise HTTPException(status_code=404, detail=error_detail)
 
         return { "status"        : "success"                                                    ,           # todo: refactor to use Type_Safe classes
@@ -92,14 +92,13 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
                                 ) -> dict:
         return self.delete__all__data__files__with__key(cache_id  = cache_id ,
                                                         namespace = namespace,
-                                                        data_key  = None    )
+                                                        data_key  = ''       )
 
     @route_path("/data/delete/all/{data_key:path}")
     def delete__all__data__files__with__key(self, cache_id  : Random_Guid          = None                          ,
                                                   namespace : Safe_Str__Id         = FAST_API__PARAM__NAMESPACE    ,
                                                   data_key  : Safe_Str__File__Path = None
                                            ) -> dict:                                                               # Delete all data files
-
         result = self.delete_service().delete_all_data_files(cache_id  = cache_id ,
                                                              namespace = namespace,
                                                              data_key  = data_key )
@@ -123,7 +122,8 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
                 "namespace"     : str(namespace)                                              }
 
     def setup_routes(self):                                                                     # Configure all data deletion routes
+
+        self.add_route_delete(self.delete__all__data__files               )                 # IMPORTANT: from a routing point of view, this needs to be added before the delete__data__file__with__id
+        self.add_route_delete(self.delete__all__data__files__with__key    )                 #            so that the /all/ is picked up
         self.add_route_delete(self.delete__data__file__with__id           )
         self.add_route_delete(self.delete__data__file__with__id_and_key   )
-        self.add_route_delete(self.delete__all__data__files               )
-        self.add_route_delete(self.delete__all__data__files__with__key    )

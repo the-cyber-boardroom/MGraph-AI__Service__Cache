@@ -81,7 +81,6 @@ class Routes__Data__Store(Fast_API__Routes):                                    
                                                       namespace    = namespace                    )
 
         result = self.store_service().store_data(request)
-
         return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
 
     @route_path("/data/store/json")
@@ -125,11 +124,20 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
         return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
 
+    def test_404(self, cache_id     : Random_Guid            = None                          ,
+                       namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,):
+
+        error_detail = { "error_type" : "NOT_FOUND"                                                      ,
+                             "message"    : f"Cache entry '{cache_id}' in namespace '{namespace}' not found" ,
+                             "cache_id"   : str(cache_id)                                                    }
+        raise HTTPException(status_code=404, detail=error_detail)
+
     @route_path("/data/store/string")
     def data__store_string(self, data         : str                    = Body(...)                     ,
-                                 cache_id     : Random_Guid            = None                          ,
-                                 namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,
+                                  cache_id     : Random_Guid            = None                          ,
+                                  namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,
                           ) -> Schema__Cache__Data__Store__Response:
+
         return self.data__store_string__with__id_and_key(data         = data        ,
                                                          cache_id     = cache_id    ,
                                                          namespace    = namespace   ,
