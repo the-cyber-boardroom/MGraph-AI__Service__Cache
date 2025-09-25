@@ -14,12 +14,13 @@ from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy   
 from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__Store__Request   import Schema__Cache__Data__Store__Request
 from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__Store__Response  import Schema__Cache__Data__Store__Response
 from mgraph_ai_service_cache.service.cache.Cache__Service                             import Cache__Service
+from mgraph_ai_service_cache.service.cache.data.Cache__Service__Data__Store           import Cache__Service__Data__Store
 from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve          import Cache__Service__Retrieve
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                import Cache__Service__Store
-from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__Data          import Cache__Service__Store__Data
+
 from tests.unit.Service__Cache__Test_Objs                                             import setup__service__cache__test_objs
 
-class test_Cache__Service__Store__Data(TestCase):
+class test_Cache__Service__Data__Store(TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -28,7 +29,7 @@ class test_Cache__Service__Store__Data(TestCase):
         cls.service__cache      = cls.cache_fixtures.cache_service
         cls.service__store      = Cache__Service__Store      (cache_service = cls.service__cache)
         cls.service__retrieve   = Cache__Service__Retrieve   (cache_service = cls.service__cache)
-        cls.service__store_data = Cache__Service__Store__Data(cache_service = cls.service__cache)
+        cls.service__store_data = Cache__Service__Data__Store(cache_service = cls.service__cache)
 
         cls.test_namespace   = Safe_Str__Id("test-data-service")                                # Test data setup
         cls.test_cache_key   = Safe_Str__File__Path("logs/application")
@@ -53,8 +54,8 @@ class test_Cache__Service__Store__Data(TestCase):
                                                            namespace    = self.test_namespace)
 
     def test__init__(self):                                                                      # Test auto-initialization
-        with Cache__Service__Store__Data() as _:
-            assert type(_)               is Cache__Service__Store__Data
+        with Cache__Service__Data__Store() as _:
+            assert type(_)               is Cache__Service__Data__Store
             assert base_classes(_)       == [Type_Safe, object]
             assert type(_.cache_service) is Cache__Service                                      # Fixed attribute name
 

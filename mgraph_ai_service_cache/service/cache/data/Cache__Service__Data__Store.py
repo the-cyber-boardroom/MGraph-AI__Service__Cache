@@ -14,7 +14,7 @@ from mgraph_ai_service_cache.service.cache.Cache__Service                       
 from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve          import Cache__Service__Retrieve
 
 
-class Cache__Service__Store__Data(Type_Safe):                                                  # Service layer for lightweight child file storage
+class Cache__Service__Data__Store(Type_Safe):                                                  # Service layer for lightweight child file storage
     cache_service : Cache__Service                                                              # Underlying cache service instance
 
     @cache_on_self
