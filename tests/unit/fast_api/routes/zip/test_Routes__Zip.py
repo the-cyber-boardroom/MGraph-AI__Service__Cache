@@ -1,8 +1,6 @@
 import pytest
 from fastapi                                                                               import HTTPException, Request, Response
 from unittest                                                                              import TestCase
-
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc                                                                import is_guid
 from memory_fs.path_handlers.Path__Handler__Temporal                                       import Path__Handler__Temporal
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                              import Safe_Str__Fast_API__Route__Prefix
@@ -63,9 +61,9 @@ class test_Routes__Zip(TestCase):
     def test__class_constants(self):
         assert TAG__ROUTES_ZIP        == Safe_Str__Fast_API__Route__Tag('zip')
         assert PREFIX__ROUTES_ZIP     == Safe_Str__Fast_API__Route__Prefix('/{namespace}')
-        assert len(ROUTES_PATHS__ZIP) == 5
-        assert ROUTES_PATHS__ZIP[0]   == '/{namespace}/zip/store'
-        assert ROUTES_PATHS__ZIP[1]   == '/{namespace}/zip/{cache_id}/list'
+        assert len(ROUTES_PATHS__ZIP) == 6
+        assert ROUTES_PATHS__ZIP[0]   == '/{namespace}/zip/{strategy}/zip/create'
+        assert ROUTES_PATHS__ZIP[1]   == '/{namespace}/zip/store'
 
     def test__service_methods(self):
         with self.routes as _:
@@ -87,11 +85,11 @@ class test_Routes__Zip(TestCase):
             assert ops_service1.cache_service   is _.cache_service
             assert batch_service1.cache_service is _.cache_service
 
-    def test_create_zip(self):
+    def test_zip_create(self):
         with self.routes as _:
             cache_key  = 'an/cache/key'
             file_id    = 'new-archive'
-            result     = _.create_zip(namespace = self.test_namespace                        ,
+            result     = _.zip_create(namespace = self.test_namespace                        ,
                                       cache_key = cache_key                                  ,
                                       file_id   = file_id                                    ,
                                       strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE )
@@ -118,7 +116,7 @@ class test_Routes__Zip(TestCase):
                                                  file_count = 0            ,
                                                  stored_at  = __SKIP__     )
 
-            zip_files = _.list_zip_files(cache_id=cache_id, namespace=self.test_namespace)
+            zip_files = _.zip_files_list(cache_id=cache_id, namespace=self.test_namespace)
             assert zip_files.obj() == __(cache_id           = cache_id,
                                          original_cache_id = None   ,
                                          message           = 'Found 0 files in zip',
@@ -130,13 +128,14 @@ class test_Routes__Zip(TestCase):
                                          files_affected    = []     ,
                                          error_details     =''      )
 
-    def test_store_zip(self):
+    def test_zip_store(self):
         with self.routes as _:
             body       = self.test_zip
-            result     = _.store_zip(body      = body               ,
+            result     = _.zip_store(body      = body               ,
                                      namespace = self.test_namespace,
                                      cache_key = None               ,
-                                     file_id   = None               )
+                                     file_id   = None               ,
+                                     strategy  = Enum__Cache__Store__Strategy.TEMPORAL )
             cache_id   = result.cache_id
             cache_hash = result.cache_hash
             assert type(result)          is Schema__Cache__Zip__Store__Response
@@ -183,13 +182,13 @@ class test_Routes__Zip(TestCase):
                                                         'file2.txt': b'content 2'}
 
 
-    def test_store_zip__with_params(self):
+    def test_zip_store__with_params(self):
         with self.routes as _:
             body       = self.test_zip
             cache_key  = "backups/test"
             strategy   = Enum__Cache__Store__Strategy.SEMANTIC_FILE
             file_id    = "custom-id"
-            result     = _.store_zip(body      = body               ,
+            result     = _.zip_store(body      = body               ,
                                      namespace = self.test_namespace,
                                      strategy  = strategy           ,
                                      cache_key = cache_key          ,
@@ -216,10 +215,10 @@ class test_Routes__Zip(TestCase):
                                              file_count = 2            ,
                                              stored_at  = __SKIP__     )
 
-    def test_store_zip__invalid_zip(self):
+    def test_zip_store__invalid_zip(self):
         with self.routes as _:
             with pytest.raises(HTTPException) as exc:
-                _.store_zip(
+                _.zip_store(
                     body      = b"not a valid zip",
                     namespace = self.test_namespace,
                     cache_key = None,
@@ -229,23 +228,23 @@ class test_Routes__Zip(TestCase):
             assert exc.value.status_code == 400
             assert "Invalid zip file" in exc.value.detail
 
-    def test_list_zip_files(self):
+    def test_zip_files_list(self):
         with self.routes as _:
-            result = _.list_zip_files(cache_id  = self.test_cache_id ,
+            result = _.zip_files_list(cache_id  = self.test_cache_id ,
                                       namespace = self.test_namespace)
 
-            assert type(result)         is Schema__Cache__Zip__Operation__Response
-            assert result.success       == True
-            assert result.operation     == "list"
-            assert result.cache_id      == self.test_cache_id
+            assert type(result)          is Schema__Cache__Zip__Operation__Response
+            assert result.success        == True
+            assert result.operation      == "list"
+            assert result.cache_id       == self.test_cache_id
             assert len(result.file_list) == 2
             assert "file1.txt" in result.file_list
             assert "file2.txt" in result.file_list
 
-    def test_list_zip_files__not_found(self):
+    def test_zip_files_list__not_found(self):
         with self.routes as _:
             with pytest.raises(HTTPException) as exc:
-                _.list_zip_files(
+                _.zip_files_list(
                     cache_id  = Random_Guid(),
                     namespace = self.test_namespace
                 )
@@ -253,22 +252,22 @@ class test_Routes__Zip(TestCase):
             assert exc.value.status_code == 404
             assert "Zip file not found" in exc.value.detail
 
-    def test_get_zip_file(self):
+    def test_zip_file_retrieve(self):
         with self.routes as _:
-            result = _.get_zip_file(
+            result = _.zip_file_retrieve(
                 cache_id  = self.test_cache_id,
                 file_path = Safe_Str__File__Path("file1.txt"),
                 namespace = self.test_namespace
             )
 
-            assert type(result)     is Response
-            assert result.body      == b"content 1"
+            assert type(result)      is Response
+            assert result.body       == b"content 1"
             assert result.media_type == "application/octet-stream"
 
-    def test_get_zip_file__not_found(self):
+    def test_zip_file_retrieve__not_found(self):
         with self.routes as _:
             with pytest.raises(HTTPException) as exc:
-                _.get_zip_file(
+                _.zip_file_retrieve(
                     cache_id  = self.test_cache_id,
                     file_path = Safe_Str__File__Path("missing.txt"),
                     namespace = self.test_namespace
@@ -277,26 +276,42 @@ class test_Routes__Zip(TestCase):
             assert exc.value.status_code == 404
             assert "not found in zip" in exc.value.detail
 
-    def test_add_zip_file(self):
+    def test_zip_file_add_from_bytes(self):
         with self.routes as _:
-            result = _.add_zip_file(
+            result = _.zip_file_add_from_bytes(
                 cache_id  = self.test_cache_id,
                 body      = b"new content",
                 file_path = Safe_Str__File__Path("new.txt"),
                 namespace = self.test_namespace
             )
 
-            assert type(result)               is Schema__Cache__Zip__Operation__Response
-            assert result.success             == True
-            assert result.operation           == "add"
-            assert result.cache_id            != self.test_cache_id  # NEW ID!
-            assert result.original_cache_id   == self.test_cache_id
-            assert result.files_affected      == [Safe_Str__File__Path("new.txt")]
+            assert type(result)             is Schema__Cache__Zip__Operation__Response
+            assert result.success           == True
+            assert result.operation         == "add"
+            assert result.cache_id          != self.test_cache_id  # NEW ID!
+            assert result.original_cache_id == self.test_cache_id
+            assert result.files_affected    == [Safe_Str__File__Path("new.txt")]
 
-    def test_add_zip_file__no_path(self):
+    def test_zip_file_add_from_string(self):                                              # Test the string version
+        with self.routes as _:
+            result = _.zip_file_add_from_string(
+                cache_id  = self.test_cache_id,
+                body      = "string content",
+                file_path = Safe_Str__File__Path("string.txt"),
+                namespace = self.test_namespace
+            )
+
+            assert type(result)             is Schema__Cache__Zip__Operation__Response
+            assert result.success           == True
+            assert result.operation         == "add"
+            assert result.cache_id          != self.test_cache_id  # NEW ID!
+            assert result.original_cache_id == self.test_cache_id
+            assert result.files_affected    == [Safe_Str__File__Path("string.txt")]
+
+    def test_zip_file_add_from_bytes__no_path(self):
         with self.routes as _:
             with pytest.raises(HTTPException) as exc:
-                _.add_zip_file(
+                _.zip_file_add_from_bytes(
                     cache_id  = self.test_cache_id,
                     body      = b"content",
                     file_path = None,
@@ -306,9 +321,9 @@ class test_Routes__Zip(TestCase):
             assert exc.value.status_code == 400
             assert "file_path required" in exc.value.detail
 
-    def test_remove_zip_file(self):
+    def test_zip_file_delete(self):
         with self.routes as _:
-            result = _.remove_zip_file(
+            result = _.zip_file_delete(
                 cache_id  = self.test_cache_id,
                 file_path = Safe_Str__File__Path("file1.txt"),
                 namespace = self.test_namespace
@@ -382,9 +397,9 @@ class test_Routes__Zip(TestCase):
                                        completed_at       = __SKIP__,
                                        error_message      = 'Zip file not found in cache')
 
-    def test_download_zip(self):
+    def test_zip_retrieve(self):
         with self.routes as _:
-            result = _.download_zip(cache_id  = self.test_cache_id,
+            result = _.zip_retrieve(cache_id  = self.test_cache_id,
                                     namespace = self.test_namespace)
 
             assert type(result)      is Response
@@ -392,10 +407,10 @@ class test_Routes__Zip(TestCase):
             assert result.media_type == "application/zip"
             assert f"{self.test_cache_id}.zip" in result.headers["Content-Disposition"]
 
-    def test_download_zip__not_found(self):
+    def test_zip_retrieve__not_found(self):
         with self.routes as _:
             with pytest.raises(HTTPException) as exc:
-                _.download_zip(
+                _.zip_retrieve(
                     cache_id  = Random_Guid(),
                     namespace = self.test_namespace
                 )
@@ -403,7 +418,7 @@ class test_Routes__Zip(TestCase):
             assert exc.value.status_code == 404
             assert "Zip file not found" in exc.value.detail
 
-    def test_download_zip__not_binary(self):
+    def test_zip_retrieve__not_binary(self):
         # Store non-binary data
         store_service = Cache__Service__Store(cache_service=self.cache_service)
 
@@ -415,7 +430,7 @@ class test_Routes__Zip(TestCase):
 
         with self.routes as _:
             with pytest.raises(HTTPException) as exc:
-                _.download_zip(
+                _.zip_retrieve(
                     cache_id  = result.cache_id,
                     namespace = self.test_namespace
                 )

@@ -55,7 +55,7 @@ class test_Routes__Zip__http(TestCase):                                         
                         namespace  : str            = None
                   ) -> Dict[str, Any]:                                                      # Helper to store ZIP
         namespace = namespace or self.test_namespace
-        url       = f"{self.base_url}/{namespace}/zip/store"
+        url       = f"{self.base_url}/{namespace}/direct/zip/store/a/b"
 
         headers = {**self.headers, "Content-Type": "application/zip"}
         params  = {}
@@ -75,12 +75,46 @@ class test_Routes__Zip__http(TestCase):                                         
                                         'type'     : 'zip'                 })
         return result
 
+    def _create_zip(self, cache_key : str            = None,
+                          file_id   : str            = None,
+                          strategy  : str            = "temporal",
+                          namespace : str            = None
+                    ) -> Dict[str, Any]:                                                     # Helper to create empty ZIP
+        namespace  = namespace or self.test_namespace
+        cache_key  = cache_key or "test"
+        file_id    = file_id or "archive"
+        url        = f"{self.base_url}/{namespace}/{strategy}/zip/create/{cache_key}/{file_id}"
+
+        response = requests.post(url, headers=self.headers)
+
+        assert response.status_code == 200
+        result = response.json()
+
+        self.created_resources.append({ 'cache_id' : result.get('cache_id'),
+                                        'namespace': namespace             ,
+                                        'type'     : 'zip'                 })
+        return result
+
     def test_health_check(self):                                                         # Test API is accessible
         response = requests.get(f"{self.base_url}/info/health", headers=self.headers)
         assert response.status_code == 200
         assert response.json() == {'status': 'ok'}
 
-    def test_store_zip(self):                                                           # Test POST /namespace/zip/store
+    def test_zip_create(self):                                                          # Test POST /namespace/zip/{strategy}/zip/create
+        result = self._create_zip(cache_key="backups", file_id="test-archive")
+
+        cache_id   = result.get("cache_id")
+        cache_hash = result.get("cache_hash")
+
+        assert is_guid(cache_id) is True
+        assert len(cache_hash) == 16
+        assert result["namespace"] == self.test_namespace
+        assert result["file_count"] == 0                                                # Empty zip
+        assert result["size"] > 0                                                       # Even empty zip has size
+        assert "paths" in result
+        assert "stored_at" in result
+
+    def test_zip_store(self):                                                           # Test POST /namespace/zip/store
         result = self._store_zip()
 
         cache_id   = result.get("cache_id")
@@ -94,11 +128,11 @@ class test_Routes__Zip__http(TestCase):                                         
         assert "paths" in result
         assert "stored_at" in result
 
-    def test_list_zip_files(self):                                                      # Test GET /namespace/zip/{cache_id}/list
+    def test_zip_files_list(self):                                                      # Test GET /namespace/zip/{cache_id}/files/list
         store_result = self._store_zip()
         cache_id = store_result["cache_id"]
 
-        url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/list"
+        url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/files/list"
         response = requests.get(url, headers=self.headers)
 
         assert response.status_code == 200
@@ -111,7 +145,8 @@ class test_Routes__Zip__http(TestCase):                                         
         assert "test1.txt" in result["file_list"]
         assert "test2.txt" in result["file_list"]
 
-    def test_get_zip_file(self):                                                        # Test GET /namespace/zip/{cache_id}/file
+
+    def test_zip_file_retrieve(self):                                                   # Test GET /namespace/zip/{cache_id}/file/retrieve/{path}
         store_result = self._store_zip()
         cache_id     = store_result["cache_id"]
         cache_hash   = store_result["cache_hash"]
@@ -119,11 +154,11 @@ class test_Routes__Zip__http(TestCase):                                         
         assert obj(store_result)  ==  __( cache_id     = cache_id            ,
                                           cache_hash   = cache_hash          ,
                                           namespace    = self.test_namespace ,
-                                          paths        = __(data   = [ f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin',
-                                                                       f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.config',
-                                                                       f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.metadata'],
+                                          paths        = __(data   = [ f'{self.test_namespace}/data/direct/b/b.bin'         ,
+                                                                       f'{self.test_namespace}/data/direct/b/b.bin.config'  ,
+                                                                       f'{self.test_namespace}/data/direct/b/b.bin.metadata'],
                                                            by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
-                                                                       #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
+                                                                       f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
                                                                        f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
                                                            by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
                                                                        f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
@@ -134,7 +169,7 @@ class test_Routes__Zip__http(TestCase):                                         
 
 
         file_path = "test1.txt"
-        url       = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/file/{file_path}"
+        url       = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/file/retrieve/{file_path}"
 
         response = requests.get(url, headers=self.headers)
 
@@ -142,12 +177,12 @@ class test_Routes__Zip__http(TestCase):                                         
         assert response.content     == b"content 1"
         assert response.headers["content-type"] == "application/octet-stream"
 
-    def test_zip_file__creates_new_entry(self):                                     # Test POST creates new cache entry
+    def test_zip_file_add_from_bytes__creates_new_entry(self):                         # Test POST creates new cache entry with bytes
         skip__if_not__in_github_actions()
         original_result = self._store_zip()
         original_id = original_result["cache_id"]
 
-        url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/file/new.txt"
+        url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/file/add/from/bytes/new.txt"
         response = requests.post(url,
                                 data=b"new content",
                                 headers={**self.headers, "Content-Type": "application/octet-stream"})
@@ -164,23 +199,50 @@ class test_Routes__Zip__http(TestCase):                                         
         new_id = result["cache_id"]
 
         # Verify new entry has the added file
-        list_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/list"
+        list_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/files/list"
         list_response = requests.get(list_url, headers=self.headers)
         assert "new.txt" in list_response.json()["file_list"]
         assert len(list_response.json()["file_list"]) == 3
 
         # Verify original unchanged
-        original_list_url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/list"
+        original_list_url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/files/list"
         original_list = requests.get(original_list_url, headers=self.headers)
         assert "new.txt" not in original_list.json()["file_list"]
         assert len(original_list.json()["file_list"]) == 2
 
-    def test_remove_zip_file__creates_new_entry(self):                                  # Test DELETE creates new cache entry
+    def test_zip_file_add_from_string__creates_new_entry(self):                         # Test POST creates new cache entry with string
         skip__if_not__in_github_actions()
         original_result = self._store_zip()
         original_id = original_result["cache_id"]
 
-        url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/file/test1.txt"
+        url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/file/add/from/string/string.txt"
+        response = requests.post(url,
+                                data="string content",
+                                headers={**self.headers, "Content-Type": "text/plain"})
+
+        assert response.status_code == 200
+        result = response.json()
+
+        assert result["success"] == True
+        assert result["operation"] == "add"
+        assert result["cache_id"] != original_id                                          # NEW cache ID!
+        assert result["original_cache_id"] == original_id
+        assert "string.txt" in result["files_affected"]
+
+        new_id = result["cache_id"]
+
+        # Verify new entry has the added file
+        list_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/files/list"
+        list_response = requests.get(list_url, headers=self.headers)
+        assert "string.txt" in list_response.json()["file_list"]
+        assert len(list_response.json()["file_list"]) == 3
+
+    def test_zip_file_delete__creates_new_entry(self):                                  # Test DELETE creates new cache entry
+        skip__if_not__in_github_actions()
+        original_result = self._store_zip()
+        original_id = original_result["cache_id"]
+
+        url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/file/delete/test1.txt"
         response = requests.delete(url, headers=self.headers)
 
         assert response.status_code == 200
@@ -195,7 +257,7 @@ class test_Routes__Zip__http(TestCase):                                         
         new_id = result["cache_id"]
 
         # Verify new entry has file removed
-        list_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/list"
+        list_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/files/list"
         list_response = requests.get(list_url, headers=self.headers)
         assert "test1.txt" not in list_response.json()["file_list"]
         assert len(list_response.json()["file_list"]) == 1
@@ -222,7 +284,7 @@ class test_Routes__Zip__http(TestCase):                                         
                           "namespace"  : self.test_namespace                  ,
                           "strategy"   : Enum__Cache__Store__Strategy.TEMPORAL}
 
-        url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/batch"
+        url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/batch/operations"
         response = requests.post(url, json=batch_request, headers=self.headers)
 
         assert response.status_code == 200
@@ -255,7 +317,7 @@ class test_Routes__Zip__http(TestCase):                                         
                         "namespace"  : self.test_namespace,
                         "strategy"   : Enum__Cache__Store__Strategy.TEMPORAL}
 
-        url      = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/batch"
+        url      = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/batch/operations"
         response = requests.post(url, json=batch_request, headers=self.headers)
         result   = response.json()
         assert response.status_code == 200
@@ -263,12 +325,12 @@ class test_Routes__Zip__http(TestCase):                                         
         assert result["cache_id"] == original_id                                          # No new entry on failure
         assert result["rollback_performed"] == True
 
-    def test_download_zip(self):                                                        # Test GET /namespace/zip/{cache_id}/download
+    def test_zip_retrieve(self):                                                        # Test GET /namespace/zip/{cache_id}/retrieve
         skip__if_not__in_github_actions()
         store_result = self._store_zip()
         cache_id = store_result["cache_id"]
 
-        url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/download"
+        url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/retrieve"
         response = requests.get(url, headers=self.headers)
 
         assert response.status_code == 200
@@ -283,7 +345,7 @@ class test_Routes__Zip__http(TestCase):                                         
         v1_id = v1_result["cache_id"]
 
         # Operation 1: Add file
-        add_url = f"{self.base_url}/{self.test_namespace}/zip/{v1_id}/file/v2.txt"
+        add_url = f"{self.base_url}/{self.test_namespace}/zip/{v1_id}/file/add/from/bytes/v2.txt"
         add_response = requests.post(add_url,
                                     data=b"version 2",
                                     headers={**self.headers, "Content-Type": "application/octet-stream"})
@@ -291,7 +353,7 @@ class test_Routes__Zip__http(TestCase):                                         
         assert v2_id != v1_id
 
         # Operation 2: Remove file from v2
-        remove_url = f"{self.base_url}/{self.test_namespace}/zip/{v2_id}/file/test1.txt"
+        remove_url = f"{self.base_url}/{self.test_namespace}/zip/{v2_id}/file/delete/test1.txt"
         remove_response = requests.delete(remove_url, headers=self.headers)
         v3_id = remove_response.json()["cache_id"]
         assert v3_id != v2_id
@@ -299,7 +361,7 @@ class test_Routes__Zip__http(TestCase):                                         
 
         # Verify all three versions exist independently
         for cache_id, expected_count in [(v1_id, 2), (v2_id, 3), (v3_id, 2)]:
-            list_url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/list"
+            list_url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/files/list"
             list_response = requests.get(list_url, headers=self.headers)
             assert len(list_response.json()["file_list"]) == expected_count
 
@@ -316,7 +378,7 @@ class test_Routes__Zip__http(TestCase):                                         
             cache_id = store_result["cache_id"]
 
             # Add another file
-            add_url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/file/added_{index}.txt"
+            add_url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/file/add/from/bytes/added_{index}.txt"
             add_response = requests.post(add_url,
                                         data=f"added_{index}".encode(),
                                         headers={**self.headers, "Content-Type": "application/octet-stream"})
@@ -354,7 +416,7 @@ class test_Routes__Zip__http(TestCase):                                         
         cache_id = result["cache_id"]
 
         # List files
-        list_url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/list"
+        list_url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/files/list"
         list_response = requests.get(list_url, headers=self.headers)
 
         files = list_response.json()["file_list"]
@@ -386,7 +448,7 @@ class test_Routes__Zip__http(TestCase):                                         
             "namespace"  : self.test_namespace                   ,
             "strategy"   : Enum__Cache__Store__Strategy.TEMPORAL }
 
-        url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/batch"
+        url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/batch/operations"
         response = requests.post(url, json=batch_request, headers=self.headers)
 
         assert response.status_code == 200
@@ -395,7 +457,7 @@ class test_Routes__Zip__http(TestCase):                                         
         new_id = result.get("cache_id", cache_id)
 
         # Verify pattern matching worked
-        list_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/list"
+        list_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/files/list"
         list_response = requests.get(list_url, headers=self.headers)
         remaining_files = list_response.json()["file_list"]
 
@@ -405,7 +467,7 @@ class test_Routes__Zip__http(TestCase):                                         
 
     def test_error_handling(self):                                                     # Test error scenarios
         # Invalid ZIP data
-        url = f"{self.base_url}/{self.test_namespace}/zip/store"
+        url = f"{self.base_url}/{self.test_namespace}/direct/zip/store/a/b"
         response = requests.post(url,
                                 data=b"not a valid zip",
                                 headers={**self.headers, "Content-Type": "application/zip"})
@@ -413,14 +475,14 @@ class test_Routes__Zip__http(TestCase):                                         
 
         # Non-existent cache ID
         fake_id = "00000000-0000-0000-0000-000000000000"
-        list_url = f"{self.base_url}/{self.test_namespace}/zip/{fake_id}/list"
+        list_url = f"{self.base_url}/{self.test_namespace}/zip/{fake_id}/files/list"
         list_response = requests.get(list_url, headers=self.headers)
         assert list_response.status_code == 404
 
         # Missing file path for add operation
         store_result = self._store_zip()
         cache_id = store_result["cache_id"]
-        add_url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/file/"
+        add_url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/file/add/from/bytes/"
         add_response = requests.post(add_url,
                                     data=b"content",
                                     headers={**self.headers, "Content-Type": "application/octet-stream"})
@@ -433,7 +495,7 @@ class test_Routes__Zip__http(TestCase):                                         
         compressed_zip = gzip.compress(test_zip)
 
         # Try to store compressed (should fail as invalid ZIP)
-        url = f"{self.base_url}/{self.test_namespace}/zip/store"
+        url = f"{self.base_url}/{self.test_namespace}/direct/zip/store/a/b"
         response = requests.post(url,
                                 data=compressed_zip,
                                 headers={**self.headers, "Content-Type": "application/zip"})
@@ -452,12 +514,12 @@ class test_Routes__Zip__http(TestCase):                                         
         assert result2["namespace"] == ns2
 
         # Operations in one namespace shouldn't affect the other
-        add_url1 = f"{self.base_url}/{ns1}/zip/{result1['cache_id']}/file/new.txt"
+        add_url1 = f"{self.base_url}/{ns1}/zip/{result1['cache_id']}/file/add/from/bytes/new.txt"
         requests.post(add_url1,
                      data=b"new content",
                      headers={**self.headers, "Content-Type": "application/octet-stream"})
 
         # Original in ns2 should be unchanged
-        list_url2 = f"{self.base_url}/{ns2}/zip/{result2['cache_id']}/list"
+        list_url2 = f"{self.base_url}/{ns2}/zip/{result2['cache_id']}/files/list"
         list_response2 = requests.get(list_url2, headers=self.headers)
         assert "new.txt" not in list_response2.json()["file_list"]

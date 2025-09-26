@@ -63,7 +63,6 @@ class test_Service__Fast_API__client(TestCase):
         routes_paths = []
         raw_paths    = (ROUTES_PATHS__INFO           +
                         EXPECTED_ROUTES__SET_COOKIE  +
-                        #ROUTES_PATHS__CACHE          +
                         ROUTES_PATHS__STORE          +
                         ROUTES_PATHS__RETRIEVE       +
                         ROUTES_PATHS__EXISTS         +

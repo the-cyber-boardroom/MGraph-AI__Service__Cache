@@ -1,4 +1,5 @@
 from unittest                                                   import TestCase
+from osbot_fast_api_serverless.utils.testing.skip_tests         import skip__if_not__in_github_actions
 from memory_fs.path_handlers.Path__Handler__Temporal            import Path__Handler__Temporal
 from osbot_utils.testing.__                                     import __, __SKIP__
 from osbot_utils.utils.Objects                                  import obj
@@ -46,10 +47,26 @@ class test_Routes__Zip__client(TestCase):
             assert _.zip_ops_service().cache_service is _.cache_service
             assert _.zip_batch_service().cache_service is _.cache_service
 
-    #def test_zip_create(self):
+    def test_zip_create(self):                                                            # Test POST /namespace/zip/{strategy}/zip/create
+        response = self.client.post(url     = f"/{self.test_namespace}/temporal/zip/create/backups/test-archive",
+                                    headers = {TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
+        assert response.status_code == 200
+        result     = response.json()
+        cache_id   = result.get("cache_id")
+        cache_hash = result.get("cache_hash")
 
-    def test_store_zip(self):                                                             # Test POST /namespace/zip/store
-        response = self.client.post(url     = f"/{self.test_namespace}/zip/store",
+        assert "cache_id"   in result
+        assert "cache_hash" in result
+        assert "namespace"  in result
+        assert result["namespace"]  == self.test_namespace
+        assert result["file_count"] == 0                                                  # Empty zip
+        assert result["size"]        > 0                                                  # Even empty zip has size
+
+    def test_zip_store(self):                                                             # Test POST /namespace/zip/store
+        strategy  = 'temporal'
+        cache_key = 'an_key'
+        file_id   = 'an-file-id'
+        response = self.client.post(url     = f"/{self.test_namespace}/{strategy}/zip/store/{cache_key}/{file_id}",
                                     content = self.test_zip,
                                     headers = {"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
 
@@ -60,9 +77,9 @@ class test_Routes__Zip__client(TestCase):
         assert obj(result) ==  __( cache_id     = cache_id          ,
                                    cache_hash   = cache_hash        ,
                                    namespace    = 'test-routes'     ,
-                                   paths        = __(data   = [ f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin',
-                                                                f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.config',
-                                                                f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.metadata'],
+                                   paths        = __(data   = [ f'{self.test_namespace}/data/temporal/{self.path_now}/{file_id}.bin',
+                                                                f'{self.test_namespace}/data/temporal/{self.path_now}/{file_id}.bin.config',
+                                                                f'{self.test_namespace}/data/temporal/{self.path_now}/{file_id}.bin.metadata'],
                                                     by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
                                                                 #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',            # this file is not created in this flow because it already exists (another test has created it )
                                                                 f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
@@ -86,15 +103,16 @@ class test_Routes__Zip__client(TestCase):
         # Store ID for other tests
         self.stored_cache_id = result["cache_id"]
 
-    def test_list_zip_files(self):                                                        # Test GET /namespace/zip/{cache_id}/list (read-only)
-        store_response = self.client.post(url     = f"/{self.test_namespace}/zip/store",                # First store a zip
+    def test_zip_files_list(self):                                                        # Test GET /namespace/zip/{cache_id}/files/list (read-only)
+        store_response = self.client.post(url     = f"/{self.test_namespace}/direct/zip/store/a/b",                # First store a zip
                                           content = self.test_zip,
                                           headers = {"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
 
+        assert store_response.status_code == 200
         cache_id = store_response.json()["cache_id"]
 
         # List files
-        request_url = f"/{self.test_namespace}/zip/{cache_id}/list"
+        request_url = f"/{self.test_namespace}/zip/{cache_id}/files/list"
         response = self.client.get(url= request_url, headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         assert response.status_code == 200
         result = response.json()
@@ -106,30 +124,31 @@ class test_Routes__Zip__client(TestCase):
         assert "test1.txt" in result["file_list"]
         assert "test2.txt" in result["file_list"]
 
-    def test_get_zip_file(self):                                                          # Test GET /namespace/zip/{cache_id}/file (read-only)
+    def test_zip_file_retrieve(self):                                                     # Test GET /namespace/zip/{cache_id}/file/retrieve/{file_path} (read-only)
         # Store a zip
-        store_response = self.client.post(url     = f"/{self.test_namespace}/zip/store",
+        store_response = self.client.post(url     = f"/{self.test_namespace}/direct/zip/store/a/b",
                                           content = self.test_zip,
                                           headers={"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
+        assert store_response.status_code == 200
         cache_id = store_response.json()["cache_id"]
 
         # Get specific file
-        response = self.client.get(f"/{self.test_namespace}/zip/{cache_id}/file/test1.txt" , headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
+        response = self.client.get(f"/{self.test_namespace}/zip/{cache_id}/file/retrieve/test1.txt" , headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
 
         assert response.status_code == 200
         assert response.content == b"content 1"
         assert response.headers["content-type"] == "application/octet-stream"
 
-    def test_add_zip_file__creates_new_entry(self):                                       # Test POST creates new cache entry
+    def test_zip_file_add_from_bytes__creates_new_entry(self):                            # Test POST creates new cache entry
         # Store a zip
-        store_response = self.client.post(url     = f"/{self.test_namespace}/zip/store",
+        store_response = self.client.post(url     = f"/{self.test_namespace}/direct/zip/store/a/b",
                                           content = self.test_zip,
                                           headers = {"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE}
         )
         original_id = store_response.json()["cache_id"]
 
-        # Add new file
-        response = self.client.post(url     = f"/{self.test_namespace}/zip/{original_id}/file/new.txt",
+        # Add new file using bytes endpoint
+        response = self.client.post(url     = f"/{self.test_namespace}/zip/{original_id}/file/add/from/bytes/new.txt",
                                     content = b"new content"                                                ,
                                     headers = {"Content-Type"    : "application/octet-stream" ,
                                                TEST_API_KEY__NAME: TEST_API_KEY__VALUE} )
@@ -144,25 +163,59 @@ class test_Routes__Zip__client(TestCase):
         new_id = result["cache_id"]
 
         # Verify new entry has the added file
-        list_response = self.client.get(f"/{self.test_namespace}/zip/{new_id}/list", headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
+        list_response = self.client.get(f"/{self.test_namespace}/zip/{new_id}/files/list", headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         assert "new.txt" in list_response.json()["file_list"]
         assert len(list_response.json()["file_list"]) == 3                                # 2 original + 1 new
 
         # Verify original unchanged
-        original_list = self.client.get(f"/{self.test_namespace}/zip/{original_id}/list", headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
+        original_list = self.client.get(f"/{self.test_namespace}/zip/{original_id}/files/list", headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         assert "new.txt" not in original_list.json()["file_list"]
         assert len(original_list.json()["file_list"]) == 2                                # Original unchanged
 
-    def test_remove_zip_file__creates_new_entry(self):                                    # Test DELETE creates new cache entry
+    def test_zip_file_add_from_string__creates_new_entry(self):                           # Test POST with string creates new cache entry
+        skip__if_not__in_github_actions()
         # Store a zip
-        store_response = self.client.post(url     = f"/{self.test_namespace}/zip/store",
+        store_response = self.client.post(url     = f"/{self.test_namespace}/direct/zip/store/a/b",
+                                          content = self.test_zip,
+                                          headers = {"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE}
+        )
+        original_id = store_response.json()["cache_id"]
+
+        # Add new file using string endpoint
+        response = self.client.post(url     = f"/{self.test_namespace}/zip/{original_id}/file/add/from/string/string.txt",
+                                    content = "string content"                                               ,
+                                    headers = {"Content-Type"    : "text/plain" ,
+                                               TEST_API_KEY__NAME: TEST_API_KEY__VALUE} )
+        assert response.status_code == 200
+        result = response.json()
+        assert result["success"] == True
+        assert result["operation"] == "add"
+        assert result["cache_id"] != original_id                                          # NEW cache ID!
+        assert result["original_cache_id"] == original_id                                 # Original preserved
+        assert "string.txt" in result["files_affected"]
+
+        new_id = result["cache_id"]
+
+        # Verify new entry has the added file
+        list_response = self.client.get(f"/{self.test_namespace}/zip/{new_id}/files/list", headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
+        assert "string.txt" in list_response.json()["file_list"]
+        assert len(list_response.json()["file_list"]) == 3                                # 2 original + 1 new
+
+        # Verify original unchanged
+        original_list = self.client.get(f"/{self.test_namespace}/zip/{original_id}/files/list", headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
+        assert "string.txt" not in original_list.json()["file_list"]
+        assert len(original_list.json()["file_list"]) == 2                                # Original unchanged
+
+    def test_zip_file_delete__creates_new_entry(self):                                    # Test DELETE creates new cache entry
+        # Store a zip
+        store_response = self.client.post(url     = f"/{self.test_namespace}/direct/zip/store/a/b",
                                           content = self.test_zip,
                                           headers = { "Content-Type"    : "application/zip",
                                                       TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         original_id = store_response.json()["cache_id"]
 
         # Remove file
-        response = self.client.delete(url     =  f"/{self.test_namespace}/zip/{original_id}/file/test1.txt",
+        response = self.client.delete(url     =  f"/{self.test_namespace}/zip/{original_id}/file/delete/test1.txt",
                                       headers = {TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
 
 
@@ -177,20 +230,20 @@ class test_Routes__Zip__client(TestCase):
         new_id = result["cache_id"]
 
         # Verify new entry has file removed
-        list_response = self.client.get(url     = f"/{self.test_namespace}/zip/{new_id}/list",
+        list_response = self.client.get(url     = f"/{self.test_namespace}/zip/{new_id}/files/list",
                                         headers = {TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         assert "test1.txt" not in list_response.json()["file_list"]
         assert len(list_response.json()["file_list"]) == 1                                # 2 - 1 = 1
 
         # Verify original unchanged
-        original_list = self.client.get(url     = f"/{self.test_namespace}/zip/{original_id}/list",
+        original_list = self.client.get(url     = f"/{self.test_namespace}/zip/{original_id}/files/list",
                                         headers = {TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         assert "test1.txt" in original_list.json()["file_list"]                           # Still in original
         assert len(original_list.json()["file_list"]) == 2
 
     def test_batch_operations__creates_new_entry(self):                                   # Test batch creates single new entry
         # Store a zip
-        store_response = self.client.post(url     = f"/{self.test_namespace}/zip/store",
+        store_response = self.client.post(url     = f"/{self.test_namespace}/direct/zip/store/a/b",
                                           content = self.test_zip,
                                           headers = { "Content-Type"    : "application/zip",
                                                       TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
@@ -214,7 +267,7 @@ class test_Routes__Zip__client(TestCase):
                           "strategy"  : "direct",
                           "namespace" : self.test_namespace}
 
-        response = self.client.post(url     = f"/{self.test_namespace}/zip/{original_id}/batch",
+        response = self.client.post(url     = f"/{self.test_namespace}/zip/{original_id}/batch/operations",
                                     json    = batch_request ,
                                     headers = { "Content-Type"    : "application/json",
                                                 TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
@@ -232,14 +285,14 @@ class test_Routes__Zip__client(TestCase):
 
         new_id = result["cache_id"]
         # Verify new entry has all changes
-        new_list = self.client.get(f"/{self.test_namespace}/zip/{new_id}/list", headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
+        new_list = self.client.get(f"/{self.test_namespace}/zip/{new_id}/files/list", headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         new_files = new_list.json()["file_list"]
         assert "new.txt" in new_files
         assert "test1.txt" not in new_files
         assert "test2.txt" in new_files
 
         # Verify original unchanged
-        original_list = self.client.get(f"/{self.test_namespace}/zip/{original_id}/list", headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
+        original_list = self.client.get(f"/{self.test_namespace}/zip/{original_id}/files/list", headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         original_files = original_list.json()["file_list"]
         assert "new.txt" not in original_files
         assert "test1.txt" in original_files
@@ -247,7 +300,7 @@ class test_Routes__Zip__client(TestCase):
 
     def test_batch_operations__atomic_failure(self):                                      # Test atomic failure doesn't create new entry
         # Store a zip
-        store_response = self.client.post(f"/{self.test_namespace}/zip/store",
+        store_response = self.client.post(f"/{self.test_namespace}/direct/zip/store/a/b",
                                              content=self.test_zip,
                                              headers={"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE}   )
         original_id = store_response.json()["cache_id"]
@@ -279,7 +332,7 @@ class test_Routes__Zip__client(TestCase):
         }
 
         response = self.client.post(
-            f"/{self.test_namespace}/zip/{original_id}/batch",
+            f"/{self.test_namespace}/zip/{original_id}/batch/operations",
             json=batch_request                               ,
             headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
 
@@ -292,9 +345,9 @@ class test_Routes__Zip__client(TestCase):
         assert result["operations_applied"] == 1
         assert result["operations_failed"] == 1
 
-    def test_download_zip__any_version(self):                                             # Test can download any version
+    def test_zip_retrieve__any_version(self):                                             # Test can download any version
         # Store initial zip
-        store_response = self.client.post(f"/{self.test_namespace}/zip/store",
+        store_response = self.client.post(f"/{self.test_namespace}/direct/zip/store/a/b",
                                           content=self.test_zip,
                                           headers = { "Content-Type"    : "application/zip",
                                                      TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
@@ -303,56 +356,53 @@ class test_Routes__Zip__client(TestCase):
 
         # Add file (creates new version)
         add_response = self.client.post(
-            f"/{self.test_namespace}/zip/{original_id}/file/added.txt",
+            f"/{self.test_namespace}/zip/{original_id}/file/add/from/bytes/added.txt",
             content=b"added",
-            headers = { "Content-Type"    : "application/zip",
+            headers = { "Content-Type"    : "application/octet-stream",
                          TEST_API_KEY__NAME: TEST_API_KEY__VALUE},
         )
 
         new_id = add_response.json()["cache_id"]
 
         # Download original version
-        original_download = self.client.get(f"/{self.test_namespace}/zip/{original_id}/download",
+        original_download = self.client.get(f"/{self.test_namespace}/zip/{original_id}/retrieve",
                                             headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         assert original_download.status_code == 200
         assert original_download.content == self.test_zip                                 # Original content
 
         # Download new version
-        new_download = self.client.get(f"/{self.test_namespace}/zip/{new_id}/download",
+        new_download = self.client.get(f"/{self.test_namespace}/zip/{new_id}/retrieve",
                                        headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         assert new_download.status_code == 200
         assert new_download.content != self.test_zip                                      # Modified content
         assert len(new_download.content) > len(self.test_zip)                             # Has added file
 
     def test_immutability_chain(self):                                                    # Test chain of operations
+        skip__if_not__in_github_actions()
         # Store initial
-        store_response = self.client.post(
-            f"/{self.test_namespace}/zip/store",
-            content=self.test_zip,
-            headers={"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE}
-        )
+        store_response = self.client.post(url     = f"/{self.test_namespace}/direct/zip/store/a/b",
+                                          content = self.test_zip,
+                                          headers = {"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         v1_id = store_response.json()["cache_id"]
 
         # Operation 1: Add file
-        add_response = self.client.post(
-            f"/{self.test_namespace}/zip/{v1_id}/file/v2.txt",
-            content=b"version 2",
-            headers={"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE}
-        )
+        add_response = self.client.post(url     = f"/{self.test_namespace}/zip/{v1_id}/file/add/from/bytes/v2.txt",
+                                        content = b"version 2",
+                                        headers = {"Content-Type": "application/octet-stream", TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         v2_id = add_response.json()["cache_id"]
         assert v2_id != v1_id
 
         # Operation 2: Remove file from v2
-        remove_response = self.client.delete(f"/{self.test_namespace}/zip/{v2_id}/file/test1.txt",
+        remove_response = self.client.delete(f"/{self.test_namespace}/zip/{v2_id}/file/delete/test1.txt",
                                              headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         v3_id = remove_response.json()["cache_id"]
         assert v3_id != v2_id
         assert v3_id != v1_id
 
         # Verify all three versions exist independently
-        v1_files = self.client.get(f"/{self.test_namespace}/zip/{v1_id}/list",headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE}).json()["file_list"]
-        v2_files = self.client.get(f"/{self.test_namespace}/zip/{v2_id}/list",headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE}).json()["file_list"]
-        v3_files = self.client.get(f"/{self.test_namespace}/zip/{v3_id}/list",headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE}).json()["file_list"]
+        v1_files = self.client.get(f"/{self.test_namespace}/zip/{v1_id}/files/list",headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE}).json()["file_list"]
+        v2_files = self.client.get(f"/{self.test_namespace}/zip/{v2_id}/files/list",headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE}).json()["file_list"]
+        v3_files = self.client.get(f"/{self.test_namespace}/zip/{v3_id}/files/list",headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE}).json()["file_list"]
 
         # V1: Original
         assert len(v1_files) == 2
@@ -374,18 +424,16 @@ class test_Routes__Zip__client(TestCase):
 
     def test_headers_for_new_cache_ids(self):                                             # Test response headers include new IDs
         # Store a zip
-        store_response = self.client.post(
-            f"/{self.test_namespace}/zip/store",
-            content=self.test_zip,
-            headers={"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE}
-        )
+        store_response = self.client.post(url     = f"/{self.test_namespace}/direct/zip/store/a/b",
+                                          content = self.test_zip,
+                                          headers = {"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
         original_id = store_response.json()["cache_id"]
 
         # Add file should include new ID headers
         add_response = self.client.post(
-            f"/{self.test_namespace}/zip/{original_id}/file/new.txt",
+            f"/{self.test_namespace}/zip/{original_id}/file/add/from/bytes/new.txt",
             content=b"new",
-            headers={ "Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE}
+            headers={ "Content-Type": "application/octet-stream", TEST_API_KEY__NAME: TEST_API_KEY__VALUE}
 
         )
 
