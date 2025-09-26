@@ -1,6 +1,8 @@
 import pytest
 from fastapi                                                                               import HTTPException, Request, Response
 from unittest                                                                              import TestCase
+
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc                                                                import is_guid
 from memory_fs.path_handlers.Path__Handler__Temporal                                       import Path__Handler__Temporal
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                              import Safe_Str__Fast_API__Route__Prefix
@@ -84,6 +86,49 @@ class test_Routes__Zip(TestCase):
             assert store_service1.cache_service is _.cache_service
             assert ops_service1.cache_service   is _.cache_service
             assert batch_service1.cache_service is _.cache_service
+
+    def test_create_zip(self):
+        with self.routes as _:
+            cache_key  = 'an/cache/key'
+            file_id    = 'new-archive'
+            result     = _.create_zip(namespace = self.test_namespace                        ,
+                                      cache_key = cache_key                                  ,
+                                      file_id   = file_id                                    ,
+                                      strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE )
+            cache_id   = result.cache_id
+            cache_hash = result.cache_hash
+            assert type(result)          is Schema__Cache__Zip__Store__Response
+            assert type(result.cache_id) is Random_Guid
+            assert result.namespace      == self.test_namespace
+            assert result.file_count     == 0
+            assert result.size            > 0
+            assert result.obj()          ==  __( cache_id     = cache_id          ,
+                                                 cache_hash   = cache_hash        ,
+                                                 namespace    = 'test-routes'     ,
+                                                 paths        = __(data   = [ f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin',
+                                                                              f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.config',
+                                                                              f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.metadata'],
+                                                                  by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
+                                                                              f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
+                                                                              f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
+                                                                  by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
+                                                                              f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
+                                                                              f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
+                                                 size       = 22           ,
+                                                 file_count = 0            ,
+                                                 stored_at  = __SKIP__     )
+
+            zip_files = _.list_zip_files(cache_id=cache_id, namespace=self.test_namespace)
+            assert zip_files.obj() == __(cache_id           = cache_id,
+                                         original_cache_id = None   ,
+                                         message           = 'Found 0 files in zip',
+                                         success           = True   ,
+                                         operation         = 'list' ,
+                                         file_list         = []     ,
+                                         file_content      = b''    ,
+                                         file_size         = 0      ,
+                                         files_affected    = []     ,
+                                         error_details     =''      )
 
     def test_store_zip(self):
         with self.routes as _:
