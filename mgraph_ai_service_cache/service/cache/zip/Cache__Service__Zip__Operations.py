@@ -6,10 +6,10 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           
 from osbot_utils.utils.Zip                                                               import (zip_bytes__file_list, zip_bytes__file,
                                                                                                  zip_bytes__add_file, zip_bytes__remove_file,
                                                                                                  zip_bytes__replace_file)
-from mgraph_ai_service_cache.schemas.cache.zip.enums.Enum__Cache__Zip__Operation         import Enum__Cache__Zip__Operation
+from mgraph_ai_service_cache_client.schemas.cache.zip.enums.Enum__Cache__Zip__Operation         import Enum__Cache__Zip__Operation
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Operation__Request    import Schema__Cache__Zip__Operation__Request
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Operation__Response   import Schema__Cache__Zip__Operation__Response
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Operation__Request    import Schema__Cache__Zip__Operation__Request
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Operation__Response   import Schema__Cache__Zip__Operation__Response
 from mgraph_ai_service_cache.utils.for_osbot_utils.Zip                                   import zip_bytes__content_hash
 
 

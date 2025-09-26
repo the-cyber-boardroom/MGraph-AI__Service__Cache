@@ -6,7 +6,7 @@ from memory_fs.path_handlers.Path__Handler__Key_Based                           
 from memory_fs.storage_fs.Storage_FS                                                    import Storage_FS
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy           import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy           import Enum__Cache__Store__Strategy
 from osbot_utils.utils.Http                                                             import url_join_safe
 
 # Constants for all prefix paths

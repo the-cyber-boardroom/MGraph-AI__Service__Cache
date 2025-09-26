@@ -1,5 +1,5 @@
 from unittest                                                                import TestCase
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success  import Schema__Cache__Retrieve__Success
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success  import Schema__Cache__Retrieve__Success
 from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve import Cache__Service__Retrieve
 from osbot_fast_api_serverless.utils.testing.skip_tests                      import skip__if_not__in_github_actions
 from osbot_utils.testing.__                                                  import __, __SKIP__

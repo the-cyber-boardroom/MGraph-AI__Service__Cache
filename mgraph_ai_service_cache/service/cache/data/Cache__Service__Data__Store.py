@@ -7,9 +7,9 @@ from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text    
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                        import type_safe
 from osbot_utils.utils.Http                                                           import url_join_safe
 from osbot_utils.utils.Json                                                           import json_to_bytes
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type               import Enum__Cache__Data_Type
-from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__Store__Request   import Schema__Cache__Data__Store__Request
-from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__Store__Response  import Schema__Cache__Data__Store__Response
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type               import Enum__Cache__Data_Type
+from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__Store__Request   import Schema__Cache__Data__Store__Request
+from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__Store__Response  import Schema__Cache__Data__Store__Response
 from mgraph_ai_service_cache.service.cache.Cache__Service                             import Cache__Service
 from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve          import Cache__Service__Retrieve
 

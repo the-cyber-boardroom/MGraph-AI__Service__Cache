@@ -8,8 +8,8 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           
 from osbot_utils.utils.Zip                                                               import (zip_bytes__file_list, zip_bytes__add_file,
                                                                                                  zip_bytes__remove_files, zip_bytes__replace_file)
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Batch__Request        import Schema__Cache__Zip__Batch__Request, Schema__Zip__Batch__Operation
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Batch__Response       import Schema__Cache__Zip__Batch__Response, Schema__Zip__Operation__Result
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Request        import Schema__Cache__Zip__Batch__Request, Schema__Zip__Batch__Operation
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Response       import Schema__Cache__Zip__Batch__Response, Schema__Zip__Operation__Result
 
 
 class Cache__Service__Zip__Batch(Type_Safe):                                             # Service layer for batch zip operations

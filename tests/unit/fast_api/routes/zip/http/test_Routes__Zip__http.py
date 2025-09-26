@@ -13,7 +13,7 @@ from osbot_utils.testing.__                                                     
 from osbot_utils.utils.Misc                                                     import is_guid
 from osbot_utils.utils.Objects                                                  import obj
 from osbot_utils.utils.Zip                                                      import zip_bytes_empty, zip_bytes__add_file, zip_bytes__file_list
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy   import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy   import Enum__Cache__Store__Strategy
 from tests.unit.Service__Cache__Test_Objs                                       import setup__service__cache__test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
 class test_Routes__Zip__http(TestCase):                                                      # HTTP tests for ZIP routes using live FastAPI server

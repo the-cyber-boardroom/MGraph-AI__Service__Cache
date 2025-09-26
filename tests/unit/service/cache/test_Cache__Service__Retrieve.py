@@ -1,6 +1,6 @@
 from typing                                                                              import Dict, List
 from unittest                                                                            import TestCase
-from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from osbot_utils.testing.__                                                              import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
@@ -11,11 +11,11 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.utils.Misc                                                              import list_set
 from osbot_utils.utils.Objects                                                           import base_classes, obj
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Metadata                       import Schema__Cache__Metadata
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success              import Schema__Cache__Retrieve__Success
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                  import Enum__Cache__Data_Type
-from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Gone                   import Schema__Cache__Error__Gone
-from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Not_Found              import Schema__Cache__Error__Not_Found
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Metadata                       import Schema__Cache__Metadata
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success              import Schema__Cache__Retrieve__Success
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                  import Enum__Cache__Data_Type
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Gone                   import Schema__Cache__Error__Gone
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Not_Found              import Schema__Cache__Error__Not_Found
 from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve             import Cache__Service__Retrieve
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                   import Cache__Service__Store

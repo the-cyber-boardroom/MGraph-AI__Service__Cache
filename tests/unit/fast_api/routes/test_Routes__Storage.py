@@ -1,7 +1,7 @@
 from unittest                                                               import TestCase
 from memory_fs.storage_fs.providers.Storage_FS__Memory                      import Storage_FS__Memory
 from mgraph_ai_service_cache.fast_api.routes.admin.Routes__Admin__Storage   import Routes__Admin__Storage
-from mgraph_ai_service_cache.schemas.consts.const__Fast_API                 import CACHE__TEST__FIXTURES__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                 import CACHE__TEST__FIXTURES__NAMESPACE
 from mgraph_ai_service_cache.service.cache.Cache__Service                   import Cache__Service
 from tests.unit.Service__Cache__Test_Objs                                   import setup__service__cache__test_objs
 

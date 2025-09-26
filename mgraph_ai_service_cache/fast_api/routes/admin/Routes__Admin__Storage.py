@@ -6,7 +6,7 @@ from osbot_utils.decorators.methods.cache_on_self                               
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now  import Timestamp_Now
 from osbot_utils.utils.Json                                                       import bytes_to_json, json_to_str
-from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                  import DEFAULT__HTTP_CODE__FILE_NOT_FOUND
+from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                  import DEFAULT__HTTP_CODE__FILE_NOT_FOUND
 from mgraph_ai_service_cache.service.cache.Cache__Service                         import Cache__Service
 
 TAG__ROUTES_STORAGE   = 'admin/storage'

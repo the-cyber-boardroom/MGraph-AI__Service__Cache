@@ -9,9 +9,9 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.utils.Objects                                                           import base_classes
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                   import Cache__Service__Store
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
 from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
 
 

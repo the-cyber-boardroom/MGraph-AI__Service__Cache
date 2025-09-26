@@ -5,11 +5,11 @@ from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Pat
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe
-from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                     import DEFAULT_CACHE__STORE__STRATEGY, DEFAULT_CACHE__NAMESPACE
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy        import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input      import Schema__Cache__Error__Invalid_Input
+from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                     import DEFAULT_CACHE__STORE__STRATEGY, DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy        import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Invalid_Input      import Schema__Cache__Error__Invalid_Input
 from mgraph_ai_service_cache.service.cache.Cache__Service                            import Cache__Service
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response            import Schema__Cache__Store__Response
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response            import Schema__Cache__Store__Response
 
 
 

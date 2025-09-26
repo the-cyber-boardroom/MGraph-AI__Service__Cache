@@ -7,7 +7,7 @@ from osbot_utils.type_safe.primitives.core.Safe_Float                           
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
 from osbot_utils.utils.Env                                                      import set_env
 from mgraph_ai_service_cache.fast_api.Service__Fast_API                         import Service__Fast_API
-from mgraph_ai_service_cache.schemas.consts.const__Fast_API                     import  CACHE__TEST__FIXTURES__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                     import  CACHE__TEST__FIXTURES__NAMESPACE
 from mgraph_ai_service_cache.utils.testing.Cache__Test__Fixtures                import Cache__Test__Fixtures
 
 TEST_API_KEY__NAME = 'key-used-in-pytest'

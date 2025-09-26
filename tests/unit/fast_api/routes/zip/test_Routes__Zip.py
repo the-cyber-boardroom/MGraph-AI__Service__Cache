@@ -14,14 +14,14 @@ from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Pat
 from osbot_fast_api.api.routes.Fast_API__Routes                                            import Fast_API__Routes
 from osbot_utils.utils.Zip                                                                 import zip_bytes_empty, zip_bytes__add_file, zip_bytes__file_list, zip_bytes__files
 from mgraph_ai_service_cache.fast_api.routes.zip.Routes__Zip                               import Routes__Zip, TAG__ROUTES_ZIP, PREFIX__ROUTES_ZIP, ROUTES_PATHS__ZIP
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success                import Schema__Cache__Retrieve__Success
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy              import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success                import Schema__Cache__Retrieve__Success
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy              import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.service.cache.Cache__Service                                  import Cache__Service
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Request          import Schema__Cache__Zip__Store__Request
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Response         import Schema__Cache__Zip__Store__Response
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Operation__Response     import Schema__Cache__Zip__Operation__Response
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Batch__Request          import Schema__Cache__Zip__Batch__Request, Schema__Zip__Batch__Operation
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Batch__Response         import Schema__Cache__Zip__Batch__Response
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Store__Request          import Schema__Cache__Zip__Store__Request
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Store__Response         import Schema__Cache__Zip__Store__Response
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Operation__Response     import Schema__Cache__Zip__Operation__Response
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Request          import Schema__Cache__Zip__Batch__Request, Schema__Zip__Batch__Operation
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Response         import Schema__Cache__Zip__Batch__Response
 from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve               import Cache__Service__Retrieve
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                     import Cache__Service__Store
 

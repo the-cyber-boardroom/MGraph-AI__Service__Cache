@@ -7,8 +7,8 @@ from osbot_utils.utils.Objects                                                  
 from osbot_utils.utils.Zip                                                            import zip_bytes_empty, zip_bytes__add_file
 from mgraph_ai_service_cache.service.cache.Cache__Service                             import Cache__Service
 from mgraph_ai_service_cache.service.cache.zip.Cache__Service__Zip__Store             import Cache__Service__Zip__Store
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Request     import Schema__Cache__Zip__Store__Request
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Response    import Schema__Cache__Zip__Store__Response
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Store__Request     import Schema__Cache__Zip__Store__Request
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Store__Response    import Schema__Cache__Zip__Store__Response
 from osbot_utils.type_safe.Type_Safe                                                  import Type_Safe
 
 from mgraph_ai_service_cache.utils.for_osbot_utils.Zip import zip_bytes__content_hash

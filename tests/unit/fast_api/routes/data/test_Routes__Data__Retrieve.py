@@ -10,9 +10,9 @@ from osbot_utils.utils.Objects                                                  
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Retrieve                    import Routes__Data__Retrieve, TAG__ROUTES_RETRIEVE__DATA, PREFIX__ROUTES_RETRIEVE__DATA, ROUTES_PATHS__RETRIEVE__DATA
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store                       import Routes__Data__Store
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Store                       import Routes__File__Store
-from mgraph_ai_service_cache.schemas.cache.data.Schema__Cache__Data__Retrieve__Response     import Schema__Cache__Data__Retrieve__Response
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Data_Type                     import Enum__Cache__Data_Type
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy               import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__Retrieve__Response     import Schema__Cache__Data__Retrieve__Response
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                     import Enum__Cache__Data_Type
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy               import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.service.cache.Cache__Service                                   import Cache__Service
 from mgraph_ai_service_cache.service.cache.data.Cache__Service__Data__Retrieve              import Cache__Service__Data__Retrieve
 from mgraph_ai_service_cache.service.cache.data.Cache__Service__Data__Store                 import Cache__Service__Data__Store

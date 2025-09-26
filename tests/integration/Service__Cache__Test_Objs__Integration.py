@@ -1,9 +1,9 @@
 from osbot_aws.testing.Temp__Random__AWS_Credentials                        import Temp_AWS_Credentials
 from osbot_local_stack.local_stack.Local_Stack                              import Local_Stack
 from osbot_utils.utils.Env                                                  import set_env
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Storage_Mode  import Enum__Cache__Storage_Mode
-from mgraph_ai_service_cache.schemas.consts.const__Fast_API                 import ENV_VAR__CACHE__SERVICE__BUCKET_NAME, CACHE__TEST__FIXTURES__BUCKET_NAME
-from mgraph_ai_service_cache.schemas.consts.const__Storage                  import ENV_VAR__CACHE__SERVICE__STORAGE_MODE
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Storage_Mode  import Enum__Cache__Storage_Mode
+from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                 import ENV_VAR__CACHE__SERVICE__BUCKET_NAME, CACHE__TEST__FIXTURES__BUCKET_NAME
+from mgraph_ai_service_cache_client.schemas.consts.const__Storage                  import ENV_VAR__CACHE__SERVICE__STORAGE_MODE
 from tests.unit.Service__Cache__Test_Objs                                   import Service__Cache__Test_Objs
 
 

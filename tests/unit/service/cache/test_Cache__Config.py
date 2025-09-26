@@ -8,7 +8,7 @@ from osbot_utils.testing.__                                                     
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.utils.Env                                                      import set_env, del_env
 from osbot_utils.utils.Objects                                                  import base_classes
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Storage_Mode      import Enum__Cache__Storage_Mode
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Storage_Mode      import Enum__Cache__Storage_Mode
 from mgraph_ai_service_cache.service.cache.Cache__Config                        import Cache__Config
 
 class test_Cache__Config(TestCase):

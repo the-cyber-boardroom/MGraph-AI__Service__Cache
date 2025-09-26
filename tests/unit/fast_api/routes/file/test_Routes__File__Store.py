@@ -16,10 +16,10 @@ from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Delete          
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve                 import Routes__File__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Store                    import Routes__File__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace                           import Routes__Namespace
-from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                         import DEFAULT_CACHE__NAMESPACE
-from mgraph_ai_service_cache.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
-from mgraph_ai_service_cache.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
-from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
+from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                         import DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                   import Cache__Service__Store
 from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
 

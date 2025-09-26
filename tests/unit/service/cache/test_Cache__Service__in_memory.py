@@ -2,7 +2,7 @@
 # from unittest                                                                             import TestCase
 # from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                     import Random_Guid
 # from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id           import Safe_Str__Id
-# from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Storage_Mode                import Enum__Cache__Storage_Mode
+# from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Storage_Mode                import Enum__Cache__Storage_Mode
 # from mgraph_ai_service_cache.service.cache.Cache__Service                                 import Cache__Service
 #
 # class test_Cache__Service__in_memory(TestCase):                                             # Unit tests that run entirely in memory - no external dependencies

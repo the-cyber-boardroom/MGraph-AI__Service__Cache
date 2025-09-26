@@ -3,7 +3,7 @@ from osbot_fast_api.api.routes.Fast_API__Routes                                 
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                      import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
-from mgraph_ai_service_cache.schemas.consts.const__Fast_API                     import FAST_API__PARAM__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                     import FAST_API__PARAM__NAMESPACE
 from mgraph_ai_service_cache.service.cache.Cache__Service                       import Cache__Service
 
 TAG__ROUTES_NAMESPACE                  = 'namespace'

@@ -8,19 +8,19 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
 from osbot_utils.utils.Zip                                                               import zip_bytes_empty
-from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                         import DEFAULT_CACHE__ZIP__STRATEGY
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.schemas.consts.const__Fast_API                              import FAST_API__PARAM__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                         import DEFAULT_CACHE__ZIP__STRATEGY
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                              import FAST_API__PARAM__NAMESPACE
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from mgraph_ai_service_cache.service.cache.zip.Cache__Service__Zip__Store                import Cache__Service__Zip__Store
 from mgraph_ai_service_cache.service.cache.zip.Cache__Service__Zip__Operations           import Cache__Service__Zip__Operations
 from mgraph_ai_service_cache.service.cache.zip.Cache__Service__Zip__Batch                import Cache__Service__Zip__Batch
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Request        import Schema__Cache__Zip__Store__Request
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Response       import Schema__Cache__Zip__Store__Response
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Operation__Request    import Schema__Cache__Zip__Operation__Request
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Operation__Response   import Schema__Cache__Zip__Operation__Response
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Batch__Request        import Schema__Cache__Zip__Batch__Request
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Batch__Response       import Schema__Cache__Zip__Batch__Response
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Store__Request        import Schema__Cache__Zip__Store__Request
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Store__Response       import Schema__Cache__Zip__Store__Response
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Operation__Request    import Schema__Cache__Zip__Operation__Request
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Operation__Response   import Schema__Cache__Zip__Operation__Response
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Request        import Schema__Cache__Zip__Batch__Request
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Response       import Schema__Cache__Zip__Batch__Response
 
 
 TAG__ROUTES_ZIP    = Safe_Str__Fast_API__Route__Tag('zip')

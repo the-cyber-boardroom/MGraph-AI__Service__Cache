@@ -2,7 +2,7 @@ import re
 import pytest
 from unittest                                                                       import TestCase
 from datetime                                                                       import datetime
-from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Storage_Mode          import Enum__Cache__Storage_Mode
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Storage_Mode          import Enum__Cache__Storage_Mode
 from mgraph_ai_service_cache.service.cache.Cache__Config                            import Cache__Config
 from osbot_aws.utils.AWS_Sanitization                                               import str_to_valid_s3_bucket_name
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe

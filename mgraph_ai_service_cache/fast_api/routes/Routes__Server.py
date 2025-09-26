@@ -1,5 +1,5 @@
 from osbot_fast_api.api.routes.Fast_API__Routes                     import Fast_API__Routes
-from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service    import DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service    import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache.service.cache.Cache__Service           import Cache__Service
 from mgraph_ai_service_cache.utils.testing.Cache__Test__Fixtures    import Cache__Test__Fixtures
 

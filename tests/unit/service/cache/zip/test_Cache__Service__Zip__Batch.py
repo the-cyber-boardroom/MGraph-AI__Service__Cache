@@ -4,9 +4,9 @@ from osbot_utils.utils.Zip                                                      
 from mgraph_ai_service_cache.service.cache.Cache__Service                             import Cache__Service
 from mgraph_ai_service_cache.service.cache.zip.Cache__Service__Zip__Store             import Cache__Service__Zip__Store
 from mgraph_ai_service_cache.service.cache.zip.Cache__Service__Zip__Batch             import Cache__Service__Zip__Batch
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Request     import Schema__Cache__Zip__Store__Request
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Batch__Request     import Schema__Cache__Zip__Batch__Request, Schema__Zip__Batch__Operation
-from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Batch__Response    import Schema__Cache__Zip__Batch__Response
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Store__Request     import Schema__Cache__Zip__Store__Request
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Request     import Schema__Cache__Zip__Batch__Request, Schema__Zip__Batch__Operation
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Response    import Schema__Cache__Zip__Batch__Response
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                 import Random_Guid
 
 
