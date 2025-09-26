@@ -24,11 +24,11 @@ TAG__ROUTES_ZIP    = Safe_Str__Fast_API__Route__Tag('zip')
 PREFIX__ROUTES_ZIP = Safe_Str__Fast_API__Route__Prefix('/{namespace}')
 BASE_PATH__ZIP     = f'{PREFIX__ROUTES_ZIP}/{TAG__ROUTES_ZIP}'
 
-ROUTES_PATHS__ZIP = [ f'{BASE_PATH__ZIP}/store'                       ,    # Store new zip
-                     f'{BASE_PATH__ZIP}/{{cache_id}}/list'           ,    # List files in zip
-                     f'{BASE_PATH__ZIP}/{{cache_id}}/file/'           ,    # Get/add/remove single file
-                     f'{BASE_PATH__ZIP}/{{cache_id}}/batch'          ,    # Batch operations
-                     f'{BASE_PATH__ZIP}/{{cache_id}}/download'       ]    # Download entire zip
+ROUTES_PATHS__ZIP = [ f'{BASE_PATH__ZIP}/store'                              ,    # Store new zip
+                     f'{BASE_PATH__ZIP}/{{cache_id}}/list'                   ,    # List files in zip
+                     f'{BASE_PATH__ZIP}/{{cache_id}}/file/{{file_path:path}}',    # Get/add/remove single file
+                     f'{BASE_PATH__ZIP}/{{cache_id}}/batch'                  ,    # Batch operations
+                     f'{BASE_PATH__ZIP}/{{cache_id}}/download'               ]    # Download entire zip
 
 
 class Routes__Zip(Fast_API__Routes):                                       # FastAPI routes for zip operations
@@ -82,7 +82,7 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
 
         return result
 
-    @route_path("/zip/{cache_id}/file")
+    @route_path("/zip/{cache_id}/file/{file_path:path}")
     def get_zip_file(self, cache_id  : Random_Guid,
                            file_path : Safe_Str__File__Path,
                            namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE

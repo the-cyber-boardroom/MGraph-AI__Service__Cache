@@ -97,7 +97,7 @@ class test_Routes__Zip__client(TestCase):
         cache_id = store_response.json()["cache_id"]
 
         # Get specific file
-        response = self.client.get(f"/{self.test_namespace}/zip/{cache_id}/file?file_path=test1.txt" , headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
+        response = self.client.get(f"/{self.test_namespace}/zip/{cache_id}/file/test1.txt" , headers={TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
 
         assert response.status_code == 200
         assert response.content == b"content 1"

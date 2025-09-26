@@ -64,10 +64,10 @@ class test_Cache__Service__Zip__Operations(TestCase):
 
             assert result.obj()          == __(message        = 'Found 3 files in zip',
                                                file_list      = ['dir/file3.txt', 'file1.txt', 'file2.txt'],
-                                               file_content   = None              ,
-                                               file_size      = None              ,
-                                               files_affected = None              ,
-                                               error_details  = None              ,
+                                               file_content   = b''               ,
+                                               file_size      = 0                 ,
+                                               files_affected = []                ,
+                                               error_details  = ''                ,
                                                success        = True              ,
                                                operation      = 'list'            ,
                                                cache_id       = self.test_cache_id)
@@ -90,11 +90,11 @@ class test_Cache__Service__Zip__Operations(TestCase):
             assert result.file_size     == 9
             assert result.message       == "Retrieved 'file1.txt'"
             assert result.obj()        == __(message        = "Retrieved 'file1.txt'",
-                                             file_list      = None                   ,
+                                             file_list      = []                     ,
                                              file_content   = b'content 1'           ,
                                              file_size      = 9                      ,
-                                             files_affected = None                   ,
-                                             error_details  = None                   ,
+                                             files_affected = []                   ,
+                                             error_details  = ''                     ,
                                              success        = True                   ,
                                              operation      = 'get'                  ,
                                              cache_id       = self.test_cache_id     )
@@ -125,15 +125,15 @@ class test_Cache__Service__Zip__Operations(TestCase):
             assert "new_file.txt" in list_result.file_list
             assert len(list_result.file_list) == 4                                        # 3 original + 1 new
             assert list_result.obj()          == __(cache_id          = result.cache_id,
-                                                    original_cache_id = None    ,
+                                                    original_cache_id = None           ,
                                                     message           = 'Found 4 files in zip',
                                                     file_list         = ['dir/file3.txt', 'file1.txt', 'file2.txt', 'new_file.txt'],
-                                                    file_content      = None    ,
-                                                    file_size         = None    ,
-                                                    files_affected    = None    ,
-                                                    error_details     = None    ,
-                                                    success           = True    ,
-                                                    operation         = 'list'  )
+                                                    file_content      = b''      ,
+                                                    file_size         = 0        ,
+                                                    files_affected    = []       ,
+                                                    error_details     = ''       ,
+                                                    success           = True     ,
+                                                    operation         = 'list'   )
             # Verify original is unchanged
             original_list_request = Schema__Cache__Zip__Operation__Request(cache_id  = self.test_cache_id  ,                                         # Original ID
                                                                            operation = "list"              ,
@@ -145,10 +145,10 @@ class test_Cache__Service__Zip__Operations(TestCase):
                                                             original_cache_id = None                   ,
                                                             message           = 'Found 3 files in zip' ,
                                                             file_list         = ['dir/file3.txt', 'file1.txt', 'file2.txt'],
-                                                            file_content      = None    ,
-                                                            file_size         = None    ,
-                                                            files_affected    = None    ,
-                                                            error_details     = None    ,
+                                                            file_content      = b''    ,
+                                                            file_size         = 0      ,
+                                                            files_affected    = []     ,
+                                                            error_details     = ''     ,
                                                             success           = True    ,
                                                             operation         = 'list'  )
 
@@ -179,10 +179,10 @@ class test_Cache__Service__Zip__Operations(TestCase):
                                                     original_cache_id = None                    ,
                                                     message           = 'Found 2 files in zip'  ,
                                                     file_list         = ['dir/file3.txt', 'file1.txt'],
-                                                    file_content      = None    ,
-                                                    file_size         = None    ,
-                                                    files_affected    = None    ,
-                                                    error_details     = None    ,
+                                                    file_content      = b''     ,
+                                                    file_size         = 0       ,
+                                                    files_affected    = []      ,
+                                                    error_details     = ''      ,
                                                     success           = True    ,
                                                     operation         = 'list'  )
 
@@ -195,10 +195,10 @@ class test_Cache__Service__Zip__Operations(TestCase):
                                                original_cache_id = None                   ,
                                                message           = 'Found 3 files in zip' ,
                                                file_list         = ['dir/file3.txt', 'file1.txt', 'file2.txt'],
-                                               file_content      = None    ,
-                                               file_size         = None    ,
-                                               files_affected    = None    ,
-                                               error_details     = None    ,
+                                               file_content      = b''    ,
+                                               file_size         = 0      ,
+                                               files_affected    = []     ,
+                                               error_details     = ''      ,
                                                success           = True    ,
                                                operation         = 'list'  )
 
