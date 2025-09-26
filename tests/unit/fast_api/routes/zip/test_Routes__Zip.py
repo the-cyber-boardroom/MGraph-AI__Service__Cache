@@ -95,6 +95,7 @@ class test_Routes__Zip(TestCase):
                                       strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE )
             cache_id   = result.cache_id
             cache_hash = result.cache_hash
+            assert cache_hash           == 'e3b0c44298fc1c14'
             assert type(result)          is Schema__Cache__Zip__Store__Response
             assert type(result.cache_id) is Random_Guid
             assert result.namespace      == self.test_namespace
@@ -141,6 +142,7 @@ class test_Routes__Zip(TestCase):
                                      strategy  = Enum__Cache__Store__Strategy.TEMPORAL )
             cache_id   = result.cache_id
             cache_hash = result.cache_hash
+            assert cache_hash           == 'd7e01b9f2e36c1bd'
             assert type(result)          is Schema__Cache__Zip__Store__Response
             assert type(result.cache_id) is Random_Guid
             assert result.namespace      == self.test_namespace
@@ -202,6 +204,7 @@ class test_Routes__Zip(TestCase):
             cache_id   = result.cache_id
             cache_hash = result.cache_hash
 
+            assert cache_hash        == 'd7e01b9f2e36c1bd'
             assert type(result)      is Schema__Cache__Zip__Store__Response
             assert result.namespace  == self.test_namespace
             assert result.file_count == 2

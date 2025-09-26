@@ -43,7 +43,7 @@ class test_Cache__Service__Zip__Store(TestCase):
                                                          namespace = self.test_namespace)
 
             result     = _.store_zip(request)
-            cache_hash = self.cache_service.hash_from_bytes(request.zip_bytes)              # todo: review this hash_from_bytes workflow, since it is looking that same zip with same content has different hashes
+            cache_hash = _.calculate_zip_content_hash(request.zip_bytes)
             cache_id = result.cache_id
 
             # Verify response type and structure

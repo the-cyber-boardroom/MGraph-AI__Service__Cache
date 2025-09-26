@@ -102,8 +102,8 @@ class test_Routes__Zip__http(TestCase):                                         
 
         cache_id   = result.get("cache_id")
         cache_hash = result.get("cache_hash")
-
-        assert is_guid(cache_id) is True
+        assert cache_hash           == 'e3b0c44298fc1c14'                               # cache_hash should always be same (given the same files)
+        assert is_guid(cache_id)    is True
         assert len(cache_hash)      == 16
         assert result["namespace"]  == self.test_namespace
         assert result["file_count"] == 0                                                # Empty zip
@@ -112,18 +112,17 @@ class test_Routes__Zip__http(TestCase):                                         
         assert "stored_at"          in result
 
     def test_zip_store(self):                                                           # Test POST /namespace/zip/store
-        result = self._store_zip()
-
+        result     = self._store_zip()
         cache_id   = result.get("cache_id")
         cache_hash = result.get("cache_hash")
-
-        assert is_guid(cache_id) is True
-        assert len(cache_hash) == 16
-        assert result["namespace"] == self.test_namespace
+        assert cache_hash           == 'bd08a136c4cd5646'
+        assert is_guid(cache_id)    is True
+        assert len(cache_hash)      == 16
+        assert result["namespace"]  == self.test_namespace
         assert result["file_count"] == 2
-        assert result["size"] > 0
-        assert "paths" in result
-        assert "stored_at" in result
+        assert result["size"]        > 0
+        assert "paths"              in result
+        assert "stored_at"          in result
 
     def test_zip_files_list(self):                                                      # Test GET /namespace/zip/{cache_id}/files/list
         store_result = self._store_zip()
@@ -147,6 +146,8 @@ class test_Routes__Zip__http(TestCase):                                         
         store_result = self._store_zip()
         cache_id     = store_result["cache_id"]
         cache_hash   = store_result["cache_hash"]
+
+        assert cache_hash         == 'bd08a136c4cd5646'
         assert type(store_result) is dict
         assert obj(store_result)  ==  __( cache_id      = cache_id            ,
                                           cache_hash    = cache_hash          ,
