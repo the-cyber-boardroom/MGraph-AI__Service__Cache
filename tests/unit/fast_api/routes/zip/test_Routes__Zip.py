@@ -40,6 +40,7 @@ class test_Routes__Zip(TestCase):
         cls.test_zip         = zip_bytes__add_file(cls.test_zip, "file2.txt", b"content 2")
         cls.test_namespace   = Safe_Str__Id("test-routes")
         cls.path_now         = Path__Handler__Temporal().path_now()                                     # Current temporal path
+
         # Store a test zip for operations
         store_request        = Schema__Cache__Zip__Store__Request(zip_bytes = cls.test_zip      ,
                                                                   namespace = cls.test_namespace)

@@ -31,7 +31,7 @@ ROUTES_PATHS__ZIP = [ f'{BASE_PATH__ZIP}/store'                              ,  
                      f'{BASE_PATH__ZIP}/{{cache_id}}/list'                   ,    # List files in zip
                      f'{BASE_PATH__ZIP}/{{cache_id}}/file/{{file_path:path}}',    # Get/add/remove single file
                      f'{BASE_PATH__ZIP}/{{cache_id}}/batch'                  ,    # Batch operations
-                     f'{BASE_PATH__ZIP}/{{cache_id}}/download'               ]    # Download entire zip
+                     f'{BASE_PATH__ZIP}/{{cache_id}}/download'               ]    # Download entire zip     # todo: shouldn't this be called 'retrieve'
 
 
 class Routes__Zip(Fast_API__Routes):                                       # FastAPI routes for zip operations
@@ -51,17 +51,17 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
     def zip_batch_service(self) -> Cache__Service__Zip__Batch:             # Service for batch operations
         return Cache__Service__Zip__Batch(cache_service=self.cache_service)
 
-    def zip__create(self,namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE,
-                         cache_key  : Safe_Str__File__Path  = None,
-                         file_id    : Safe_Str__Id          = None
-                    ) -> Schema__Cache__Zip__Store__Response:                # Store a new zip file
-
-        zip_bytes = zip_bytes_empty()
-        request = Schema__Cache__Zip__Store__Request(zip_bytes = zip_bytes        ,
-                                                     cache_key = cache_key   ,
-                                                     file_id   = file_id     ,
-                                                     namespace = namespace   )
-        return self.zip_store_service().store_zip(request)
+    # def zip__create(self,namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE,
+    #                      cache_key  : Safe_Str__File__Path  = None,
+    #                      file_id    : Safe_Str__Id          = None
+    #                 ) -> Schema__Cache__Zip__Store__Response:                # Store a new zip file
+    #
+    #     zip_bytes = zip_bytes_empty()
+    #     request = Schema__Cache__Zip__Store__Request(zip_bytes = zip_bytes        ,
+    #                                                  cache_key = cache_key   ,
+    #                                                  file_id   = file_id     ,
+    #                                                  namespace = namespace   )
+    #     return self.zip_store_service().store_zip(request)
 
 
     # todo: we need to add the strategy to this so that we support cache_key

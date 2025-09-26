@@ -10,5 +10,5 @@ class Schema__Zip__Batch__Operation(Type_Safe):                                 
     path         : Safe_Str__File__Path                                                 # File path in zip
     content      : bytes                                    = None                                   # Content for add/replace
     new_path     : Safe_Str__File__Path                     = None                                   # New path for rename/move
-    condition    : Enum__Cache__Zip__Condition                        = Enum__Cache__Zip__Condition.ALWAYS     # Conditional execution
+    condition    : Enum__Cache__Zip__Condition              = Enum__Cache__Zip__Condition.ALWAYS     # Conditional execution
     pattern      : Safe_Str__Cache__Zip__Operation__Pattern = None                                   # Pattern for bulk operations (e.g., "*.tmp")
