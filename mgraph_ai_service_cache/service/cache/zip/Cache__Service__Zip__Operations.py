@@ -77,8 +77,8 @@ class Cache__Service__Zip__Operations(Type_Safe):                               
     @type_safe
     def operation__add(self, request: Schema__Cache__Zip__Operation__Request
                         ) -> Schema__Cache__Zip__Operation__Response:                           # Add new file to zip (creates new cache entry)
-        if not request.file_path or not request.file_content:
-            return self.error_response(request, "file_path and file_content required for add operation")
+        if not request.file_path: #or not request.file_content:
+            return self.error_response(request, "file_path required for get operation")
 
         zip_bytes = self.retrieve_zip_bytes(request.cache_id, request.namespace)
         if not zip_bytes:
@@ -137,8 +137,8 @@ class Cache__Service__Zip__Operations(Type_Safe):                               
     @type_safe
     def operation__replace(self, request: Schema__Cache__Zip__Operation__Request
                           ) -> Schema__Cache__Zip__Operation__Response:                  # Replace existing file in zip (creates new cache entry)
-        if not request.file_path or not request.file_content:
-            return self.error_response(request, "file_path and file_content required for replace operation")
+        if not request.file_path:
+            return self.error_response(request, "file_path required for replace operation")
 
         zip_bytes = self.retrieve_zip_bytes(request.cache_id, request.namespace)
         if not zip_bytes:

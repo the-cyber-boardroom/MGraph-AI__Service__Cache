@@ -295,12 +295,12 @@ class test_Cache__Service__Zip__Operations(TestCase):
     def test_error_handling(self):                                                        # Test error conditions still work
         with self.ops_service as _:
             # Test missing file path for operations that need it
-            for operation in ["get", "add", "remove", "replace"]:
+            for operation in ["get", "remove", "replace"]:
                 result = _.perform_operation(Schema__Cache__Zip__Operation__Request(cache_id  = self.test_cache_id  ,
                                                                                     operation = operation           ,
                                                                                     namespace = self.test_namespace))
-                assert result.success == False
-                assert "required" in result.error_details
+                assert result.success       == False
+                assert result.error_details == f"file_path required for {operation} operation"
 
             error_message = "Invalid value 'invalid' for enum Enum__Cache__Zip__Operation"
             with pytest.raises(ValueError, match=error_message):

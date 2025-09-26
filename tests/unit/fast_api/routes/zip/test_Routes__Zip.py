@@ -61,9 +61,9 @@ class test_Routes__Zip(TestCase):
     def test__class_constants(self):
         assert TAG__ROUTES_ZIP        == Safe_Str__Fast_API__Route__Tag('zip')
         assert PREFIX__ROUTES_ZIP     == Safe_Str__Fast_API__Route__Prefix('/{namespace}')
-        assert len(ROUTES_PATHS__ZIP) == 6
-        assert ROUTES_PATHS__ZIP[0]   == '/{namespace}/zip/{strategy}/zip/create'
-        assert ROUTES_PATHS__ZIP[1]   == '/{namespace}/zip/store'
+        assert len(ROUTES_PATHS__ZIP) == 9
+        assert ROUTES_PATHS__ZIP[0]   == '/{namespace}/{strategy}/zip/create/{cache_key}/{file_id}'
+        assert ROUTES_PATHS__ZIP[1]   == '/{namespace}/{strategy}/zip/store/{cache_key}/{file_id}'
 
     def test__service_methods(self):
         with self.routes as _:
@@ -437,3 +437,236 @@ class test_Routes__Zip(TestCase):
 
             assert exc.value.status_code == 400
             assert "not a binary file" in exc.value.detail
+
+    def test_zip_file_add_from_string__round_trip(self):                                  # Test complete round-trip: add string → retrieve → verify
+        with self.routes as _:
+            # Add a string file to the test zip
+            test_string = "Hello, this is a test string with special chars: 你好 🎉 & < > \" '"
+            file_path   = Safe_Str__File__Path("test_string.txt")
+
+            result = _.zip_file_add_from_string(cache_id  = self.test_cache_id  ,
+                                                body      = test_string         ,
+                                                file_path = file_path           ,
+                                                namespace = self.test_namespace )
+
+            assert result.success           == True
+            assert result.operation         == "add"
+            assert result.cache_id          != self.test_cache_id                         # New cache ID created
+            assert result.original_cache_id == self.test_cache_id
+            assert file_path in result.files_affected
+
+            new_cache_id = result.cache_id
+
+            # Retrieve the file we just added
+            retrieve_result = _.zip_file_retrieve(cache_id  = new_cache_id       ,
+                                                  file_path = file_path          ,
+                                                  namespace = self.test_namespace)
+
+            assert type(retrieve_result)    is Response
+            assert retrieve_result.body     == test_string.encode('utf-8')               # String was encoded as UTF-8
+
+            # Verify the file is in the list
+            list_result = _.zip_files_list(cache_id  = new_cache_id,
+                                           namespace = self.test_namespace)
+
+            assert file_path in list_result.file_list
+            assert len(list_result.file_list) == 3                                        # Original 2 + new 1
+
+    def test_zip_file_add_from_string__multiple_files(self):                              # Test adding multiple string files
+        with self.routes as _:
+            files_to_add = { "config.json"    : '{"setting": "value", "number": 42}'      ,
+                             "readme.md"      : "# Test Project\n\nThis is a test."       ,
+                             "script.py"      : "def hello():\n    print('Hello, World!')",
+                             "data.csv"       : "name,value\ntest1,100\ntest2,200"        }
+
+            current_cache_id = self.test_cache_id
+
+            # Add each file sequentially
+            for file_name, content in files_to_add.items():
+                result = _.zip_file_add_from_string(
+                    cache_id  = current_cache_id,
+                    body      = content,
+                    file_path = Safe_Str__File__Path(file_name),
+                    namespace = self.test_namespace
+                )
+
+                assert result.success    == True
+                current_cache_id         = result.cache_id                                # Update to new cache ID
+
+            # Verify all files are present
+            list_result = _.zip_files_list(
+                cache_id  = current_cache_id,
+                namespace = self.test_namespace
+            )
+
+            assert len(list_result.file_list) == 6                                        # Original 2 + added 4
+            for file_name in files_to_add.keys():
+                assert Safe_Str__File__Path(file_name) in list_result.file_list
+
+            # Verify each file's content
+            for file_name, expected_content in files_to_add.items():
+                retrieve_result = _.zip_file_retrieve(
+                    cache_id  = current_cache_id,
+                    file_path = Safe_Str__File__Path(file_name),
+                    namespace = self.test_namespace
+                )
+
+                assert retrieve_result.body == expected_content.encode('utf-8')
+
+    def test_zip_file_add_from_string__empty_string(self):                                # Test adding empty string file
+        with self.routes as _:
+
+            result = _.zip_file_add_from_string(cache_id  = self.test_cache_id              ,
+                                                body      = ""                              ,                                                           # Empty string
+                                                file_path = Safe_Str__File__Path("empty.txt"),
+                                                namespace = self.test_namespace             )
+
+            assert result.success == True
+
+            # Retrieve and verify empty file
+            retrieve_result = _.zip_file_retrieve(
+                cache_id  = result.cache_id,
+                file_path = Safe_Str__File__Path("empty.txt"),
+                namespace = self.test_namespace
+            )
+
+            assert retrieve_result.body == b""                                            # Empty bytes
+
+    def test_zip_file_add_from_string__overwrite_existing(self):                          # Test overwriting existing file with string content
+        with self.routes as _:
+            # First verify original content
+            original_retrieve = _.zip_file_retrieve(
+                cache_id  = self.test_cache_id,
+                file_path = Safe_Str__File__Path("file1.txt"),
+                namespace = self.test_namespace
+            )
+            assert original_retrieve.body == b"content 1"
+
+            # Add file with same name but different content
+            new_content = "This is the new content for file1.txt"
+            result = _.zip_file_add_from_string(
+                cache_id  = self.test_cache_id,
+                body      = new_content,
+                file_path = Safe_Str__File__Path("file1.txt"),                           # Same filename
+                namespace = self.test_namespace
+            )
+
+            assert result.success == True
+            new_cache_id = result.cache_id
+
+            # Retrieve and verify new content
+            new_retrieve = _.zip_file_retrieve(
+                cache_id  = new_cache_id,
+                file_path = Safe_Str__File__Path("file1.txt"),
+                namespace = self.test_namespace
+            )
+
+            assert new_retrieve.body == new_content.encode('utf-8')                       # New content
+
+            # Verify original is unchanged
+            original_still_same = _.zip_file_retrieve(
+                cache_id  = self.test_cache_id,                                           # Original cache ID
+                file_path = Safe_Str__File__Path("file1.txt"),
+                namespace = self.test_namespace
+            )
+            assert original_still_same.body == b"content 1"                               # Original unchanged
+
+    def test_zip_file_add_from_string__nested_paths(self):                                # Test adding string files in nested directories
+        with self.routes as _:
+            nested_files = { "docs/readme.md"         : "# Documentation"                     ,
+                             "src/main.py"            : "if __name__ == '__main__':\n    pass",
+                             "src/utils/helpers.py"   : "def helper():\n    return 42"        ,
+                             "tests/test_main.py"     : "import unittest\n# Tests here"       }
+
+            current_cache_id = self.test_cache_id
+
+            # Add nested files
+            for file_path, content in nested_files.items():
+                result = _.zip_file_add_from_string(
+                    cache_id  = current_cache_id,
+                    body      = content,
+                    file_path = Safe_Str__File__Path(file_path),
+                    namespace = self.test_namespace
+                )
+                assert result.success == True
+                current_cache_id = result.cache_id
+
+            # Verify all nested files are retrievable
+            for file_path, expected_content in nested_files.items():
+                retrieve_result = _.zip_file_retrieve(
+                    cache_id  = current_cache_id,
+                    file_path = Safe_Str__File__Path(file_path),
+                    namespace = self.test_namespace
+                )
+                assert retrieve_result.body == expected_content.encode('utf-8')
+
+            # Verify file list shows nested structure
+            list_result = _.zip_files_list(
+                cache_id  = current_cache_id,
+                namespace = self.test_namespace
+            )
+
+            for file_path in nested_files.keys():
+                assert Safe_Str__File__Path(file_path) in list_result.file_list
+
+    def test_zip_file_add_from_string__large_content(self):                               # Test adding large string content
+        with self.routes as _:
+            # Create a large string (1MB)
+            large_content = "x" * (1024 * 1024)                                           # 1MB of 'x' characters
+            file_path     = Safe_Str__File__Path("large_file.txt")
+
+            result = _.zip_file_add_from_string(cache_id  = self.test_cache_id  ,
+                                                body      = large_content       ,
+                                                file_path = file_path           ,
+                                                namespace = self.test_namespace )
+
+            assert result.success == True
+
+            # Retrieve and verify size
+            retrieve_result = _.zip_file_retrieve(
+                cache_id  = result.cache_id,
+                file_path = file_path,
+                namespace = self.test_namespace
+            )
+
+            assert len(retrieve_result.body) == 1024 * 1024                               # Correct size
+            assert retrieve_result.body      == large_content.encode('utf-8')             # Correct content
+
+    def test_zip_file_add_from_string__vs_add_from_bytes(self):                           # Compare string vs bytes methods
+        with self.routes as _:
+            test_content = "Test content for comparison"
+
+            # Add using string method
+            string_result = _.zip_file_add_from_string(
+                cache_id  = self.test_cache_id,
+                body      = test_content,
+                file_path = Safe_Str__File__Path("from_string.txt"),
+                namespace = self.test_namespace
+            )
+
+            # Add using bytes method
+            bytes_result = _.zip_file_add_from_bytes(
+                cache_id  = string_result.cache_id,                                       # Chain from string result
+                body      = test_content.encode('utf-8'),
+                file_path = Safe_Str__File__Path("from_bytes.txt"),
+                namespace = self.test_namespace
+            )
+
+            final_cache_id = bytes_result.cache_id
+
+            # Retrieve both files
+            string_retrieve = _.zip_file_retrieve(
+                cache_id  = final_cache_id,
+                file_path = Safe_Str__File__Path("from_string.txt"),
+                namespace = self.test_namespace
+            )
+
+            bytes_retrieve = _.zip_file_retrieve(
+                cache_id  = final_cache_id,
+                file_path = Safe_Str__File__Path("from_bytes.txt"),
+                namespace = self.test_namespace
+            )
+
+            # Both should have identical content
+            assert string_retrieve.body == bytes_retrieve.body
+            assert string_retrieve.body == test_content.encode('utf-8')
