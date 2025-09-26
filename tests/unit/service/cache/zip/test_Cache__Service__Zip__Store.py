@@ -53,21 +53,24 @@ class test_Cache__Service__Zip__Store(TestCase):
             assert result.namespace     == self.test_namespace
             assert result.file_count    == 1                                             # One file in test zip
             assert result.size          > 0
-            assert result.obj() == __( cache_id     = cache_id          ,
-                                       cache_hash   = cache_hash        ,
-                                       namespace    = 'test-zip'        ,
-                                       paths        = __(data   = [ f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin',
-                                                                    f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.config',
-                                                                    f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.metadata'],
-                                                        by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
-                                                                    f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
-                                                                    f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
-                                                        by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
-                                                                    f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
-                                                                    f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
-                                       size       = 128          ,
-                                       file_count = 1            ,
-                                       stored_at  = __SKIP__     )
+            assert result.obj() == __( cache_id      = cache_id          ,
+                                       cache_hash    = cache_hash        ,
+                                       namespace     = 'test-zip'        ,
+                                       error_type    = None              ,
+                                       error_message = None              ,
+                                       success       = True              ,
+                                       paths         = __(data   = [ f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin',
+                                                                     f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.config',
+                                                                     f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.metadata'],
+                                                         by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
+                                                                     f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
+                                                                     f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
+                                                         by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
+                                                                     f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
+                                                                     f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
+                                       size          = 128          ,
+                                       file_count    = 1            ,
+                                       stored_at     = __SKIP__     )
 
     def test_store_zip__with_cache_key(self):                                         # Test storing with semantic key
         with self.service as _:
@@ -86,16 +89,35 @@ class test_Cache__Service__Zip__Store(TestCase):
             request = Schema__Cache__Zip__Store__Request(zip_bytes = b"not a valid zip file",
                                                          namespace = self.test_namespace    )
 
-            with pytest.raises(ValueError, match="Invalid zip file"):
-                _.store_zip(request)
+            result = _.store_zip(request)
+            assert result.obj() == __(cache_id       = None                                       ,
+                                      cache_hash     = None                                       ,
+                                      error_type     = 'INVALID_ZIP_FORMAT'                       ,
+                                      error_message  = 'Invalid zip file: File is not a zip file' ,
+                                      success        = False                                      ,
+                                      namespace      = 'test-zip'                                 ,
+                                      paths          = __()                                       ,
+                                      size           = 0                                          ,
+                                      file_count     = 0                                          ,
+                                      stored_at      = __SKIP__                                   )
 
     def test_store_zip__empty_bytes(self):                                            # Test error for empty input
         with self.service as _:
             request = Schema__Cache__Zip__Store__Request(zip_bytes = b""                ,
                                                          namespace = self.test_namespace)
 
-            with pytest.raises(ValueError, match="Zip bytes cannot be empty"):
-                _.store_zip(request)
+
+            result = _.store_zip(request)
+            assert result.obj() == __(error_type    = 'INVALID_INPUT'                          ,
+                                      error_message = 'Zip bytes cannot be empty'              ,
+                                      success       = False                                    ,
+                                      cache_id      = None                                     ,
+                                      cache_hash    = None                                     ,
+                                      namespace     = 'test-zip'                               ,
+                                      paths         = __()                                     ,
+                                      size          = 0                                        ,
+                                      file_count    = 0                                        ,
+                                      stored_at     = __SKIP__                            )
 
     def test_store_zip__empty_zip_file(self):                                         # Test storing empty zip (valid)
         with self.service as _:

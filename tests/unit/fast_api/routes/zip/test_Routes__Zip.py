@@ -100,21 +100,24 @@ class test_Routes__Zip(TestCase):
             assert result.namespace      == self.test_namespace
             assert result.file_count     == 0
             assert result.size            > 0
-            assert result.obj()          ==  __( cache_id     = cache_id          ,
-                                                 cache_hash   = cache_hash        ,
-                                                 namespace    = 'test-routes'     ,
-                                                 paths        = __(data   = [ f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin',
-                                                                              f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.config',
-                                                                              f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.metadata'],
-                                                                  by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
-                                                                              f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
-                                                                              f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
-                                                                  by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
-                                                                              f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
-                                                                              f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
-                                                 size       = 22           ,
-                                                 file_count = 0            ,
-                                                 stored_at  = __SKIP__     )
+            assert result.obj()          ==  __( cache_id      = cache_id          ,
+                                                 cache_hash    = cache_hash        ,
+                                                 error_type    = None              ,
+                                                 error_message = None              ,
+                                                 success       = True              ,
+                                                 namespace     = 'test-routes'     ,
+                                                 paths         = __(data   = [ f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin',
+                                                                               f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.config',
+                                                                               f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.metadata'],
+                                                                   by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
+                                                                               f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
+                                                                               f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
+                                                                   by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
+                                                                               f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
+                                                                               f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
+                                                 size          = 22           ,
+                                                 file_count    = 0            ,
+                                                 stored_at     = __SKIP__     )
 
             zip_files = _.zip_files_list(cache_id=cache_id, namespace=self.test_namespace)
             assert zip_files.obj() == __(cache_id           = cache_id,
@@ -143,21 +146,24 @@ class test_Routes__Zip(TestCase):
             assert result.namespace      == self.test_namespace
             assert result.file_count     == 2
             assert result.size           > 0
-            assert result.obj()          ==  __( cache_id     = cache_id          ,
-                                                 cache_hash   = cache_hash        ,
-                                                 namespace    = 'test-routes'     ,
-                                                 paths        = __(data   = [ f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin',
-                                                                              f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.config',
-                                                                              f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.metadata'],
-                                                                  by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
-                                                                              #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
-                                                                              f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
-                                                                  by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
-                                                                              f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
-                                                                              f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
-                                                 size       = 232          ,
-                                                 file_count = 2            ,
-                                                 stored_at  = __SKIP__     )
+            assert result.obj()          ==  __( cache_id      = cache_id          ,
+                                                 cache_hash    = cache_hash        ,
+                                                 error_type    = None              ,
+                                                 error_message = None              ,
+                                                 success       = True              ,
+                                                 namespace     = 'test-routes'     ,
+                                                 paths         = __(data   = [ f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin',
+                                                                               f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.config',
+                                                                               f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.metadata'],
+                                                                   by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
+                                                                               #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
+                                                                               f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
+                                                                   by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
+                                                                               f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
+                                                                               f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
+                                                 size          = 232          ,
+                                                 file_count    = 2            ,
+                                                 stored_at     = __SKIP__     )
 
             entry_by_id = self.retrieve_service.retrieve_by_id(cache_id=cache_id, namespace=self.test_namespace)
 
@@ -199,21 +205,24 @@ class test_Routes__Zip(TestCase):
             assert type(result)      is Schema__Cache__Zip__Store__Response
             assert result.namespace  == self.test_namespace
             assert result.file_count == 2
-            assert result.obj()      ==  __( cache_id     = cache_id          ,
-                                             cache_hash   = cache_hash        ,
-                                             namespace    = 'test-routes'     ,
-                                             paths        = __(data   = [ f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin',
-                                                                          f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.config',
-                                                                          f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.metadata'],
-                                                              by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
-                                                                          #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
-                                                                          f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
-                                                              by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
-                                                                          f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
-                                                                          f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
-                                             size       = 232          ,
-                                             file_count = 2            ,
-                                             stored_at  = __SKIP__     )
+            assert result.obj()      ==  __( cache_id      = cache_id          ,
+                                             cache_hash    = cache_hash        ,
+                                             error_type    = None              ,
+                                             error_message = None              ,
+                                             success       = True              ,
+                                             namespace     = 'test-routes'     ,
+                                             paths         = __(data   = [ f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin',
+                                                                           f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.config',
+                                                                           f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.metadata'],
+                                                               by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
+                                                                           #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
+                                                                           f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
+                                                               by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
+                                                                           f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
+                                                                           f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
+                                             size          = 232          ,
+                                             file_count    = 2            ,
+                                             stored_at     = __SKIP__     )
 
     def test_zip_store__invalid_zip(self):
         with self.routes as _:

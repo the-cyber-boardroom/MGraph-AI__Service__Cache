@@ -151,22 +151,25 @@ class test_Routes__Zip__http(TestCase):                                         
         cache_id     = store_result["cache_id"]
         cache_hash   = store_result["cache_hash"]
         assert type(store_result) is dict
-        assert obj(store_result)  ==  __( cache_id     = cache_id            ,
-                                          cache_hash   = cache_hash          ,
-                                          namespace    = self.test_namespace ,
-                                          paths        = __(data   = [ f'{self.test_namespace}/data/direct/b/b.bin'         ,
-                                                                       #f'{self.test_namespace}/data/direct/b/b.bin.config'  ,          # these files are not created because these files already exist (were created by a previous test)
-                                                                       #f'{self.test_namespace}/data/direct/b/b.bin.metadata'
-                                                                       ],
-                                                           by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
-                                                                       #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
-                                                                       f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
-                                                           by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
-                                                                       f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
-                                                                       f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
-                                          size       = 232          ,
-                                          file_count = 2            ,
-                                          stored_at  = __SKIP__     )
+        assert obj(store_result)  ==  __( cache_id      = cache_id            ,
+                                          cache_hash    = cache_hash          ,
+                                          error_type    = None              ,
+                                          error_message = None              ,
+                                          success       = True              ,
+                                          namespace     = self.test_namespace ,
+                                          paths         = __(data   = [ f'{self.test_namespace}/data/direct/b/b.bin'         ,
+                                                                        #f'{self.test_namespace}/data/direct/b/b.bin.config'  ,          # these files are not created because these files already exist (were created by a previous test)
+                                                                        #f'{self.test_namespace}/data/direct/b/b.bin.metadata'
+                                                                        ],
+                                                            by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
+                                                                        #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
+                                                                        f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
+                                                            by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
+                                                                        f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
+                                                                        f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
+                                          size          = 232          ,
+                                          file_count    = 2            ,
+                                          stored_at     = __SKIP__     )
 
 
         file_path = "test1.txt"

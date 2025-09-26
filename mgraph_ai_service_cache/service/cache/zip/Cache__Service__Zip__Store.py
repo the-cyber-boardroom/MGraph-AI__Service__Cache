@@ -13,11 +13,19 @@ class Cache__Service__Zip__Store(Type_Safe):                                    
     def store_zip(self, request: Schema__Cache__Zip__Store__Request
                    ) -> Schema__Cache__Zip__Store__Response:                             # Store zip file in cache
 
-        if not request.zip_bytes:                                                       # Validate input
-            raise ValueError("Zip bytes cannot be empty")
+        if not request.zip_bytes:
+            return Schema__Cache__Zip__Store__Response(success       = False,
+                                                       namespace     = request.namespace,
+                                                       error_type    = "INVALID_INPUT",
+                                                       error_message = "Zip bytes cannot be empty")
+
         try:
             file_list = zip_bytes__file_list(request.zip_bytes)                        # Validate it's a valid zip
         except Exception as e:
+            return Schema__Cache__Zip__Store__Response(success       = False                        ,
+                                                       namespace     = request.namespace            ,
+                                                       error_type    = "INVALID_ZIP_FORMAT"         ,
+                                                       error_message = f"Invalid zip file: {str(e)}")
             raise ValueError(f"Invalid zip file: {str(e)}")
 
         # todo: review this hash_from_bytes workflow, since it is looking that same zip with same content has different hashes
@@ -40,4 +48,5 @@ class Cache__Service__Zip__Store(Type_Safe):                                    
                                                    namespace        = store_result.namespace  ,
                                                    paths            = store_result.paths      ,
                                                    size             = store_result.size       ,
-                                                   file_count       = len(file_list)          )
+                                                   file_count       = len(file_list)          ,
+                                                   success          = True              )

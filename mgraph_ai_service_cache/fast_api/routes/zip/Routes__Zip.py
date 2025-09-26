@@ -83,12 +83,15 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
                                                      file_id   = file_id     ,
                                                      strategy  = strategy    ,
                                                      namespace = namespace   )
-        try:
-            return self.zip_store_service().store_zip(request)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to store zip: {str(e)}")
+        response = self.zip_store_service().store_zip(request)
+        if not response.success:                                                        # Route decides the HTTP semantics
+            if response.error_type == "INVALID_INPUT":                                  # todo: move these strings to Enum
+                raise HTTPException(status_code=400, detail=response.error_message)
+            elif response.error_type == "INVALID_ZIP_FORMAT":
+                raise HTTPException(status_code=400, detail=response.error_message)
+            else:
+                raise HTTPException(status_code=500, detail=response.error_message)
+        return response
 
     @route_path("/zip/{cache_id}/files/list")
     def zip_files_list(self, cache_id : Random_Guid,
