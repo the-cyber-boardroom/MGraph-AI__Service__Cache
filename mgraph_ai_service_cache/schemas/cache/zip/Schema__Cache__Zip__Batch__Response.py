@@ -10,9 +10,8 @@ from mgraph_ai_service_cache.schemas.cache.zip.safe_str.Safe_Str__Cache__Zip__Op
 
 class Schema__Cache__Zip__Batch__Response(Type_Safe):                                   # Response from batch operations
     success              : bool                                                         # Overall success status
-    cache_id             : Random_Guid                                                  # Original zip ID
-    new_cache_id         : Random_Guid          = None                                  # New ID if versioned
-    backup_cache_id      : Random_Guid          = None                                  # Backup ID if created
+    cache_id             : Random_Guid              = None                              # Original zip ID
+    original_cache_id    : Random_Guid              = None                              # Original ID for provenance
     operations_applied   : Safe_UInt                                                    # Number of successful operations
     operations_failed    : Safe_UInt                                                    # Number of failed operations
     operation_results    : List[Schema__Zip__Operation__Result]                         # Individual results

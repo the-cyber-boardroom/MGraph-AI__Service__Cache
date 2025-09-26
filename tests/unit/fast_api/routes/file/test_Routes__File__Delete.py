@@ -13,7 +13,7 @@ from tests.unit.Service__Cache__Test_Objs                                       
 class test_Routes__File__Delete(TestCase):
 
     @classmethod
-    def setUpClass(cls):                                                              # ONE-TIME expensive setup
+    def setUpClass(cls):
         cls.test_objs          = setup__service__cache__test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
         cls.fixtures_namespace = cls.cache_fixtures.namespace

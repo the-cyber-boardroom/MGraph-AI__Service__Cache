@@ -6,7 +6,6 @@ class Enum__Cache__Zip__Operation(str, Enum):
     ADD     = "add"
     REMOVE  = "remove"
     REPLACE = "replace"
-    MOVE    = "move"
 
     def __str__(self):
         return self.value

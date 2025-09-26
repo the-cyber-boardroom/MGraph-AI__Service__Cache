@@ -211,7 +211,8 @@ class Cache__Service(Type_Safe):                                                
                                   cache_key        : Safe_Str__File__Path  = None                    ,
                                   file_id          : Safe_Str__Id          = None                    ,
                                   namespace        : Safe_Str__Id          = DEFAULT_CACHE__NAMESPACE,
-                                  content_encoding : Safe_Str__Id          = None
+                                  content_encoding : Safe_Str__Id          = None                    ,
+                                  metadata         : Dict[str, Any]        = None
                             ) -> Schema__Cache__Store__Response:                    # Store data using the specified strategy
 
         if not cache_hash:
@@ -230,7 +231,8 @@ class Cache__Service(Type_Safe):                                                
                                          namespace        = namespace        ,
                                          strategy         = strategy         ,
                                          content_encoding = content_encoding ,
-                                         handler          = handler          )
+                                         handler          = handler          ,
+                                         metadata         = metadata         )
 
         store_strategy = Cache__Service__Store__With_Strategy()
         return store_strategy.execute(context)                                                  # Execute storage strategy

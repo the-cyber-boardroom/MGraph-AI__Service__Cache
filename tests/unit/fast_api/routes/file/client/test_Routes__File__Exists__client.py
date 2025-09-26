@@ -7,7 +7,7 @@ from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Ca
 class test_Routes__File__Exists__client(TestCase):                                          # Test exists routes via FastAPI TestClient
 
     @classmethod
-    def setUpClass(cls):                                                              # ONE-TIME expensive setup
+    def setUpClass(cls):
         cls.test_objs          = setup__service__cache__test_objs()
         cls.cache_fixtures     = cls.test_objs.cache_fixtures
         cls.fixtures_namespace = cls.cache_fixtures.namespace

@@ -11,7 +11,7 @@ from tests.unit.Service__Cache__Test_Objs                                    imp
 class test_Routes__File__Delete__client(TestCase):                                          # Test delete routes via FastAPI TestClient
 
     @classmethod
-    def setUpClass(cls):                                                              # ONE-TIME expensive setup
+    def setUpClass(cls):
         cls.test_objs      = setup__service__cache__test_objs()
         cls.cache_fixtures = cls.test_objs.cache_fixtures
         cls.client         = cls.test_objs.fast_api__client

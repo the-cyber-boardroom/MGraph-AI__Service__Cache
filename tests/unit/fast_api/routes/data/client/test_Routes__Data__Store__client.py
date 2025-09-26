@@ -8,7 +8,7 @@ from tests.unit.Service__Cache__Test_Objs                                       
 class test_Routes__Data__Store__client(TestCase):                                               # Test data store routes via FastAPI TestClient
 
     @classmethod
-    def setUpClass(cls):                                                                        # ONE-TIME expensive setup
+    def setUpClass(cls):
         cls.test_objs      = setup__service__cache__test_objs()
         cls.cache_fixtures = cls.test_objs.cache_fixtures
         cls.client         = cls.test_objs.fast_api__client
