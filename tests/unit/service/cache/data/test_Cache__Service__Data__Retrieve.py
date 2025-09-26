@@ -38,11 +38,11 @@ class test_Cache__Service__Data__Retrieve(TestCase):
 
         # Create parent cache entry
         cls.parent_file_id  = Safe_Str__Id("parent-retrieve")
-        cls.parent_response = cls.service__store.store_string(data      = "parent for retrieval"                    ,
-                                                              namespace = cls.test_namespace                        ,
-                                                              strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE,
-                                                              cache_key = cls.test_cache_key                        ,
-                                                              file_id   = cls.parent_file_id                        )
+        cls.parent_response = cls.service__store.store_string(data      = "parent for retrieval"                ,
+                                                              namespace = cls.test_namespace                    ,
+                                                              strategy  = Enum__Cache__Store__Strategy.KEY_BASED,
+                                                              cache_key = cls.test_cache_key                    ,
+                                                              file_id   = cls.parent_file_id                    )
         cls.parent_cache_id = cls.parent_response.cache_id
         cls.test_data       = {}                                                                # Store test data files for retrieval
 
@@ -108,7 +108,7 @@ class test_Cache__Service__Data__Retrieve(TestCase):
                                            data_type    = 'string'              ,
                                            data_file_id = 'log-001'             ,
                                            data_key     = 'logs'                ,
-                                           full_path    = 'test-data-retrieve/data/semantic-file/app/data/parent-retrieve/data/logs/log-001.txt',
+                                           full_path    = 'test-data-retrieve/data/key-based/app/data/parent-retrieve/data/logs/log-001.txt',
                                            size         = 19                    ,
                                            found        = True                  )
 
@@ -306,9 +306,9 @@ class test_Cache__Service__Data__Retrieve(TestCase):
             assert data_files.obj() == __(cache_id   = self.parent_cache_id,
                                           namespace  = 'test-data-retrieve',
                                           data_key   = None,
-                                          data_files = ['test-data-retrieve/data/semantic-file/app/data/parent-retrieve/data/logs/log-001.txt'          ,
-                                                        'test-data-retrieve/data/semantic-file/app/data/parent-retrieve/data/configs/config-001.json'   ,
-                                                        'test-data-retrieve/data/semantic-file/app/data/parent-retrieve/data/attachments/binary-001.bin'])
+                                          data_files = ['test-data-retrieve/data/key-based/app/data/parent-retrieve/data/logs/log-001.txt'          ,
+                                                        'test-data-retrieve/data/key-based/app/data/parent-retrieve/data/configs/config-001.json'   ,
+                                                        'test-data-retrieve/data/key-based/app/data/parent-retrieve/data/attachments/binary-001.bin'])
 
 
 
@@ -477,14 +477,14 @@ class test_Cache__Service__Data__Retrieve(TestCase):
             assert list_data_files.obj() == __(cache_id    = cache_id               ,
                                                namespace   = self.test_namespace    ,
                                                data_key    = None                   ,
-                                               data_files  =[ f'{self.test_namespace}/data/semantic-file/{self.test_cache_key}/{self.parent_file_id}/data/logs/log-001.txt',
-                                                              f'{self.test_namespace}/data/semantic-file/{self.test_cache_key}/{self.parent_file_id}/data/{data_key}/{data_file_id}.json',
-                                                              f'{self.test_namespace}/data/semantic-file/{self.test_cache_key}/{self.parent_file_id}/data/attachments/binary-001.bin'])
+                                               data_files  =[ f'{self.test_namespace}/data/key-based/{self.test_cache_key}/{self.parent_file_id}/data/logs/log-001.txt',
+                                                              f'{self.test_namespace}/data/key-based/{self.test_cache_key}/{self.parent_file_id}/data/{data_key}/{data_file_id}.json',
+                                                              f'{self.test_namespace}/data/key-based/{self.test_cache_key}/{self.parent_file_id}/data/attachments/binary-001.bin'])
 
             assert file_data      .obj() == __(data         = __(status='active', count=42),
                                                data_type    = 'json'        ,
                                                data_file_id = 'config-001'  ,
                                                data_key     = 'configs'     ,
-                                               full_path    = 'test-data-retrieve/data/semantic-file/app/data/parent-retrieve/data/configs/config-001.json',
+                                               full_path    = 'test-data-retrieve/data/key-based/app/data/parent-retrieve/data/configs/config-001.json',
                                                size         = 43            ,
                                                found        = True          )

@@ -268,11 +268,11 @@ class test_Routes__File__Store(TestCase):
         file_id   = 'page-structure'
         namespace = 'default'
 
-        kwargs = dict(data      = an_string                                  ,
-                      namespace = namespace                                  ,
-                      strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE ,
-                      cache_key = cache_key                                  ,
-                      file_id   = file_id                                    )
+        kwargs = dict(data      = an_string                              ,
+                      namespace = namespace                              ,
+                      strategy  = Enum__Cache__Store__Strategy.KEY_BASED ,
+                      cache_key = cache_key                              ,
+                      file_id   = file_id                                )
 
         response__store            = self.routes.store__string__cache_key(**kwargs)
         cache_id                   = response__store.cache_id
@@ -281,9 +281,9 @@ class test_Routes__File__Store(TestCase):
         assert response__store.obj() == __(cache_id     = cache_id ,
                                            cache_hash   = 'f7fc607505c67177',
                                            namespace    = 'default',
-                                           paths        = __(data   = [ 'default/data/semantic-file/aaa/bbb/page-structure.json'         ,
-                                                                        'default/data/semantic-file/aaa/bbb/page-structure.json.config'  ,
-                                                                        'default/data/semantic-file/aaa/bbb/page-structure.json.metadata'],
+                                           paths        = __(data   = [ 'default/data/key-based/aaa/bbb/page-structure.json'         ,
+                                                                        'default/data/key-based/aaa/bbb/page-structure.json.config'  ,
+                                                                        'default/data/key-based/aaa/bbb/page-structure.json.metadata'],
                                                             by_hash = [ 'default/refs/by-hash/f7/fc/f7fc607505c67177.json'               ,
                                                                         'default/refs/by-hash/f7/fc/f7fc607505c67177.json.config'        ,
                                                                         'default/refs/by-hash/f7/fc/f7fc607505c67177.json.metadata'      ],

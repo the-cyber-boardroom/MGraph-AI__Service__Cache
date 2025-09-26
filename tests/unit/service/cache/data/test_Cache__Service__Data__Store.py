@@ -37,11 +37,11 @@ class test_Cache__Service__Data__Store(TestCase):
         cls.test_binary      = b"data binary content \x00\x01\x02"
 
         # Create parent cache entry for testing
-        cls.parent_response  = cls.service__store.store_string(data      = "parent data"                          ,
-                                                               namespace = cls.test_namespace                      ,
-                                                               strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE,
-                                                               cache_key = cls.test_cache_key                     ,
-                                                               file_id   = Safe_Str__Id("parent-001")             )
+        cls.parent_response  = cls.service__store.store_string(data      = "parent data"                         ,
+                                                               namespace = cls.test_namespace                    ,
+                                                               strategy  = Enum__Cache__Store__Strategy.KEY_BASED,
+                                                               cache_key = cls.test_cache_key                    ,
+                                                               file_id   = Safe_Str__Id("parent-001")            )
         cls.parent_cache_id  = cls.parent_response.cache_id
 
     def setUp(self):
@@ -76,7 +76,7 @@ class test_Cache__Service__Data__Store(TestCase):
 
                 result = _.store_data(request)
 
-                expected_data_file = f'{self.test_namespace}/data/semantic-file/logs/application/parent-001/data/{request.data_key}/{request.data_file_id}.txt'
+                expected_data_file = f'{self.test_namespace}/data/key-based/logs/application/parent-001/data/{request.data_key}/{request.data_file_id}.txt'
 
                 assert type(result) is Schema__Cache__Data__Store__Response
                 assert result.obj() == __(cache_id           = self.parent_cache_id                  ,
@@ -99,7 +99,7 @@ class test_Cache__Service__Data__Store(TestCase):
 
                 result = _.store_data(request)
 
-                expected_data_file = f'{self.test_namespace}/data/semantic-file/logs/application/parent-001/data/{request.data_key}/{request.data_file_id}.json'
+                expected_data_file = f'{self.test_namespace}/data/key-based/logs/application/parent-001/data/{request.data_key}/{request.data_file_id}.json'
 
                 assert type(result) is Schema__Cache__Data__Store__Response
                 assert result.cache_id       == self.parent_cache_id
@@ -116,7 +116,7 @@ class test_Cache__Service__Data__Store(TestCase):
 
                 result = _.store_data(request)
 
-                expected_data_file = f'{self.test_namespace}/data/semantic-file/logs/application/parent-001/data/{request.data_key}/{request.data_file_id}.bin'
+                expected_data_file = f'{self.test_namespace}/data/key-based/logs/application/parent-001/data/{request.data_key}/{request.data_file_id}.bin'
 
                 assert type(result) is Schema__Cache__Data__Store__Response
                 assert result.file_size == len(self.test_binary)
@@ -254,4 +254,4 @@ class test_Cache__Service__Data__Store(TestCase):
                 assert type(result) is Schema__Cache__Data__Store__Response
                 created_file = result.data_files_created[0]
                 # Path should be sanitized (no ../ sequences that could escape)
-                assert created_file == 'test-data-service/data/semantic-file/logs/application/parent-001/data/-/-/-/etc/passwd.txt'
+                assert created_file == 'test-data-service/data/key-based/logs/application/parent-001/data/-/-/-/etc/passwd.txt'

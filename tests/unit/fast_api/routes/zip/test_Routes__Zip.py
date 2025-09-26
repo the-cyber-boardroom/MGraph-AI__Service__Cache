@@ -89,10 +89,10 @@ class test_Routes__Zip(TestCase):
         with self.routes as _:
             cache_key  = 'an/cache/key'
             file_id    = 'new-archive'
-            result     = _.zip_create(namespace = self.test_namespace                        ,
-                                      cache_key = cache_key                                  ,
-                                      file_id   = file_id                                    ,
-                                      strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE )
+            result     = _.zip_create(namespace = self.test_namespace                    ,
+                                      cache_key = cache_key                              ,
+                                      file_id   = file_id                                ,
+                                      strategy  = Enum__Cache__Store__Strategy.KEY_BASED )
             cache_id   = result.cache_id
             cache_hash = result.cache_hash
             assert cache_hash           == 'e3b0c44298fc1c14'
@@ -107,9 +107,9 @@ class test_Routes__Zip(TestCase):
                                                  error_message = None              ,
                                                  success       = True              ,
                                                  namespace     = 'test-routes'     ,
-                                                 paths         = __(data   = [ f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin',
-                                                                               f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.config',
-                                                                               f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.metadata'],
+                                                 paths         = __(data   = [ f'{self.test_namespace}/data/key-based/{cache_key}/{file_id}.bin',
+                                                                               f'{self.test_namespace}/data/key-based/{cache_key}/{file_id}.bin.config',
+                                                                               f'{self.test_namespace}/data/key-based/{cache_key}/{file_id}.bin.metadata'],
                                                                    by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
                                                                                f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
                                                                                f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
@@ -194,7 +194,7 @@ class test_Routes__Zip(TestCase):
         with self.routes as _:
             body       = self.test_zip
             cache_key  = "backups/test"
-            strategy   = Enum__Cache__Store__Strategy.SEMANTIC_FILE
+            strategy   = Enum__Cache__Store__Strategy.KEY_BASED
             file_id    = "custom-id"
             result     = _.zip_store(body      = body               ,
                                      namespace = self.test_namespace,
@@ -214,9 +214,9 @@ class test_Routes__Zip(TestCase):
                                              error_message = None              ,
                                              success       = True              ,
                                              namespace     = 'test-routes'     ,
-                                             paths         = __(data   = [ f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin',
-                                                                           f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.config',
-                                                                           f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.metadata'],
+                                             paths         = __(data   = [ f'{self.test_namespace}/data/key-based/{cache_key}/{file_id}.bin',
+                                                                           f'{self.test_namespace}/data/key-based/{cache_key}/{file_id}.bin.config',
+                                                                           f'{self.test_namespace}/data/key-based/{cache_key}/{file_id}.bin.metadata'],
                                                                by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
                                                                            #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
                                                                            f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],

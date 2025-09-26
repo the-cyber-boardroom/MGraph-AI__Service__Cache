@@ -5,4 +5,4 @@ class Enum__Cache__Store__Strategy(str, Enum):
     TEMPORAL            = "temporal"
     TEMPORAL_LATEST     = "temporal_latest"
     TEMPORAL_VERSIONED  = "temporal_versioned"
-    SEMANTIC_FILE       = "semantic_file"
+    KEY_BASED           = "key_based"

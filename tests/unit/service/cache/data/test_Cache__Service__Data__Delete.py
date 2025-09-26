@@ -37,11 +37,11 @@ class test_Cache__Service__Data__Delete(TestCase):
         cls.test_namespace = Safe_Str__Id("test-data-delete")                                   # Test namespace
         cls.test_cache_key = Safe_Str__File__Path("app/data")                                   # Test cache key
 
-        cls.parent_response = cls.service__store.store_string(data      = "parent for deletion"                     ,
-                                                              namespace = cls.test_namespace                        ,
-                                                              strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE,
-                                                              cache_key = cls.test_cache_key                        ,
-                                                              file_id   = Safe_Str__Id("parent-delete")            )
+        cls.parent_response = cls.service__store.store_string(data      = "parent for deletion"                 ,
+                                                              namespace = cls.test_namespace                    ,
+                                                              strategy  = Enum__Cache__Store__Strategy.KEY_BASED,
+                                                              cache_key = cls.test_cache_key                    ,
+                                                              file_id   = Safe_Str__Id("parent-delete")         )
         cls.parent_cache_id = cls.parent_response.cache_id
         cls.path_now        = Path__Handler__Temporal().path_now()                           # Current temporal path
         cls._setup_test_data()                                                               # Create test data to delete

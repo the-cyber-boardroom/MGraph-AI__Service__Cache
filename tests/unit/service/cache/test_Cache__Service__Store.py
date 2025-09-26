@@ -89,11 +89,11 @@ class test_Cache__Service__Store(TestCase):
             cache_key = Safe_Str__File__Path("custom/path/to/file")
             file_id   = Safe_Str__Id("custom-id")
 
-            result = _.store_string(data      = self.test_string                           ,
-                                    strategy  = Enum__Cache__Store__Strategy.SEMANTIC_FILE ,
-                                    namespace = self.test_namespace                        ,
-                                    cache_key = cache_key                                 ,
-                                    file_id   = file_id                                   )
+            result = _.store_string(data      = self.test_string                       ,
+                                    strategy  = Enum__Cache__Store__Strategy.KEY_BASED ,
+                                    namespace = self.test_namespace                    ,
+                                    cache_key = cache_key                              ,
+                                    file_id   = file_id                                )
             self._track_cache_id(result)
 
             assert type(result)    is Schema__Cache__Store__Response

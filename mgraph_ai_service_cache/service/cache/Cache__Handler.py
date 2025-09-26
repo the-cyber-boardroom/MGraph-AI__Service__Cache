@@ -2,7 +2,7 @@ from memory_fs.Memory_FS                                                        
 from memory_fs.helpers.Memory_FS__Temporal                                              import Memory_FS__Temporal
 from memory_fs.helpers.Memory_FS__Latest_Temporal                                       import Memory_FS__Latest_Temporal
 from memory_fs.path_handlers.Path__Handler__Hash_Sharded                                import Path__Handler__Hash_Sharded
-from memory_fs.path_handlers.Path__Handler__Semantic_File                               import Path__Handler__Semantic_File
+from memory_fs.path_handlers.Path__Handler__Key_Based                                   import Path__Handler__Key_Based
 from memory_fs.storage_fs.Storage_FS                                                    import Storage_FS
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
@@ -13,7 +13,7 @@ from osbot_utils.utils.Http                                                     
 CACHE__HANDLER__PREFIX_PATH__FS__REFS_ID                            = 'refs/by-id'
 CACHE__HANDLER__PREFIX_PATH__FS__REFS_HASH                          = 'refs/by-hash'
 CACHE__HANDLER__PREFIX_PATH__FS__DATA_DIRECT                        = 'data/direct'
-CACHE__HANDLER__PREFIX_PATH__FS__DATA_SEMANTIC_FILE                 = 'data/semantic-file'
+CACHE__HANDLER__PREFIX_PATH__FS__DATA_KEY_BASED                     = 'data/key-based'
 CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL                      = 'data/temporal'
 CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_LATEST               = 'data/temporal-latest'
 CACHE__HANDLER__PREFIX_PATH__FS__DATA_TEMPORAL_VERSIONED            = 'data/temporal-versioned'
@@ -32,7 +32,7 @@ class Cache__Handler(Type_Safe):                                                
     fs__data_temporal           : Memory_FS__Temporal         = None                                    # Temporal organization
     fs__data_temporal_latest    : Memory_FS__Latest_Temporal  = None                                    # Temporal + latest
     fs__data_temporal_versioned : Memory_FS                   = None                                    # Temporal + latest + versions
-    fs__data_semantic_file      : Memory_FS                   = None                                    # For Semantic Files
+    fs__data_key_based      : Memory_FS                   = None                                    # For Semantic Files
 
     # Reference stores (always needed)
     fs__refs_hash           : Memory_FS                   = None                                        # Hash->ID mappings
@@ -92,10 +92,10 @@ class Cache__Handler(Type_Safe):                                                
 
         # Semantic File - with namespace prefix
         with Memory_FS() as _:
-            kwargs__fs__data_semantic = dict(prefix_path = self.build_namespaced_path(CACHE__HANDLER__PREFIX_PATH__FS__DATA_SEMANTIC_FILE))
+            kwargs__fs__data_semantic = dict(prefix_path = self.build_namespaced_path(CACHE__HANDLER__PREFIX_PATH__FS__DATA_KEY_BASED))
             _.storage_fs = storage
-            _.add_handler(Path__Handler__Semantic_File(**kwargs__fs__data_semantic))
-            self.fs__data_semantic_file = _
+            _.add_handler(Path__Handler__Key_Based(**kwargs__fs__data_semantic))
+            self.fs__data_key_based = _
 
         return self
 
@@ -109,7 +109,7 @@ class Cache__Handler(Type_Safe):                                                
             return self.fs__data_temporal_latest
         elif strategy == "temporal_versioned":
             return self.fs__data_temporal_versioned
-        elif strategy == "semantic_file":
-            return self.fs__data_semantic_file
+        elif strategy == "key_based":
+            return self.fs__data_key_based
         else:
             raise ValueError(f"Unknown strategy: {strategy}")
