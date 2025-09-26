@@ -1,6 +1,7 @@
 from unittest                                                   import TestCase
-
-from osbot_utils.utils.Dev import pprint
+from memory_fs.path_handlers.Path__Handler__Temporal            import Path__Handler__Temporal
+from osbot_utils.testing.__                                     import __, __SKIP__
+from osbot_utils.utils.Objects                                  import obj
 from osbot_utils.utils.Zip                                      import zip_bytes_empty, zip_bytes__add_file
 from mgraph_ai_service_cache.fast_api.routes.zip.Routes__Zip    import Routes__Zip
 from mgraph_ai_service_cache.service.cache.Cache__Service       import Cache__Service
@@ -17,13 +18,12 @@ class test_Routes__Zip__client(TestCase):
         cls.cache_service   = cls.fast_api.cache_service
         cls.routes          = Routes__Zip(cache_service=cls.cache_service)
 
-        cls.client = cls.test_objs.fast_api__client
-
-        cls.test_zip = zip_bytes_empty()                                                    # Create test zip files to use in this test
-        cls.test_zip = zip_bytes__add_file(cls.test_zip, "test1.txt", b"content 1")
-        cls.test_zip = zip_bytes__add_file(cls.test_zip, "test2.txt", b"content 2")
-
-        cls.test_namespace = "test-routes"
+        cls.client          = cls.test_objs.fast_api__client
+        cls.test_zip        = zip_bytes_empty()                                                    # Create test zip files to use in this test
+        cls.test_zip        = zip_bytes__add_file(cls.test_zip, "test1.txt", b"content 1")
+        cls.test_zip        = zip_bytes__add_file(cls.test_zip, "test2.txt", b"content 2")
+        cls.path_now        = Path__Handler__Temporal().path_now()                                # Current temporal path
+        cls.test_namespace  = "test-routes"
 
     def setUp(self):                                                                        # Per-test setup
         self.stored_cache_id = None                                                         # Will be set when storing zip
@@ -46,16 +46,33 @@ class test_Routes__Zip__client(TestCase):
             assert _.zip_ops_service().cache_service is _.cache_service
             assert _.zip_batch_service().cache_service is _.cache_service
 
+    #def test_zip_create(self):
+
     def test_store_zip(self):                                                             # Test POST /namespace/zip/store
         response = self.client.post(url     = f"/{self.test_namespace}/zip/store",
                                     content = self.test_zip,
                                     headers = {"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE})
 
         assert response.status_code == 200
-        result = response.json()
-
-        # Verify response structure
-        assert "cache_id"   in result
+        result     = response.json()
+        cache_id   = result.get("cache_id")
+        cache_hash = result.get("cache_hash")
+        assert obj(result) ==  __( cache_id     = cache_id          ,
+                                   cache_hash   = cache_hash        ,
+                                   namespace    = 'test-routes'     ,
+                                   paths        = __(data   = [ f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin',
+                                                                f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.config',
+                                                                f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.metadata'],
+                                                    by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
+                                                                #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',            # this file is not created in this flow because it already exists (another test has created it )
+                                                                f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
+                                                    by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
+                                                                f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
+                                                                f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
+                                   size       = 232          ,
+                                   file_count = 2            ,
+                                   stored_at  = __SKIP__     )
+        assert "cache_id"   in result                                               # Verify response structure
         assert "cache_hash" in result
         assert "namespace"  in result
         assert "file_count" in result
@@ -230,11 +247,9 @@ class test_Routes__Zip__client(TestCase):
 
     def test_batch_operations__atomic_failure(self):                                      # Test atomic failure doesn't create new entry
         # Store a zip
-        store_response = self.client.post(
-            f"/{self.test_namespace}/zip/store",
-            content=self.test_zip,
-            headers={"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE}
-        )
+        store_response = self.client.post(f"/{self.test_namespace}/zip/store",
+                                             content=self.test_zip,
+                                             headers={"Content-Type": "application/zip", TEST_API_KEY__NAME: TEST_API_KEY__VALUE}   )
         original_id = store_response.json()["cache_id"]
 
         # Create batch with failing operation

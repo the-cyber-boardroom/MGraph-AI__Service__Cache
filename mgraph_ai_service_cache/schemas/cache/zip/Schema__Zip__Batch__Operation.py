@@ -1,5 +1,3 @@
-from typing import Optional
-
 from osbot_utils.type_safe.Type_Safe                                                             import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                import Safe_Str__File__Path
 from mgraph_ai_service_cache.schemas.cache.zip.enums.Enum__Cache__Zip__Condition                 import Enum__Cache__Zip__Condition

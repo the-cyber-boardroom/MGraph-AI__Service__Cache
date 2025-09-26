@@ -1,0 +1,378 @@
+import pytest
+from fastapi                                                                               import HTTPException, Request, Response
+from unittest                                                                              import TestCase
+from osbot_utils.utils.Misc                                                                import is_guid
+from memory_fs.path_handlers.Path__Handler__Temporal                                       import Path__Handler__Temporal
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                              import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                                 import Safe_Str__Fast_API__Route__Tag
+from osbot_utils.testing.__                                                                import __, __SKIP__
+from osbot_utils.utils.Objects                                                             import base_classes
+from osbot_utils.type_safe.Type_Safe                                                       import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                      import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id            import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path          import Safe_Str__File__Path
+from osbot_fast_api.api.routes.Fast_API__Routes                                            import Fast_API__Routes
+from osbot_utils.utils.Zip                                                                 import zip_bytes_empty, zip_bytes__add_file, zip_bytes__file_list, zip_bytes__files
+from mgraph_ai_service_cache.fast_api.routes.zip.Routes__Zip                               import Routes__Zip, TAG__ROUTES_ZIP, PREFIX__ROUTES_ZIP, ROUTES_PATHS__ZIP
+from mgraph_ai_service_cache.schemas.cache.Schema__Cache__Retrieve__Success                import Schema__Cache__Retrieve__Success
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy              import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.service.cache.Cache__Service                                  import Cache__Service
+from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Request          import Schema__Cache__Zip__Store__Request
+from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Response         import Schema__Cache__Zip__Store__Response
+from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Operation__Response     import Schema__Cache__Zip__Operation__Response
+from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Batch__Request          import Schema__Cache__Zip__Batch__Request, Schema__Zip__Batch__Operation
+from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Batch__Response         import Schema__Cache__Zip__Batch__Response
+from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve               import Cache__Service__Retrieve
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                     import Cache__Service__Store
+
+
+class test_Routes__Zip(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.cache_service    = Cache__Service()
+        cls.routes           = Routes__Zip             (cache_service=cls.cache_service)
+        cls.retrieve_service = Cache__Service__Retrieve(cache_service=cls.cache_service)
+
+        # Create test data
+        cls.test_zip         = zip_bytes_empty()
+        cls.test_zip         = zip_bytes__add_file(cls.test_zip, "file1.txt", b"content 1")
+        cls.test_zip         = zip_bytes__add_file(cls.test_zip, "file2.txt", b"content 2")
+        cls.test_namespace   = Safe_Str__Id("test-routes")
+        cls.path_now         = Path__Handler__Temporal().path_now()                                     # Current temporal path
+        # Store a test zip for operations
+        store_request        = Schema__Cache__Zip__Store__Request(zip_bytes = cls.test_zip      ,
+                                                                  namespace = cls.test_namespace)
+        store_result         = cls.routes.zip_store_service().store_zip(store_request)
+        cls.test_cache_id    = store_result.cache_id
+
+    def setUp(self):
+        self.request = Request(scope={"type": "http", "headers": []})                                   # Create mock request for methods that need it
+
+    def test__init__(self):
+        with Routes__Zip() as _:
+            assert type(_)              is Routes__Zip
+            assert base_classes(_)      == [Fast_API__Routes, Type_Safe, object]
+            assert _.tag                == TAG__ROUTES_ZIP
+            assert _.prefix             == PREFIX__ROUTES_ZIP
+            assert type(_.cache_service) is Cache__Service
+
+    def test__class_constants(self):
+        assert TAG__ROUTES_ZIP        == Safe_Str__Fast_API__Route__Tag('zip')
+        assert PREFIX__ROUTES_ZIP     == Safe_Str__Fast_API__Route__Prefix('/{namespace}')
+        assert len(ROUTES_PATHS__ZIP) == 5
+        assert ROUTES_PATHS__ZIP[0]   == '/{namespace}/zip/store'
+        assert ROUTES_PATHS__ZIP[1]   == '/{namespace}/zip/{cache_id}/list'
+
+    def test__service_methods(self):
+        with self.routes as _:
+            # Test service getters are cached
+            store_service1 = _.zip_store_service()
+            store_service2 = _.zip_store_service()
+            assert store_service1 is store_service2  # Same instance (cached)
+
+            ops_service1 = _.zip_ops_service()
+            ops_service2 = _.zip_ops_service()
+            assert ops_service1 is ops_service2
+
+            batch_service1 = _.zip_batch_service()
+            batch_service2 = _.zip_batch_service()
+            assert batch_service1 is batch_service2
+
+            # Verify services use the same cache_service
+            assert store_service1.cache_service is _.cache_service
+            assert ops_service1.cache_service   is _.cache_service
+            assert batch_service1.cache_service is _.cache_service
+
+    def test_store_zip(self):
+        with self.routes as _:
+            body       = self.test_zip
+            result     = _.store_zip(body      = body               ,
+                                     namespace = self.test_namespace,
+                                     cache_key = None               ,
+                                     file_id   = None               )
+            cache_id   = result.cache_id
+            cache_hash = result.cache_hash
+            assert type(result)          is Schema__Cache__Zip__Store__Response
+            assert type(result.cache_id) is Random_Guid
+            assert result.namespace      == self.test_namespace
+            assert result.file_count     == 2
+            assert result.size           > 0
+            assert result.obj()          ==  __( cache_id     = cache_id          ,
+                                                 cache_hash   = cache_hash        ,
+                                                 namespace    = 'test-routes'     ,
+                                                 paths        = __(data   = [ f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin',
+                                                                              f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.config',
+                                                                              f'{self.test_namespace}/data/temporal/{self.path_now}/{cache_id}.bin.metadata'],
+                                                                  by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
+                                                                              #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
+                                                                              f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
+                                                                  by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
+                                                                              f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
+                                                                              f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
+                                                 size       = 232          ,
+                                                 file_count = 2            ,
+                                                 stored_at  = __SKIP__     )
+
+            entry_by_id = self.retrieve_service.retrieve_by_id(cache_id=cache_id, namespace=self.test_namespace)
+
+            assert type(cache_id)    is Random_Guid
+            assert is_guid(cache_id) is True
+            assert type(entry_by_id) is Schema__Cache__Retrieve__Success
+            with entry_by_id as _:
+                assert _.obj() == __(data     = self.test_zip,
+                                     metadata = __(cache_id         = cache_id      ,
+                                                   cache_hash       = cache_hash    ,
+                                                   cache_key        =''             ,
+                                                   file_id          = cache_id      ,
+                                                   namespace        ='test-routes'  ,
+                                                   strategy         ='temporal'     ,
+                                                   stored_at        = __SKIP__      ,
+                                                   file_type        ='binary'       ,
+                                                   content_encoding = None          ,
+                                                   content_size     = 0             ),
+                                     data_type='binary')
+                assert zip_bytes__file_list(_.data) == ['file1.txt', 'file2.txt']
+                assert zip_bytes__files    (_.data) == {'file1.txt': b'content 1',
+                                                        'file2.txt': b'content 2'}
+
+
+    def test_store_zip__with_params(self):
+        with self.routes as _:
+            body       = self.test_zip
+            cache_key  = "backups/test"
+            strategy   = Enum__Cache__Store__Strategy.SEMANTIC_FILE
+            file_id    = "custom-id"
+            result     = _.store_zip(body      = body               ,
+                                     namespace = self.test_namespace,
+                                     strategy  = strategy           ,
+                                     cache_key = cache_key          ,
+                                     file_id   = file_id            )
+            cache_id   = result.cache_id
+            cache_hash = result.cache_hash
+
+            assert type(result)      is Schema__Cache__Zip__Store__Response
+            assert result.namespace  == self.test_namespace
+            assert result.file_count == 2
+            assert result.obj()      ==  __( cache_id     = cache_id          ,
+                                             cache_hash   = cache_hash        ,
+                                             namespace    = 'test-routes'     ,
+                                             paths        = __(data   = [ f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin',
+                                                                          f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.config',
+                                                                          f'{self.test_namespace}/data/semantic-file/{cache_key}/{file_id}.bin.metadata'],
+                                                              by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
+                                                                          #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
+                                                                          f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
+                                                              by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
+                                                                          f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
+                                                                          f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
+                                             size       = 232          ,
+                                             file_count = 2            ,
+                                             stored_at  = __SKIP__     )
+
+    def test_store_zip__invalid_zip(self):
+        with self.routes as _:
+            with pytest.raises(HTTPException) as exc:
+                _.store_zip(
+                    body      = b"not a valid zip",
+                    namespace = self.test_namespace,
+                    cache_key = None,
+                    file_id   = None
+                )
+
+            assert exc.value.status_code == 400
+            assert "Invalid zip file" in exc.value.detail
+
+    def test_list_zip_files(self):
+        with self.routes as _:
+            result = _.list_zip_files(cache_id  = self.test_cache_id ,
+                                      namespace = self.test_namespace)
+
+            assert type(result)         is Schema__Cache__Zip__Operation__Response
+            assert result.success       == True
+            assert result.operation     == "list"
+            assert result.cache_id      == self.test_cache_id
+            assert len(result.file_list) == 2
+            assert "file1.txt" in result.file_list
+            assert "file2.txt" in result.file_list
+
+    def test_list_zip_files__not_found(self):
+        with self.routes as _:
+            with pytest.raises(HTTPException) as exc:
+                _.list_zip_files(
+                    cache_id  = Random_Guid(),
+                    namespace = self.test_namespace
+                )
+
+            assert exc.value.status_code == 404
+            assert "Zip file not found" in exc.value.detail
+
+    def test_get_zip_file(self):
+        with self.routes as _:
+            result = _.get_zip_file(
+                cache_id  = self.test_cache_id,
+                file_path = Safe_Str__File__Path("file1.txt"),
+                namespace = self.test_namespace
+            )
+
+            assert type(result)     is Response
+            assert result.body      == b"content 1"
+            assert result.media_type == "application/octet-stream"
+
+    def test_get_zip_file__not_found(self):
+        with self.routes as _:
+            with pytest.raises(HTTPException) as exc:
+                _.get_zip_file(
+                    cache_id  = self.test_cache_id,
+                    file_path = Safe_Str__File__Path("missing.txt"),
+                    namespace = self.test_namespace
+                )
+
+            assert exc.value.status_code == 404
+            assert "not found in zip" in exc.value.detail
+
+    def test_add_zip_file(self):
+        with self.routes as _:
+            result = _.add_zip_file(
+                cache_id  = self.test_cache_id,
+                body      = b"new content",
+                file_path = Safe_Str__File__Path("new.txt"),
+                namespace = self.test_namespace
+            )
+
+            assert type(result)               is Schema__Cache__Zip__Operation__Response
+            assert result.success             == True
+            assert result.operation           == "add"
+            assert result.cache_id            != self.test_cache_id  # NEW ID!
+            assert result.original_cache_id   == self.test_cache_id
+            assert result.files_affected      == [Safe_Str__File__Path("new.txt")]
+
+    def test_add_zip_file__no_path(self):
+        with self.routes as _:
+            with pytest.raises(HTTPException) as exc:
+                _.add_zip_file(
+                    cache_id  = self.test_cache_id,
+                    body      = b"content",
+                    file_path = None,
+                    namespace = self.test_namespace
+                )
+
+            assert exc.value.status_code == 400
+            assert "file_path required" in exc.value.detail
+
+    def test_remove_zip_file(self):
+        with self.routes as _:
+            result = _.remove_zip_file(
+                cache_id  = self.test_cache_id,
+                file_path = Safe_Str__File__Path("file1.txt"),
+                namespace = self.test_namespace
+            )
+
+            assert type(result)             is Schema__Cache__Zip__Operation__Response
+            assert result.success           == True
+            assert result.operation         == "remove"
+            assert result.cache_id          != self.test_cache_id  # NEW ID!
+            assert result.original_cache_id == self.test_cache_id
+            assert result.files_affected    == [Safe_Str__File__Path("file1.txt")]
+
+    def test_batch_operations(self):
+        with self.routes as _:
+            operations = [Schema__Zip__Batch__Operation(action  = "add",
+                                                        path    = Safe_Str__File__Path("new.txt"),
+                                                        content = b"new content"),
+                Schema__Zip__Batch__Operation(action = "remove",
+                                              path   = Safe_Str__File__Path("file1.txt"))]
+
+            request = Schema__Cache__Zip__Batch__Request(
+                cache_id   = self.test_cache_id,
+                operations = operations,
+                namespace  = self.test_namespace,
+                atomic     = False
+            )
+
+            result = _.batch_operations(
+                request   = request,
+                cache_id  = self.test_cache_id,
+                namespace = self.test_namespace
+            )
+
+            assert type(result)              is Schema__Cache__Zip__Batch__Response
+            assert result.success            == True
+            assert result.cache_id           != self.test_cache_id  # NEW ID!
+            assert result.original_cache_id  == self.test_cache_id
+            assert result.operations_applied == 2
+            assert "new.txt" in result.files_added
+            assert "file1.txt" in result.files_removed
+
+    def test_batch_operations__error_handling(self):
+        with self.routes as _:
+            # Create request with failing operations
+            operations = [
+                Schema__Zip__Batch__Operation(action = "remove",
+                                              path   = Safe_Str__File__Path("nonexistent.txt")
+                )
+            ]
+
+            request = Schema__Cache__Zip__Batch__Request(cache_id   = Random_Guid(),  # Invalid ID
+                                                        operations = operations,
+                                                        namespace  = self.test_namespace)
+
+            result = _.batch_operations(request   = request            ,
+                                        cache_id  = request.cache_id   ,
+                                        namespace = self.test_namespace)
+            assert type(result) is Schema__Cache__Zip__Batch__Response
+            assert result.obj() == __( cache_id           = request.cache_id,
+                                       original_cache_id  = request.cache_id,
+                                       rollback_performed = False,
+                                       success            = False,
+                                       operations_applied = 0,
+                                       operations_failed  = 0,
+                                       operation_results  = [],
+                                       files_added        = [],
+                                       files_removed      = [],
+                                       files_modified     = [],
+                                       new_file_count     = 0,
+                                       new_size           = 0,
+                                       completed_at       = __SKIP__,
+                                       error_message      = 'Zip file not found in cache')
+
+    def test_download_zip(self):
+        with self.routes as _:
+            result = _.download_zip(cache_id  = self.test_cache_id,
+                                    namespace = self.test_namespace)
+
+            assert type(result)      is Response
+            assert result.body       == self.test_zip
+            assert result.media_type == "application/zip"
+            assert f"{self.test_cache_id}.zip" in result.headers["Content-Disposition"]
+
+    def test_download_zip__not_found(self):
+        with self.routes as _:
+            with pytest.raises(HTTPException) as exc:
+                _.download_zip(
+                    cache_id  = Random_Guid(),
+                    namespace = self.test_namespace
+                )
+
+            assert exc.value.status_code == 404
+            assert "Zip file not found" in exc.value.detail
+
+    def test_download_zip__not_binary(self):
+        # Store non-binary data
+        store_service = Cache__Service__Store(cache_service=self.cache_service)
+
+        # Store string data
+        result = store_service.store_string(
+            data      = "not a zip",
+            namespace = self.test_namespace
+        )
+
+        with self.routes as _:
+            with pytest.raises(HTTPException) as exc:
+                _.download_zip(
+                    cache_id  = result.cache_id,
+                    namespace = self.test_namespace
+                )
+
+            assert exc.value.status_code == 400
+            assert "not a binary file" in exc.value.detail

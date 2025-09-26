@@ -7,6 +7,9 @@ from osbot_utils.decorators.methods.cache_on_self                               
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
+from osbot_utils.utils.Zip                                                               import zip_bytes_empty
+from mgraph_ai_service_cache.schemas.cache.consts__Cache_Service                         import DEFAULT_CACHE__STORE__STRATEGY
+from mgraph_ai_service_cache.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache.schemas.consts.const__Fast_API                              import FAST_API__PARAM__NAMESPACE
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from mgraph_ai_service_cache.service.cache.zip.Cache__Service__Zip__Store                import Cache__Service__Zip__Store
@@ -48,16 +51,32 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
     def zip_batch_service(self) -> Cache__Service__Zip__Batch:             # Service for batch operations
         return Cache__Service__Zip__Batch(cache_service=self.cache_service)
 
+    def zip__create(self,namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE,
+                         cache_key  : Safe_Str__File__Path  = None,
+                         file_id    : Safe_Str__Id          = None
+                    ) -> Schema__Cache__Zip__Store__Response:                # Store a new zip file
+
+        zip_bytes = zip_bytes_empty()
+        request = Schema__Cache__Zip__Store__Request(zip_bytes = zip_bytes        ,
+                                                     cache_key = cache_key   ,
+                                                     file_id   = file_id     ,
+                                                     namespace = namespace   )
+        return self.zip_store_service().store_zip(request)
+
+
+    # todo: we need to add the strategy to this so that we support cache_key
     @route_path("/zip/store")
-    def store_zip(self, body      : bytes = Body(..., media_type="application/zip"),
-                       namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE,
-                       cache_key  : Safe_Str__File__Path = None,
-                       file_id    : Safe_Str__Id = None
-                  ) -> Schema__Cache__Zip__Store__Response:                # Store a new zip file
+    def store_zip(self, body       : bytes = Body(..., media_type="application/zip"),
+                        namespace  : Safe_Str__Id                 = FAST_API__PARAM__NAMESPACE     ,
+                        strategy   : Enum__Cache__Store__Strategy = DEFAULT_CACHE__STORE__STRATEGY ,    # todo: figure out why FAST_API__PARAM__STRATEGY is not working here
+                        cache_key  : Safe_Str__File__Path         = None,
+                        file_id    : Safe_Str__Id               = None
+                   ) -> Schema__Cache__Zip__Store__Response:                # Store a new zip file
 
         request = Schema__Cache__Zip__Store__Request(zip_bytes = body        ,
                                                      cache_key = cache_key   ,
                                                      file_id   = file_id     ,
+                                                     strategy  = strategy    ,
                                                      namespace = namespace   )
         try:
             return self.zip_store_service().store_zip(request)

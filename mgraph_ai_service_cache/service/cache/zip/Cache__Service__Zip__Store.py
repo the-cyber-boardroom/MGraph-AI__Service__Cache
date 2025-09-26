@@ -1,6 +1,5 @@
 from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                import Random_Guid
 from osbot_utils.utils.Zip                                                           import zip_bytes__file_list
 from mgraph_ai_service_cache.service.cache.Cache__Service                            import Cache__Service
 from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Request    import Schema__Cache__Zip__Store__Request
@@ -16,7 +15,6 @@ class Cache__Service__Zip__Store(Type_Safe):                                    
 
         if not request.zip_bytes:                                                       # Validate input
             raise ValueError("Zip bytes cannot be empty")
-
         try:
             file_list = zip_bytes__file_list(request.zip_bytes)                        # Validate it's a valid zip
         except Exception as e:
@@ -24,11 +22,11 @@ class Cache__Service__Zip__Store(Type_Safe):                                    
 
         # todo: review this hash_from_bytes workflow, since it is looking that same zip with same content has different hashes
         cache_hash = self.cache_service.hash_from_bytes(request.zip_bytes)              # Calculate hash of zip content
-        cache_id   = request.file_id or Random_Guid()                                   # Use provided ID or generate
+        #cache_id   = request.file_id or Random_Guid()                                   # Use provided ID or generate
 
         store_result = self.cache_service.store_with_strategy(storage_data     = request.zip_bytes    ,              # Store using cache service
                                                               cache_hash       = cache_hash           ,
-                                                              cache_id         = cache_id             ,
+                                                              #cache_id         = request.file_id      ,
                                                               cache_key        = request.cache_key    ,
                                                               file_id          = request.file_id      ,
                                                               namespace        = request.namespace    ,
