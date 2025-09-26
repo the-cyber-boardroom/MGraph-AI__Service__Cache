@@ -27,8 +27,8 @@ TAG__ROUTES_ZIP    = Safe_Str__Fast_API__Route__Tag('zip')
 PREFIX__ROUTES_ZIP = Safe_Str__Fast_API__Route__Prefix('/{namespace}')
 BASE_PATH__ZIP     = f'{PREFIX__ROUTES_ZIP}/{TAG__ROUTES_ZIP}'
 
-ROUTES_PATHS__ZIP = [ f'{PREFIX__ROUTES_ZIP}/{{strategy}}/zip/create/{{cache_key}}/{{file_id}}'        ,    # create new zip (empty)
-                      f'{PREFIX__ROUTES_ZIP}/{{strategy}}/zip/store/{{cache_key}}/{{file_id}}'          ,    # Store new zip
+ROUTES_PATHS__ZIP = [ f'{PREFIX__ROUTES_ZIP}/{{strategy}}/zip/create/{{cache_key:path}}/{{file_id}}'        ,    # create new zip (empty)
+                      f'{PREFIX__ROUTES_ZIP}/{{strategy}}/zip/store/{{cache_key:path}}/{{file_id}}'          ,    # Store new zip
                       f'{BASE_PATH__ZIP}/{{cache_id}}/files/list'                                       ,    # List files in zip
                       f'{BASE_PATH__ZIP}/{{cache_id}}/file/retrieve/{{file_path:path}}'                 ,    # Get specific file from zip
                       f'{BASE_PATH__ZIP}/{{cache_id}}/file/add/from/string/{{file_path:path}}'          ,    # Add file from string
@@ -54,7 +54,7 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
     def zip_batch_service(self) -> Cache__Service__Zip__Batch:             # Service for batch operations
         return Cache__Service__Zip__Batch(cache_service=self.cache_service)
 
-    @route_path("/{strategy}/zip/create/{cache_key}/{file_id}")
+    @route_path("/{strategy}/zip/create/{cache_key:path}/{file_id}")
     def zip_create(self,namespace  : Safe_Str__Id                 = FAST_API__PARAM__NAMESPACE  ,
                         strategy   : Enum__Cache__Store__Strategy = DEFAULT_CACHE__ZIP__STRATEGY,
                         cache_key  : Safe_Str__File__Path         = None,
@@ -70,7 +70,7 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
         return self.zip_store_service().store_zip(request)
 
 
-    @route_path("/{strategy}/zip/store/{cache_key}/{file_id}")
+    @route_path("/{strategy}/zip/store/{cache_key:path}/{file_id}")
     def zip_store(self, body       : bytes = Body(..., media_type="application/zip"),
                         namespace  : Safe_Str__Id                 = FAST_API__PARAM__NAMESPACE     ,
                         strategy   : Enum__Cache__Store__Strategy = DEFAULT_CACHE__ZIP__STRATEGY   ,

@@ -50,19 +50,16 @@ class test_Routes__Zip__http(TestCase):                                         
         self.created_resources.clear()
 
     def _store_zip(self, zip_bytes : bytes          = None,
-                        cache_key  : str            = None,
-                        file_id    : str            = None,
-                        namespace  : str            = None
-                  ) -> Dict[str, Any]:                                                      # Helper to store ZIP
+                         cache_key  : str           = 'an/cache/key',
+                         file_id    : str           = 'an-file',
+                         namespace  : str           = None
+                   ) -> Dict[str, Any]:                                                      # Helper to store ZIP
         namespace = namespace or self.test_namespace
-        url       = f"{self.base_url}/{namespace}/direct/zip/store/a/b"
+        url       = f"{self.base_url}/{namespace}/direct/zip/store/{cache_key}/{file_id}"
+        print(url)
 
         headers = {**self.headers, "Content-Type": "application/zip"}
         params  = {}
-        if cache_key:
-            params['cache_key'] = cache_key
-        if file_id:
-            params['file_id'] = file_id
 
         zip_bytes = zip_bytes or self.test_zip
         response = requests.post(url, data=zip_bytes, headers=headers, params=params)
@@ -107,12 +104,12 @@ class test_Routes__Zip__http(TestCase):                                         
         cache_hash = result.get("cache_hash")
 
         assert is_guid(cache_id) is True
-        assert len(cache_hash) == 16
-        assert result["namespace"] == self.test_namespace
+        assert len(cache_hash)      == 16
+        assert result["namespace"]  == self.test_namespace
         assert result["file_count"] == 0                                                # Empty zip
-        assert result["size"] > 0                                                       # Even empty zip has size
-        assert "paths" in result
-        assert "stored_at" in result
+        assert result["size"]        > 0                                                       # Even empty zip has size
+        assert "paths"              in result
+        assert "stored_at"          in result
 
     def test_zip_store(self):                                                           # Test POST /namespace/zip/store
         result = self._store_zip()
@@ -157,9 +154,9 @@ class test_Routes__Zip__http(TestCase):                                         
                                           error_message = None              ,
                                           success       = True              ,
                                           namespace     = self.test_namespace ,
-                                          paths         = __(data   = [ f'{self.test_namespace}/data/direct/b/b.bin'         ,
-                                                                        #f'{self.test_namespace}/data/direct/b/b.bin.config'  ,          # these files are not created because these files already exist (were created by a previous test)
-                                                                        #f'{self.test_namespace}/data/direct/b/b.bin.metadata'
+                                          paths         = __(data   = [ f'{self.test_namespace}/data/direct/an/-f/an-file.bin'         ,
+                                                                        #f'{self.test_namespace}/data/direct/an/-f/an-file.bin.config'  ,          # these files are not created because these files already exist (were created by a previous test)
+                                                                        #f'{self.test_namespace}/data/direct/an/-f/an-file.bin.metadata'
                                                                         ],
                                                             by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
                                                                         #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',
@@ -398,17 +395,17 @@ class test_Routes__Zip__http(TestCase):                                         
             assert is_guid(cache_id) is True
 
     def test_large_zip_file(self):                                                      # Test large ZIP file
-        skip__if_not__in_github_actions()
+        #skip__if_not__in_github_actions()
 
         large_zip = zip_bytes_empty()
         for i in range(100):
             large_zip = zip_bytes__add_file(large_zip, f"file_{i}.txt", f"content_{i}".encode() * 100)
 
-        result = self._store_zip(zip_bytes=large_zip)
-
+        result = self._store_zip(zip_bytes=large_zip, file_id='large_zip')
+        assert len(large_zip)              == 11892
         assert is_guid(result["cache_id"]) is True
-        assert result["file_count"] == 100
-        assert result["size"] > 10000
+        assert result["file_count"]        == 100
+        assert result["size"      ]        == 11892
 
     def test_zip_with_nested_paths(self):                                              # Test ZIP with nested directory structure
         nested_zip = zip_bytes_empty()

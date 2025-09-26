@@ -62,8 +62,8 @@ class test_Routes__Zip(TestCase):
         assert TAG__ROUTES_ZIP        == Safe_Str__Fast_API__Route__Tag('zip')
         assert PREFIX__ROUTES_ZIP     == Safe_Str__Fast_API__Route__Prefix('/{namespace}')
         assert len(ROUTES_PATHS__ZIP) == 9
-        assert ROUTES_PATHS__ZIP[0]   == '/{namespace}/{strategy}/zip/create/{cache_key}/{file_id}'
-        assert ROUTES_PATHS__ZIP[1]   == '/{namespace}/{strategy}/zip/store/{cache_key}/{file_id}'
+        assert ROUTES_PATHS__ZIP[0]   == '/{namespace}/{strategy}/zip/create/{cache_key:path}/{file_id}'
+        assert ROUTES_PATHS__ZIP[1]   == '/{namespace}/{strategy}/zip/store/{cache_key:path}/{file_id}'
 
     def test__service_methods(self):
         with self.routes as _:
