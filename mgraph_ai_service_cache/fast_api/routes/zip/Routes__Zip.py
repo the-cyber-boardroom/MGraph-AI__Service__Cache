@@ -129,10 +129,10 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
 
     @route_path("/zip/{cache_id}/file/add/from/string/{file_path:path}")
     def zip_file_add_from_string(self, cache_id  : Random_Guid,
-                           body      : str = Body(...),
-                           file_path : Safe_Str__File__Path = None,
-                           namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                      ) -> Schema__Cache__Zip__Operation__Response:                 # Add file to zip (from string)
+                                       body      : str = Body(...),
+                                       file_path : Safe_Str__File__Path = None,
+                                       namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                  ) -> Schema__Cache__Zip__Operation__Response:                 # Add file to zip (from string)
         body_as_bytes = body.encode("utf-8")
         return self.zip_file_add_from_bytes(cache_id = cache_id  ,
                                             body = body_as_bytes ,

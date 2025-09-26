@@ -524,3 +524,208 @@ class test_Routes__Zip__http(TestCase):                                         
         list_url2 = f"{self.base_url}/{ns2}/zip/{result2['cache_id']}/files/list"
         list_response2 = requests.get(list_url2, headers=self.headers)
         assert "new.txt" not in list_response2.json()["file_list"]
+
+    def test_zip_file_add_from_string__round_trip(self):                                 # Test complete round-trip: add string → retrieve → verify
+        skip__if_not__in_github_actions()
+        original_result = self._store_zip()
+        original_id = original_result["cache_id"]
+
+        # Add a string file
+        test_string = "Hello, this is a test string with special chars: 你好 🎉 & < > \" '"
+        url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/file/add/from/string/test_string.txt"
+        response = requests.post(url,
+                                data=test_string,
+                                headers={**self.headers, "Content-Type": "text/plain"})
+
+        assert response.status_code == 200
+        result = response.json()
+        assert result["success"] == True
+        assert result["operation"] == "add"
+        new_id = result["cache_id"]
+        assert new_id != original_id                                                      # New cache ID created
+
+        # Retrieve the file we just added
+        retrieve_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/file/retrieve/test_string.txt"
+        retrieve_response = requests.get(retrieve_url, headers=self.headers)
+
+        assert retrieve_response.status_code == 200
+        assert retrieve_response.content     == test_string.encode('utf-8')               # String was encoded as UTF-8
+
+        # Verify the file is in the list
+        list_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/files/list"
+        list_response = requests.get(list_url, headers=self.headers)
+
+        assert "test_string.txt" in list_response.json()["file_list"]
+        assert len(list_response.json()["file_list"]) == 3                                # Original 2 + new 1
+
+    def test_zip_file_add_from_string__multiple_files(self):                              # Test adding multiple string files
+        skip__if_not__in_github_actions()
+        original_result = self._store_zip()
+        current_id = original_result["cache_id"]
+
+        files_to_add = {
+            "config.json": '{"setting": "value", "number": 42}',
+            "readme.md"  : "# Test Project\n\nThis is a test.",
+            "script.py"  : "def hello():\n    print('Hello, World!')",
+            "data.csv"   : "name,value\ntest1,100\ntest2,200"
+        }
+
+        # Add each file sequentially
+        for file_name, content in files_to_add.items():
+            url = f"{self.base_url}/{self.test_namespace}/zip/{current_id}/file/add/from/string/{file_name}"
+            response = requests.post(url,
+                                    data=content,
+                                    headers={**self.headers, "Content-Type": "text/plain"})
+
+            assert response.status_code == 200
+            assert response.json()["success"] == True
+            current_id = response.json()["cache_id"]                                      # Update to new cache ID
+
+        # Verify all files are present
+        list_url = f"{self.base_url}/{self.test_namespace}/zip/{current_id}/files/list"
+        list_response = requests.get(list_url, headers=self.headers)
+
+        assert len(list_response.json()["file_list"]) == 6                                # Original 2 + added 4
+        for file_name in files_to_add.keys():
+            assert file_name in list_response.json()["file_list"]
+
+        # Verify each file's content
+        for file_name, expected_content in files_to_add.items():
+            retrieve_url = f"{self.base_url}/{self.test_namespace}/zip/{current_id}/file/retrieve/{file_name}"
+            retrieve_response = requests.get(retrieve_url, headers=self.headers)
+
+            assert retrieve_response.content == expected_content.encode('utf-8')
+
+    def test_zip_file_add_from_string__empty_string(self):                                # Test adding empty string file
+        skip__if_not__in_github_actions()
+        original_result = self._store_zip()
+        original_id = original_result["cache_id"]
+
+        # Add empty string file
+        url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/file/add/from/string/empty.txt"
+        response = requests.post(url,
+                                 data="",                                                   # Empty string
+                                 headers={**self.headers, "Content-Type": "text/plain"})
+
+        assert response.status_code == 200
+        new_id = response.json()["cache_id"]
+
+        # Retrieve and verify empty file
+        retrieve_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/file/retrieve/empty.txt"
+        retrieve_response = requests.get(retrieve_url, headers=self.headers)
+
+        assert retrieve_response.content == b""                                           # Empty bytes
+
+    def test_zip_file_add_from_string__overwrite_existing(self):                          # Test overwriting existing file with string content
+        skip__if_not__in_github_actions()
+        original_result = self._store_zip()
+        original_id = original_result["cache_id"]
+
+        # First verify original content
+        original_retrieve_url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/file/retrieve/test1.txt"
+        original_retrieve = requests.get(original_retrieve_url, headers=self.headers)
+        assert original_retrieve.content == b"content 1"
+
+        # Add file with same name but different content
+        new_content = "This is the new content for test1.txt"
+        url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/file/add/from/string/test1.txt"
+        response = requests.post(url,
+                                data=new_content,
+                                headers={**self.headers, "Content-Type": "text/plain"})
+
+        assert response.status_code == 200
+        new_id = response.json()["cache_id"]
+
+        # Retrieve and verify new content
+        new_retrieve_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/file/retrieve/test1.txt"
+        new_retrieve = requests.get(new_retrieve_url, headers=self.headers)
+
+        assert new_retrieve.content == new_content.encode('utf-8')                        # New content
+
+        # Verify original is unchanged
+        original_still_same = requests.get(original_retrieve_url, headers=self.headers)
+        assert original_still_same.content == b"content 1"                                # Original unchanged
+
+    def test_zip_file_add_from_string__nested_paths(self):                                # Test adding string files in nested directories
+        skip__if_not__in_github_actions()
+        original_result = self._store_zip()
+        current_id = original_result["cache_id"]
+
+        nested_files = {
+            "docs/readme.md"       : "# Documentation",
+            "src/main.py"          : "if __name__ == '__main__':\n    pass",
+            "src/utils/helpers.py" : "def helper():\n    return 42",
+            "tests/test_main.py"   : "import unittest\n# Tests here"
+        }
+
+        # Add nested files
+        for file_path, content in nested_files.items():
+            url = f"{self.base_url}/{self.test_namespace}/zip/{current_id}/file/add/from/string/{file_path}"
+            response = requests.post(url,
+                                    data=content,
+                                    headers={**self.headers, "Content-Type": "text/plain"})
+            assert response.status_code == 200
+            current_id = response.json()["cache_id"]
+
+        # Verify all nested files are retrievable
+        for file_path, expected_content in nested_files.items():
+            retrieve_url = f"{self.base_url}/{self.test_namespace}/zip/{current_id}/file/retrieve/{file_path}"
+            retrieve_response = requests.get(retrieve_url, headers=self.headers)
+            assert retrieve_response.content == expected_content.encode('utf-8')
+
+    def test_zip_file_add_from_string__large_content(self):                               # Test adding large string content
+        skip__if_not__in_github_actions()
+        original_result = self._store_zip()
+        original_id = original_result["cache_id"]
+
+        # Create a large string (1MB)
+        large_content = "x" * (1024 * 1024)                                               # 1MB of 'x' characters
+
+        url = f"{self.base_url}/{self.test_namespace}/zip/{original_id}/file/add/from/string/large_file.txt"
+        response = requests.post(url,
+                                data=large_content,
+                                headers={**self.headers, "Content-Type": "text/plain"})
+
+        assert response.status_code == 200
+        new_id = response.json()["cache_id"]
+
+        # Retrieve and verify size
+        retrieve_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/file/retrieve/large_file.txt"
+        retrieve_response = requests.get(retrieve_url, headers=self.headers)
+
+        assert len(retrieve_response.content) == 1024 * 1024                              # Correct size
+        assert retrieve_response.content      == large_content.encode('utf-8')            # Correct content
+
+    def test_zip_file_add_from_string__vs_add_from_bytes(self):                           # Compare string vs bytes methods
+        skip__if_not__in_github_actions()
+        original_result = self._store_zip()
+        cache_id = original_result["cache_id"]
+
+        test_content = "Test content for comparison"
+
+        # Add using string method
+        string_url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/file/add/from/string/from_string.txt"
+        string_response = requests.post(string_url,
+                                        data=test_content,
+                                        headers={**self.headers, "Content-Type": "text/plain"})
+
+        cache_id = string_response.json()["cache_id"]
+
+        # Add using bytes method
+        bytes_url = f"{self.base_url}/{self.test_namespace}/zip/{cache_id}/file/add/from/bytes/from_bytes.txt"
+        bytes_response = requests.post(bytes_url,
+                                       data=test_content.encode('utf-8'),
+                                       headers={**self.headers, "Content-Type": "application/octet-stream"})
+
+        final_cache_id = bytes_response.json()["cache_id"]
+
+        # Retrieve both files
+        string_retrieve_url = f"{self.base_url}/{self.test_namespace}/zip/{final_cache_id}/file/retrieve/from_string.txt"
+        string_retrieve = requests.get(string_retrieve_url, headers=self.headers)
+
+        bytes_retrieve_url = f"{self.base_url}/{self.test_namespace}/zip/{final_cache_id}/file/retrieve/from_bytes.txt"
+        bytes_retrieve = requests.get(bytes_retrieve_url, headers=self.headers)
+
+        # Both should have identical content
+        assert string_retrieve.content == bytes_retrieve.content
+        assert string_retrieve.content == test_content.encode('utf-8')
