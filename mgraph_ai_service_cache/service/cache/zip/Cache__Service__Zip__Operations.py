@@ -10,6 +10,7 @@ from mgraph_ai_service_cache.schemas.cache.zip.enums.Enum__Cache__Zip__Operation
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Operation__Request    import Schema__Cache__Zip__Operation__Request
 from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Operation__Response   import Schema__Cache__Zip__Operation__Response
+from mgraph_ai_service_cache.utils.for_osbot_utils.Zip                                   import zip_bytes__content_hash
 
 
 class Cache__Service__Zip__Operations(Type_Safe):                                        # Service layer for zip file operations
@@ -115,13 +116,11 @@ class Cache__Service__Zip__Operations(Type_Safe):                               
         new_zip = zip_bytes__remove_file(zip_bytes, str(request.file_path))
 
         # Create new immutable cache entry
-        new_cache_id = self.create_modified_zip(
-            original_id = request.cache_id                                 ,
-            namespace   = request.namespace                                ,
-            zip_bytes   = new_zip                                          ,
-            operation   = "remove"                                         ,
-            details     = {"removed_file": str(request.file_path)}
-        )
+        new_cache_id = self.create_modified_zip(original_id = request.cache_id                                 ,
+                                                namespace   = request.namespace                                ,
+                                                zip_bytes   = new_zip                                          ,
+                                                operation   = "remove"                                         ,
+                                                details     = {"removed_file": str(request.file_path)})
 
         if not new_cache_id:
             return self.error_response(request, "Failed to create new cache entry")
@@ -147,13 +146,12 @@ class Cache__Service__Zip__Operations(Type_Safe):                               
         new_zip = zip_bytes__replace_file(zip_bytes, str(request.file_path), request.file_content)
 
         # Create new immutable cache entry
-        new_cache_id = self.create_modified_zip(
-            original_id = request.cache_id                                  ,
-            namespace   = request.namespace                                 ,
-            zip_bytes   = new_zip                                           ,
-            operation   = "replace"                                         ,
-            details     = {"replaced_file": str(request.file_path)}
-        )
+        new_cache_id = self.create_modified_zip(original_id = request.cache_id                                  ,
+                                                namespace   = request.namespace                                 ,
+                                                zip_bytes   = new_zip                                           ,
+                                                operation   = "replace"                                         ,
+                                                details     = {"replaced_file": str(request.file_path)}
+)
 
         if not new_cache_id:
             return self.error_response(request, "Failed to create new cache entry")
@@ -171,10 +169,13 @@ class Cache__Service__Zip__Operations(Type_Safe):                               
                                   zip_bytes   : bytes        ,
                                   operation   : str          ,
                                   details     : dict = None
-                             ) -> Optional[Random_Guid]:                                        # Create new immutable cache entry for modified zip
-        cache_hash = self.cache_service.hash_from_bytes(zip_bytes)
+                             ) -> Optional[Random_Guid]:                                                            # Create new immutable cache entry for modified zip
 
-        original_entry__refs      = self.cache_service.retrieve_by_id__refs    (original_id, namespace)           # Get original entry to preserve strategy
+        hash_length = self.cache_service.hash_config.length
+        cache_hash  = zip_bytes__content_hash(zip_bytes   = zip_bytes,
+                                              hash_length = hash_length)                                            # use the bytes content and files path to calculate the zip's hash (which is different mode than when we just store bytes)
+
+        original_entry__refs      = self.cache_service.retrieve_by_id__refs    (original_id, namespace)             # Get original entry to preserve strategy
         #original_entry__metadata  = self.cache_service.retrieve_by_id__metadata(original_id, namespace)           # Get original entry to preserve strategy
         original_strategy = original_entry__refs.strategy
 

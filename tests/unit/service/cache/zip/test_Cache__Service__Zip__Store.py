@@ -11,6 +11,7 @@ from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Reques
 from mgraph_ai_service_cache.schemas.cache.zip.Schema__Cache__Zip__Store__Response    import Schema__Cache__Zip__Store__Response
 from osbot_utils.type_safe.Type_Safe                                                  import Type_Safe
 
+from mgraph_ai_service_cache.utils.for_osbot_utils.Zip import zip_bytes__content_hash
 
 
 class test_Cache__Service__Zip__Store(TestCase):
@@ -42,9 +43,11 @@ class test_Cache__Service__Zip__Store(TestCase):
             request = Schema__Cache__Zip__Store__Request(zip_bytes = self.test_zip      ,
                                                          namespace = self.test_namespace)
 
-            result     = _.store_zip(request)
-            cache_hash = _.calculate_zip_content_hash(request.zip_bytes)
-            cache_id = result.cache_id
+            result      = _.store_zip(request)
+            hash_length = self.cache_service.hash_config.length
+            cache_hash  = zip_bytes__content_hash(zip_bytes   = request.zip_bytes,
+                                                  hash_length = hash_length      )
+            cache_id    = result.cache_id
 
             # Verify response type and structure
             assert type(result)         is Schema__Cache__Zip__Store__Response
