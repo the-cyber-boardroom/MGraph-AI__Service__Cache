@@ -1,6 +1,7 @@
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Delete      import Routes__Data__Delete
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Retrieve    import Routes__Data__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store       import Routes__Data__Store
+from mgraph_ai_service_cache.fast_api.routes.zip.Routes__Zip                import Routes__Zip
 from mgraph_ai_service_cache.service.cache.Cache__Service                   import Cache__Service
 from osbot_fast_api.api.routes.Routes__Set_Cookie                           import Routes__Set_Cookie
 from osbot_fast_api_serverless.fast_api.Serverless__Fast_API                import Serverless__Fast_API
@@ -31,6 +32,7 @@ class Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__Data__Store   )
         self.add_routes(Routes__Data__Retrieve)
         self.add_routes(Routes__Data__Delete  )
+        self.add_routes(Routes__Zip           )
         self.add_routes(Routes__Namespace     )
         self.add_routes(Routes__Admin__Storage)
         self.add_routes(Routes__Server        )

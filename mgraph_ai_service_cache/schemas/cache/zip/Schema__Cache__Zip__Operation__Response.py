@@ -11,10 +11,10 @@ class Schema__Cache__Zip__Operation__Response(Type_Safe):                       
     success           : bool                                                                # Whether operation succeeded
     operation         : Enum__Cache__Zip__Operation                                         # Operation that was performed
     cache_id          : Random_Guid                                 = None                  # ID of the zip file operated on
-    original_cache_id : Random_Guid                                 = None
+    original_cache_id : Optional[Random_Guid]                       = None
     message           : Safe_Str__Cache__Zip__Operation__Message    = None                  # Optional status message
-    file_list         : List[Safe_Str__File__Path]                  = None                  # For list operation
-    file_content      : bytes                                       = None                  # For get operation
-    file_size         : Safe_UInt                                   = None                  # Size of retrieved file
-    files_affected    : List[Safe_Str__File__Path]                  = None                  # Files that were changed
-    error_details     : Safe_Str__Cache__Zip__Operation__Message    = None                  # Error information if failed
+    file_list         : List[Safe_Str__File__Path]                                         # For list operation
+    file_content      : bytes                                                              # For get operation
+    file_size         : Safe_UInt                                                          # Size of retrieved file
+    files_affected    : List[Safe_Str__File__Path]                                          # Files that were changed
+    error_details     : Safe_Str__Cache__Zip__Operation__Message                          # Error information if failed

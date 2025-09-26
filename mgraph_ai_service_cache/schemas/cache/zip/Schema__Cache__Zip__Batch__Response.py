@@ -21,5 +21,5 @@ class Schema__Cache__Zip__Batch__Response(Type_Safe):                           
     new_file_count       : Safe_UInt                                                    # Total files after operations
     new_size             : Safe_UInt                                                    # Total size after operations
     completed_at         : Timestamp_Now                                                # When batch completed
-    rollback_performed   : bool             = False                                     # Whether rollback occurred
-    error_message        : Safe_Str__Cache__Zip__Operation__Message   = None            # Overall error if atomic failed
+    rollback_performed   : bool                                       = False           # Whether rollback occurred
+    error_message        : Safe_Str__Cache__Zip__Operation__Message                     # Overall error if atomic failed
