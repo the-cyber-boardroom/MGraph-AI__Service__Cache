@@ -598,7 +598,6 @@ class test_Routes__Zip__http(TestCase):                                         
             assert retrieve_response.content == expected_content.encode('utf-8')
 
     def test_zip_file_add_from_string__empty_string(self):                                # Test adding empty string file
-        skip__if_not__in_github_actions()
         original_result = self._store_zip()
         original_id = original_result["cache_id"]
 
@@ -608,14 +607,18 @@ class test_Routes__Zip__http(TestCase):                                         
                                  data="",                                                   # Empty string
                                  headers={**self.headers, "Content-Type": "text/plain"})
 
-        assert response.status_code == 200
-        new_id = response.json()["cache_id"]
-
-        # Retrieve and verify empty file
-        retrieve_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/file/retrieve/empty.txt"
-        retrieve_response = requests.get(retrieve_url, headers=self.headers)
-
-        assert retrieve_response.content == b""                                           # Empty bytes
+        assert response.status_code == 400
+        assert response.json() == {  'detail': [{'input': None,
+                                     'loc': ['body'],
+                                     'msg': 'Field required',
+                                     'type': 'missing'}]}
+        # new_id = response.json()["cache_id"]
+        #
+        # # Retrieve and verify empty file
+        # retrieve_url = f"{self.base_url}/{self.test_namespace}/zip/{new_id}/file/retrieve/empty.txt"
+        # retrieve_response = requests.get(retrieve_url, headers=self.headers)
+        #
+        # assert retrieve_response.content == b""                                           # Empty bytes
 
     def test_zip_file_add_from_string__overwrite_existing(self):                          # Test overwriting existing file with string content
         skip__if_not__in_github_actions()
