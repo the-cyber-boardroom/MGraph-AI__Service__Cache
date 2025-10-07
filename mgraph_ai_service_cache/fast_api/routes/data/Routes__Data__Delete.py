@@ -1,17 +1,17 @@
-from fastapi                                                                               import HTTPException
-from osbot_fast_api.api.decorators.route_path                                              import route_path
-from osbot_fast_api.api.routes.Fast_API__Routes                                            import Fast_API__Routes
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                              import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                                 import Safe_Str__Fast_API__Route__Tag
-from osbot_utils.decorators.methods.cache_on_self                                          import cache_on_self
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path          import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                      import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id            import Safe_Str__Id
+from fastapi                                                                                      import HTTPException
+from osbot_fast_api.api.decorators.route_path                                                     import route_path
+from osbot_fast_api.api.routes.Fast_API__Routes                                                   import Fast_API__Routes
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                        import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag                           import Safe_Str__Fast_API__Route__Tag
+from osbot_utils.decorators.methods.cache_on_self                                                 import cache_on_self
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                 import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                             import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                   import Safe_Str__Id
 from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__Retrieve__Request     import Schema__Cache__Data__Retrieve__Request
 from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                    import Enum__Cache__Data_Type
 from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                                import FAST_API__PARAM__NAMESPACE
-from mgraph_ai_service_cache.service.cache.Cache__Service                                  import Cache__Service
-from mgraph_ai_service_cache.service.cache.data.Cache__Service__Data__Delete               import Cache__Service__Data__Delete
+from mgraph_ai_service_cache.service.cache.Cache__Service                                         import Cache__Service
+from mgraph_ai_service_cache.service.cache.data.Cache__Service__Data__Delete                      import Cache__Service__Data__Delete
 
 TAG__ROUTES_DELETE__DATA       = Safe_Str__Fast_API__Route__Tag('data')
 PREFIX__ROUTES_DELETE__DATA    = Safe_Str__Fast_API__Route__Prefix('/{namespace}/cache/{cache_id}')

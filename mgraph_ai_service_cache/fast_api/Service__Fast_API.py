@@ -17,12 +17,14 @@ from mgraph_ai_service_cache.fast_api.routes.admin.Routes__Admin__Storage   impo
 from mgraph_ai_service_cache.utils.Version                                  import version__mgraph_ai_service_cache
 
 
-
 class Service__Fast_API(Serverless__Fast_API):
     cache_service: Cache__Service
-    title   = FAST_API__TITLE
-    version = version__mgraph_ai_service_cache
 
+    def setup(self):
+        with self.config as _:
+            _.title  = FAST_API__TITLE
+            _.version = version__mgraph_ai_service_cache
+        return super().setup()
 
     def setup_routes(self):
         self.add_routes(Routes__File__Store   )

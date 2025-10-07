@@ -3,7 +3,7 @@
 # import time
 # from unittest                                   import TestCase
 # from typing                                     import Dict, Any
-# from osbot_fast_api.schemas.consts__Fast_API    import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
+# from osbot_fast_api.api.schemas.consts.consts__Fast_API    import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 # from osbot_utils.utils.Env                      import get_env, load_dotenv
 # from osbot_utils.utils.Misc                     import is_guid
 #

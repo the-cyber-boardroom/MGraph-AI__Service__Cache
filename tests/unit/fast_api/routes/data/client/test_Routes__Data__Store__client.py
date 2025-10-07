@@ -1,7 +1,10 @@
 from unittest                                                                               import TestCase
 import pytest
 from osbot_fast_api_serverless.utils.testing.skip_tests                                     import skip__if_not__in_github_actions
+from osbot_utils.testing.__ import __
 from osbot_utils.utils.Misc                                                                 import is_guid
+from osbot_utils.utils.Objects import obj
+
 from tests.unit.Service__Cache__Test_Objs                                                   import setup__service__cache__test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
 
@@ -288,16 +291,23 @@ class test_Routes__Data__Store__client(TestCase):                               
 
         self.client.headers[TEST_API_KEY__NAME] = auth_header                                   # Restore auth
 
-    # todo: review this error once Fast_API improves the handling of validation errors (namely of Type_Safe_Primitive)
-    def test__data_store__invalid_parent_id_format(self):                                       # Test invalid parent ID format
+    def test__regression__data_store__handling_of__invalid_parent_id_format(self):                                       # Test invalid parent ID format
         invalid_id = "not-a-guid"
-        error_message = "in Random_Guid: value provided was not a Guid: not-a-guid"
-        with pytest.raises(ValueError, match=error_message):
-            response = self.client.post(url     = f'/{self.test_namespace}/cache/{invalid_id}/data/store/string',
-                                        content = "test"                                                                  ,
-                                        headers = {"Content-Type": "text/plain"}                                         )
+        #error_message = "in Random_Guid: value provided was not a Guid: not-a-guid"
+        # with pytest.raises(ValueError, match=error_message):
+        #     response = self.client.post(url     = f'/{self.test_namespace}/cache/{invalid_id}/data/store/string',
+        #                                 content = "test"                                                                  ,
+        #                                headers = {"Content-Type": "text/plain"}                       # BUG
+        #                                )
+        response = self.client.post(url     = f'/{self.test_namespace}/cache/{invalid_id}/data/store/string',
+                                    content = "test"                                                                  ,
+                                    headers = {"Content-Type": "text/plain"}                                         )
 
-        # assert response.status_code == 400                                                      # Validation error
-        # error = response.json()
-        # assert 'detail' in error
-        # assert any('cache_id' in str(detail) for detail in error['detail'])
+        assert response.status_code == 400                                                      # Validation error
+        error = response.json()
+        assert 'detail' in error
+        assert any('cache_id' in str(detail) for detail in error['detail'])
+        assert obj(error) == __(detail=[__(type  = 'value_error'                                              ,
+                                           loc   = ['query', 'cache_id']                                      ,
+                                           msg   = 'in Random_Guid: value provided was not a Guid: not-a-guid',
+                                           input = 'not-a-guid'                                              )])

@@ -32,9 +32,13 @@ class test_Routes__File__Exists(TestCase):
             assert type(_.cache_service) is Cache__Service
 
             # Use .obj() for comprehensive comparison
-            assert _.obj() ==__(tag           ='exists',
-                                prefix        = '/{namespace}',
-                                router        = 'APIRouter',
+            assert _.obj() ==__(tag                ='exists',
+                                prefix             = '/{namespace}',
+                                router             = 'APIRouter',
+                                route_registration = __(analyzer        = __(),
+                                                        converter       = __(),
+                                                        wrapper_creator = __(converter=__()),
+                                                        route_parser    = __()),
                                 cache_service = __(cache_config=__(storage_mode      ='memory',
                                                                    default_bucket    = None   ,
                                                                    default_ttl_hours = 24     ,

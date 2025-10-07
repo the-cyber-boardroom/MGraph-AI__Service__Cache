@@ -5,20 +5,20 @@ from fastapi                                                                    
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                   import Schema__Memory_FS__File__Config
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
-from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from osbot_fast_api.api.decorators.route_path                                            import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                          import Fast_API__Routes
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                            import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                               import Safe_Str__Fast_API__Route__Tag
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix               import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag                  import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.decorators.methods.cache_on_self                                        import cache_on_self
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Binary__Reference              import Schema__Cache__Binary__Reference
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success              import Schema__Cache__Retrieve__Success
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                  import Enum__Cache__Data_Type
-from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                              import FAST_API__PARAM__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Binary__Reference       import Schema__Cache__Binary__Reference
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success       import Schema__Cache__Retrieve__Success
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type           import Enum__Cache__Data_Type
+from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                       import FAST_API__PARAM__NAMESPACE
 from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve             import Cache__Service__Retrieve
 
 TAG__ROUTES_RETRIEVE                  = 'retrieve'
@@ -40,7 +40,7 @@ ROUTES_PATHS__RETRIEVE                = [ BASE_PATH__ROUTES_RETRIEVE + '{cache_i
 class Routes__File__Retrieve(Fast_API__Routes):                                             # FastAPI routes for cache retrieval operations
     tag            : Safe_Str__Fast_API__Route__Tag    = TAG__ROUTES_RETRIEVE
     prefix         : Safe_Str__Fast_API__Route__Prefix = PREFIX__ROUTES_RETRIEVE
-    cache_service : Cache__Service                                                                          # get cache_service via Dependency Injection
+    cache_service  : Cache__Service                                                                          # get cache_service via Dependency Injection
     
     @cache_on_self
     def retrieve_service(self):                                                                             # Service layer for business logic

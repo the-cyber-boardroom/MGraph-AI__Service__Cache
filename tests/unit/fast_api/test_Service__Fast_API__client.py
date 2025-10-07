@@ -1,8 +1,8 @@
 from unittest                                                               import TestCase
 from fastapi                                                                import FastAPI
 from osbot_fast_api.api.Fast_API                                            import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix               import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.consts__Fast_API                                import EXPECTED_ROUTES__SET_COOKIE
+from osbot_fast_api.api.schemas.consts.consts__Fast_API                     import EXPECTED_ROUTES__SET_COOKIE
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix  import Safe_Str__Fast_API__Route__Prefix
 from osbot_utils.utils.Env                                                  import get_env
 from starlette.testclient                                                   import TestClient
 from mgraph_ai_service_cache.fast_api.Service__Fast_API                     import Service__Fast_API
