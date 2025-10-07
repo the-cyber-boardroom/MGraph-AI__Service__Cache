@@ -49,7 +49,7 @@ class Storage_FS__S3(Storage_FS):
 
     @type_safe
     def file__json(self, path: Safe_Str__File__Path                                                 # Read file content as bytes from S3
-                    ) -> Optional[bytes]:
+                    ):     # : -> Optional[bytes]:          #   todo: review this usafe since it was cause some exceptions on the fast_api service
         file_bytes = self.file__bytes(path)
         if file_bytes:
             return bytes_to_json(file_bytes)
