@@ -2,6 +2,7 @@ import base64
 import json
 from typing                                                                              import Union, Dict
 from fastapi                                                                             import HTTPException, Response, Path
+from memory_fs.schemas.Schema__Memory_FS__File__Metadata                                 import Schema__Memory_FS__File__Metadata
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                   import Schema__Memory_FS__File__Config
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
@@ -60,7 +61,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
 
     def retrieve__cache_id(self, cache_id  : Random_Guid,
                                  namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                            ) -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:             # Retrieve by cache ID with metadata
+                            ): # todo union is not supported by Fast_API. Refactor to one class -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:             # Retrieve by cache ID with metadata
                 
         result = self.retrieve_service().retrieve_by_id(cache_id, namespace)                                              # Use service layer
         
@@ -94,7 +95,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
 
     def retrieve__cache_id__metadata(self, cache_id : Random_Guid,
                                            namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                                      ) -> Schema__Cache__File__Refs:                                                    # Get cache entry details
+                                      ) -> Schema__Memory_FS__File__Metadata:                                                       # Get cache entry details
         result = self.retrieve_service().retrieve_by_id__metadata(cache_id, namespace)                                              # todo: this class should return Schema__Cache__File__Refs
         return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
 
@@ -108,7 +109,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
     @route_path("/retrieve/hash/{cache_hash}")
     def retrieve__hash__cache_hash(self, cache_hash : Safe_Str__Cache_Hash,
                                          namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                                    ) -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:     # Retrieve by hash
+                                    ): # todo union is not supported by Fast_API. Refactor to one class  -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:     # Retrieve by hash
                 
         result = self.retrieve_service().retrieve_by_hash(cache_hash, namespace)                                          # Use service layer
         
@@ -235,7 +236,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
     @route_path("/retrieve/hash/{cache_hash}/json")
     def retrieve__hash__cache_hash__json(self, cache_hash : Safe_Str__Cache_Hash,
                                                namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                                          ) -> dict:                                   # Retrieve JSON by hash
+                                          ) -> Dict:                                   # Retrieve JSON by hash
 
         
         result = self.retrieve_service().retrieve_by_hash(cache_hash, namespace)
