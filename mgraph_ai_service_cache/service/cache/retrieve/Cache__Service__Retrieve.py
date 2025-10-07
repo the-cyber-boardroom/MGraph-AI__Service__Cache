@@ -1,7 +1,5 @@
 from typing                                                                               import Optional, Dict, Any
-
-from memory_fs.schemas.Schema__Memory_FS__File__Metadata import Schema__Memory_FS__File__Metadata
-
+from memory_fs.schemas.Schema__Memory_FS__File__Metadata                                  import Schema__Memory_FS__File__Metadata
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                    import Schema__Memory_FS__File__Config
 from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                      import Safe_UInt
@@ -10,13 +8,13 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id           import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                            import type_safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash  import Safe_Str__Cache_Hash
-from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                 import Schema__Cache__File__Refs
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Metadata                        import Schema__Cache__Metadata
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success               import Schema__Cache__Retrieve__Success
-from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                          import DEFAULT_CACHE__NAMESPACE
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                   import Enum__Cache__Data_Type
-from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Gone                    import Schema__Cache__Error__Gone
-from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Not_Found               import Schema__Cache__Error__Not_Found
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs          import Schema__Cache__File__Refs
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Metadata                 import Schema__Cache__Metadata
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success        import Schema__Cache__Retrieve__Success
+from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                   import DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type            import Enum__Cache__Data_Type
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Gone             import Schema__Cache__Error__Gone
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Not_Found        import Schema__Cache__Error__Not_Found
 from mgraph_ai_service_cache.service.cache.Cache__Service                                 import Cache__Service
 
 # todo: rename to Cache__Service__Retrieve
