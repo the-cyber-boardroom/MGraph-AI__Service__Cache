@@ -84,6 +84,35 @@ class test_Routes__File__Store(TestCase):
             assert type(_.cache_hash)   is Safe_Str__Cache_Hash
             assert _.cache_hash         == '96af669d785b90b6'                                       # Consistent hash
 
+    def test_store__json__cache_key(self):                                                               # Test JSON storage endpoint
+        cache_key = "an/cache-key"
+        #file_id   = 'an-file-id'
+        response__store = self.routes.store__json__cache_key(data      = self.test_json                        ,
+                                                             strategy  = Enum__Cache__Store__Strategy.TEMPORAL ,
+                                                             namespace = self.test_namespace                   ,
+                                                             cache_key = cache_key                             )
+
+        with response__store as _:
+            assert type(_)              is Schema__Cache__Store__Response
+            assert type(_.cache_id)     is Random_Guid
+            assert type(_.cache_hash)   is Safe_Str__Cache_Hash
+            assert _.cache_hash         == 'de8f38963b887052'                                       # Consistent hash
+
+    def test_store__json__cache_key__file_id(self):                                                               # Test JSON storage endpoint
+        cache_key = "an/cache-key"
+        file_id   = 'an-file-id'
+        response__store = self.routes.store__json__cache_key(data      = self.test_json                        ,
+                                                             strategy  = Enum__Cache__Store__Strategy.TEMPORAL ,
+                                                             namespace = self.test_namespace                   ,
+                                                             cache_key = cache_key                             ,
+                                                             file_id   = file_id                               )
+
+        with response__store as _:
+            assert type(_)              is Schema__Cache__Store__Response
+            assert type(_.cache_id)     is Random_Guid
+            assert type(_.cache_hash)   is Safe_Str__Cache_Hash
+            assert _.cache_hash         == 'de8f38963b887052'                                       # Consistent hash
+
     def test_store__binary(self):                                                                   # Test binary storage
         binary_data = b'\x89PNG\r\n\x1a\n' + b'\x00' * 100                                          # Fake PNG header
 
@@ -92,6 +121,36 @@ class test_Routes__File__Store(TestCase):
                                             request   = self.request                        ,
                                             strategy  = Enum__Cache__Store__Strategy.DIRECT ,
                                             namespace = self.test_namespace                 )
+
+            assert type(response_store)          is Schema__Cache__Store__Response
+            assert type(response_store.cache_id) is Random_Guid
+            assert response_store.size           > 100
+
+    def test_store__binary__cache_key(self):                                                        # Test binary storage
+        binary_data = b'\x89PNG\r\n\x1a\n' + b'\x00' * 100                                          # Fake PNG header
+        cache_key   = "an/cache-key"
+        with self.routes as _:
+            response_store = _.store__binary__cache_key(body      = binary_data                         ,
+                                                        request   = self.request                        ,
+                                                        strategy  = Enum__Cache__Store__Strategy.DIRECT ,
+                                                        namespace = self.test_namespace                 ,
+                                                        cache_key = cache_key                           )
+
+            assert type(response_store)          is Schema__Cache__Store__Response
+            assert type(response_store.cache_id) is Random_Guid
+            assert response_store.size           > 100
+
+    def test_store__binary__cache_key__file_id(self):                                               # Test binary storage
+        binary_data = b'\x89PNG\r\n\x1a\n' + b'\x00' * 100                                          # Fake PNG header
+        cache_key   = "an/cache-key"
+        file_id     = 'an-file-id'
+        with self.routes as _:
+            response_store = _.store__binary__cache_key(body      = binary_data                         ,
+                                                        request   = self.request                        ,
+                                                        strategy  = Enum__Cache__Store__Strategy.DIRECT ,
+                                                        namespace = self.test_namespace                 ,
+                                                        cache_key = cache_key                           ,
+                                                        file_id   = file_id                             )
 
             assert type(response_store)          is Schema__Cache__Store__Response
             assert type(response_store.cache_id) is Random_Guid

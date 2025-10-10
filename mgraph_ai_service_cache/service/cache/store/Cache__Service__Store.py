@@ -53,11 +53,8 @@ class Cache__Service__Store(Type_Safe):                                         
         else:
             cache_hash = self.cache_service.hash_from_json(data)
 
-        cache_id = file_id or Random_Guid()
-
         return self.cache_service.store_with_strategy(storage_data = data      ,        # todo: review refactoring opportunity with store_string since a lot of the code in this method is very similar
                                                       cache_hash   = cache_hash,
-                                                      cache_id     = cache_id  ,
                                                       cache_key    = cache_key ,
                                                       file_id      = file_id   ,
                                                       strategy     = strategy  ,
@@ -90,11 +87,9 @@ class Cache__Service__Store(Type_Safe):                                         
                 cache_hash = self.cache_service.hash_from_bytes(data)
             storage_data = data
 
-        cache_id = file_id or Random_Guid()
 
         return self.cache_service.store_with_strategy(storage_data     = storage_data    ,  # todo: when looking at the refactoring opportunities, since most of these values are being passed through
                                                       cache_hash       = cache_hash      ,  #       these store_* functions, it would be better to have a domain class that would hold those values
-                                                      cache_id         = cache_id        ,  #       the principle is that the only values that should be passed here would be the values that
                                                       cache_key        = cache_key       ,  #          a) don't fit in that domain class
                                                       file_id          = file_id         ,  #          b) have been modified in this function and need to be passed to the next function
                                                       strategy         = strategy        ,
