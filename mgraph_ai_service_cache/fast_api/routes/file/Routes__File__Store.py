@@ -78,10 +78,10 @@ class Routes__File__Store(Fast_API__Routes):                                    
             raise HTTPException(status_code=400, detail=error.json())
 
         result = self.store_service().store_string(data      = data       ,                               # Use service layer
-                                                 strategy  = strategy   ,                               # todo: we should we using a Type_Safe class for these params
-                                                 namespace = namespace  ,
-                                                 cache_key = cache_key  ,
-                                                 file_id   = file_id    )
+                                                   strategy  = strategy   ,                               # todo: we should we using a Type_Safe class for these params
+                                                   namespace = namespace  ,
+                                                   cache_key = cache_key  ,
+                                                   file_id   = file_id    )
 
         if result is None:
             raise HTTPException(status_code=500, detail="Failed to store data")
