@@ -1,6 +1,7 @@
 import gzip
 import json
 from typing                                                                              import Dict, Optional, Any, List
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
 from memory_fs.schemas.Schema__Memory_FS__File__Metadata                                 import Schema__Memory_FS__File__Metadata
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                   import Schema__Memory_FS__File__Config
 from osbot_utils.decorators.methods.cache_on_self                                        import cache_on_self
@@ -14,6 +15,7 @@ from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Ca
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
 from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                  import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Json__Field_Path    import Safe_Str__Json__Field_Path
 from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Store__Context           import Schema__Store__Context
 from mgraph_ai_service_cache.service.cache.Cache__Config                                 import Cache__Config
 from mgraph_ai_service_cache.service.cache.Cache__Handler                                import Cache__Handler
@@ -204,15 +206,17 @@ class Cache__Service(Type_Safe):                                                
         return self.cache_config.get_storage_info()
 
     # todo: see if we can't use the Schema__Store__Context as the main param here
-    def store_with_strategy(self, storage_data     : Any                                             ,
-                                  cache_hash       : Safe_Str__Cache_Hash                            ,
-                                  strategy         : Enum__Cache__Store__Strategy                    ,
-                                  cache_id         : Random_Guid           = None                    ,
-                                  cache_key        : Safe_Str__File__Path  = None                    ,
-                                  file_id          : Safe_Str__Id          = None                    ,
-                                  namespace        : Safe_Str__Id          = DEFAULT_CACHE__NAMESPACE,
-                                  content_encoding : Safe_Str__Id          = None                    ,
-                                  metadata         : Dict[str, Any]        = None
+    @type_safe
+    def store_with_strategy(self, storage_data     : Any                                                  ,
+                                  cache_hash       : Safe_Str__Cache_Hash                                 ,
+                                  strategy         : Enum__Cache__Store__Strategy                         ,
+                                  cache_id         : Random_Guid                = None                    ,
+                                  cache_key        : Safe_Str__File__Path       = None                    ,
+                                  file_id          : Safe_Str__Id               = None                    ,
+                                  json_field_path  : Safe_Str__Json__Field_Path = None                    ,
+                                  namespace        : Safe_Str__Id               = DEFAULT_CACHE__NAMESPACE,
+                                  content_encoding : Safe_Str__Id               = None                    ,
+                                  metadata         : Dict[str, Any]             = None
                             ) -> Schema__Cache__Store__Response:                    # Store data using the specified strategy
 
         if not cache_hash:
@@ -228,6 +232,7 @@ class Cache__Service(Type_Safe):                                                
                                          cache_id         = cache_id         ,
                                          cache_key        = cache_key        ,
                                          file_id          = file_id          ,
+                                         json_field_path  = json_field_path  ,
                                          namespace        = namespace        ,
                                          strategy         = strategy         ,
                                          content_encoding = content_encoding ,
@@ -237,6 +242,7 @@ class Cache__Service(Type_Safe):                                                
         store_strategy = Cache__Service__Store__With_Strategy()
         return store_strategy.execute(context)                                                  # Execute storage strategy
 
+    @type_safe
     def retrieve_by_hash(self, cache_hash : Safe_Str__Cache_Hash,
                                namespace  : Safe_Str__Id = None
                           ) -> Optional[Dict[str, Any]]:                        # Retrieve latest by hash"""
@@ -326,8 +332,8 @@ class Cache__Service(Type_Safe):                                                
             return ref_fs.config()
 
     def retrieve_by_id__metadata(self, cache_id  : Random_Guid,
-                                     namespace : Safe_Str__Id
-                                ) -> Schema__Memory_FS__File__Metadata:                  #   Retrieve by cache ID using direct path from reference
+                                       namespace : Safe_Str__Id
+                                  ) -> Schema__Memory_FS__File__Metadata:                  #   Retrieve by cache ID using direct path from reference
         handler   = self.get_or_create_handler(namespace)
 
         with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
@@ -362,3 +368,8 @@ class Cache__Service(Type_Safe):                                                
                              exclude_fields : List[str] = None
                         ) -> Safe_Str__Cache_Hash:
         return self.hash_generator.from_json(data, exclude_fields)
+
+    def hash_from_json_field(self, data      : dict,
+                                   json_field: Safe_Str__Json__Field_Path,
+                              ) -> Safe_Str__Cache_Hash:
+        return self.hash_generator.from_json_field(data, json_field)

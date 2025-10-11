@@ -9,6 +9,7 @@ from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Pat
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id       import Safe_Str__Id
 from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service               import DEFAULT_CACHE__STORE__STRATEGY
 from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy  import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Json__Field_Path import Safe_Str__Json__Field_Path
 from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                    import FAST_API__PARAM__NAMESPACE
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                import Cache__Service__Store
 from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response      import Schema__Cache__Store__Response
@@ -103,11 +104,12 @@ class Routes__File__Store(Fast_API__Routes):                                    
         return result
 
     @route_path("/store/json/{cache_key:path}")
-    def store__json__cache_key(self, data       : dict                         = Body(...)                     ,
-                                     namespace  : Safe_Str__Id                 = FAST_API__PARAM__NAMESPACE      ,
-                                     strategy   : Enum__Cache__Store__Strategy = DEFAULT_CACHE__STORE__STRATEGY,
-                                     cache_key  : Safe_Str__File__Path         = None,
-                                     file_id    : Safe_Str__Id                 = None
+    def store__json__cache_key(self, data            : dict                         = Body(...)                     ,
+                                     namespace       : Safe_Str__Id                 = FAST_API__PARAM__NAMESPACE    ,
+                                     strategy        : Enum__Cache__Store__Strategy = DEFAULT_CACHE__STORE__STRATEGY,
+                                     cache_key       : Safe_Str__File__Path         = None                          ,
+                                     file_id         : Safe_Str__Id                 = None                          ,
+                                     json_field_path : Safe_Str__Json__Field_Path   = None
                                 ) -> Schema__Cache__Store__Response:                                                # Store JSON with semantic key
 
         if not cache_key:                                                                                           # todo: check this path, since I think this path can't be reached (due to how FastAPI handles routes)
@@ -116,11 +118,12 @@ class Routes__File__Store(Fast_API__Routes):                                    
                                                                message       = "Cache key is required for this endpoint")
             raise HTTPException(status_code=400, detail=error.json())
 
-        result = self.store_service().store_json(data      = data     ,                                               # Use service layer
-                                                 strategy  = strategy ,                                               # todo: we should we using a Type_Safe class for these params
-                                                 namespace = namespace,
-                                                 cache_key = cache_key,
-                                                 file_id   = file_id  )
+        result = self.store_service().store_json(data            = data     ,                                               # Use service layer
+                                                 strategy        = strategy ,                                               # todo: we should we using a Type_Safe class for these params
+                                                 namespace       = namespace,
+                                                 cache_key       = cache_key,
+                                                 json_field_path = json_field_path,
+                                                 file_id         = file_id  )
 
         if result is None:
             raise HTTPException(status_code=500, detail="Failed to store data")

@@ -1,16 +1,16 @@
-from unittest                                                                       import TestCase
-from memory_fs.path_handlers.Path__Handler__Temporal                                import Path__Handler__Temporal
-from osbot_utils.testing.__                                                         import __, __SKIP__
-from memory_fs.storage_fs.providers.Storage_FS__Memory                              import Storage_FS__Memory
-from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
-from osbot_utils.utils.Objects                                                      import base_classes, obj
-from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs           import Schema__Cache__File__Refs
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Storage_Mode          import Enum__Cache__Storage_Mode
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy       import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.service.cache.Cache__Config                            import Cache__Config
-from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service
+from unittest                                                                        import TestCase
+from memory_fs.path_handlers.Path__Handler__Temporal                                 import Path__Handler__Temporal
+from osbot_utils.testing.__                                                          import __, __SKIP__
+from memory_fs.storage_fs.providers.Storage_FS__Memory                               import Storage_FS__Memory
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
+from osbot_utils.utils.Objects                                                       import base_classes, obj
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs     import Schema__Cache__File__Refs
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Storage_Mode    import Enum__Cache__Storage_Mode
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.service.cache.Cache__Config                             import Cache__Config
+from mgraph_ai_service_cache.service.cache.Cache__Service                            import Cache__Service
 
 class test_Cache__Service(TestCase):
 
@@ -360,3 +360,51 @@ class test_Cache__Service(TestCase):
             assert str(hash1) not in hashes_ns2
             assert str(hash2) not in hashes_ns1
             assert str(hash2) in hashes_ns2
+
+
+    def test_store_and_retrieve_by_field_hash(self):
+
+        site_data = { "url": "https://example.com",
+                      "name": "Example Site"      ,
+                      "pages": ["page1", "page2"]}
+
+        # Store using URL field as hash
+        with self.cache_service as _:
+            url_hash = _.hash_from_string("https://example.com")                        # Calculate hash from URL field
+
+            result   = _.store_with_strategy(storage_data    = site_data                           ,
+                                             cache_hash      = url_hash                            ,
+                                             strategy        = Enum__Cache__Store__Strategy.DIRECT ,
+                                             json_field_path = "url"                               ,
+                                             namespace       = "test"                              )
+            retrieved = _.retrieve_by_hash(url_hash, namespace="test")      # Retrieve by hash
+            cache_id  = result.cache_id
+
+            assert url_hash          == "100680ad546ce6a5"
+            assert result.cache_hash == url_hash
+            assert retrieved         is not None
+            assert retrieved["data"] == site_data
+            assert obj(retrieved)    == __(data=__(url   = 'https://example.com',
+                                                   name  ='Example Site'        ,
+                                                   pages = ['page1', 'page2'    ]),
+                                           metadata=__(cache_hash       = url_hash,
+                                                       cache_key        = ''       ,
+                                                       cache_id         = cache_id ,
+                                                       content_encoding = None     ,
+                                                       file_id          = cache_id ,
+                                                       file_type        = 'json'   ,
+                                                       json_field_path  = 'url'    ,
+                                                       namespace        = 'test'   ,
+                                                       stored_at       = __SKIP__  ,
+                                                       strategy        = 'direct'  ),
+                                           data_type        = 'json',
+                                           content_encoding = None)
+
+            metadata = _.retrieve_by_id__metadata(cache_id=cache_id, namespace="test")
+            assert metadata.obj() == __(content__hash         =  __SKIP__,               # todo: research why the context_hash is different on all saves
+                                        chain_hash            = None     ,               # todo: see if really need this now (the idea was to capture chain information (ie. the hash of all previous versions)
+                                        previous_version_path = None     ,               # todo: add the ability to capture the json_field_path in this metadata (since it should be useful to capture it)
+                                        content__size         = 1158     ,
+                                        tags                  = []       ,
+                                        timestamp             =__SKIP__  ,
+                                        data                  = __()     )

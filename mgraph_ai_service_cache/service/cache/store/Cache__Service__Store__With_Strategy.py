@@ -12,7 +12,7 @@ from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Store__Context  
 class Cache__Service__Store__With_Strategy(Type_Safe):                                       # Orchestrates the storage of cache entries with different strategies
 
     def execute(self, context: Schema__Store__Context                                        # Main orchestration method that coordinates all storage operations
-                ) -> Schema__Cache__Store__Response:
+                 ) -> Schema__Cache__Store__Response:
         self.initialize_context   (context)                                                 # Set defaults and initialize tracking
         self.store_data           (context)                                                 # Store the actual data using selected strategy
         self.update_hash_reference(context)                                                 # Update or create hash-to-ID reference
@@ -53,11 +53,12 @@ class Cache__Service__Store__With_Strategy(Type_Safe):                          
 
     def build_metadata(self, context: Schema__Store__Context  # Build metadata Type_Safe object for the stored file
                         ) -> Schema__Cache__Store__Metadata:
-        return Schema__Cache__Store__Metadata(cache_hash       = context.cache_hash       ,
-                                              cache_key        = str(context.cache_key)   ,
+        return Schema__Cache__Store__Metadata(cache_hash       = context.cache_hash       ,     # todo: refactor this assigment to make better use of the fact that Schema__Store__Context and Schema__Cache__Store__Metadata share a lot of the same variables
+                                              cache_key        = str(context.cache_key)   ,     #       for example could they have a shared base class
                                               cache_id         = str(context.cache_id)    ,
                                               content_encoding = context.content_encoding ,
                                               file_id          = str(context.file_id)     ,
+                                              json_field_path  = context.json_field_path  ,
                                               stored_at        = context.timestamp        ,
                                               strategy         = context.strategy         ,
                                               namespace        = str(context.namespace)   ,

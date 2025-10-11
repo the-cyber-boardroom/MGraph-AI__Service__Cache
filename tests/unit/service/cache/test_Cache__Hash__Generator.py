@@ -1,9 +1,10 @@
-from unittest                                                      import TestCase
-from osbot_utils.utils.Objects                                     import base_classes, __
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash   import Safe_Str__Cache_Hash
-from mgraph_ai_service_cache.service.cache.Cache__Hash__Config     import Cache__Hash__Config, Enum__Hash__Algorithm
-from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator  import Cache__Hash__Generator
-from osbot_utils.type_safe.Type_Safe                               import Type_Safe
+import pytest
+from unittest                                                                            import TestCase
+from osbot_utils.utils.Objects                                                           import base_classes, __
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
+from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                           import Cache__Hash__Config, Enum__Hash__Algorithm
+from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator                        import Cache__Hash__Generator
+from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 
 class test_Cache__Hash__Generator(TestCase):
 
@@ -141,4 +142,35 @@ class test_Cache__Hash__Generator(TestCase):
             hash_full = _.from_type_safe(test_obj)
             hash_no_id = _.from_type_safe(test_obj, exclude_fields=["id", "timestamp"])
 
-            assert hash_full != hash_no_id                                        # Different hashes
+            assert hash_full != hash_no_id                                          # Different hashes
+
+    def test_from_json_field__simple_field(self):                                   # Test hashing from a simple string field.
+        generator = Cache__Hash__Generator(config=Cache__Hash__Config())
+
+        data = { "url": "https://example.com",
+                 "name": "Example Site"      }
+
+        hash_from_field = generator.from_json_field(data, json_field="url")         # Hash from URL field
+
+        hash_from_string = generator.from_string("https://example.com")             # Hash from URL string directly
+
+        assert hash_from_field == hash_from_string                                  # Should match
+
+    def test_from_json_field__nested_field(self):                                   # Test hashing from nested field using dot notation.
+        generator = Cache__Hash__Generator(config=Cache__Hash__Config())
+
+        data = {    "metadata": { "version": "1.0.0",
+                                   "author": "test" } }
+
+        hash_result = generator.from_json_field(data, json_field="metadata.version")
+        expected = generator.from_string("1.0.0")
+
+        assert hash_result == expected
+
+    def test_from_json_field__missing_field(self):                                  # Test error handling for missing field.
+        generator = Cache__Hash__Generator(config=Cache__Hash__Config())
+
+        data = {"name": "Example"}
+
+        with pytest.raises(ValueError, match="Field 'url' not found"):
+            generator.from_json_field(data, json_field="url")

@@ -1,17 +1,15 @@
 import gzip
-from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text         import Safe_Str__Text
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path    import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe
-from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                     import DEFAULT_CACHE__STORE__STRATEGY, DEFAULT_CACHE__NAMESPACE
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy        import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Invalid_Input      import Schema__Cache__Error__Invalid_Input
-from mgraph_ai_service_cache.service.cache.Cache__Service                            import Cache__Service
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response            import Schema__Cache__Store__Response
-
-
+from osbot_utils.type_safe.Type_Safe                                                   import Type_Safe
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text           import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path      import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id        import Safe_Str__Id
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                         import type_safe
+from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                import DEFAULT_CACHE__STORE__STRATEGY, DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy   import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Json__Field_Path  import Safe_Str__Json__Field_Path
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Invalid_Input import Schema__Cache__Error__Invalid_Input
+from mgraph_ai_service_cache.service.cache.Cache__Service                              import Cache__Service
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response       import Schema__Cache__Store__Response
 
 
 class Cache__Service__Store(Type_Safe):                                               # Service layer for cache store operations
@@ -38,21 +36,26 @@ class Cache__Service__Store(Type_Safe):                                         
                                                       namespace    = namespace  )
 
     @type_safe
-    def store_json(self, data      : dict                         = None                          ,
-                         strategy  : Enum__Cache__Store__Strategy = DEFAULT_CACHE__STORE__STRATEGY,
-                         namespace : Safe_Str__Id                 = DEFAULT_CACHE__NAMESPACE      ,
-                         cache_key : Safe_Str__File__Path         = None                          ,
-                         file_id   : Safe_Str__Id                 = None
-                    ) -> Schema__Cache__Store__Response:                                # Store JSON data
+    def store_json(self, data             : dict                         = None                          ,
+                         strategy         : Enum__Cache__Store__Strategy = DEFAULT_CACHE__STORE__STRATEGY,
+                         namespace        : Safe_Str__Id                 = DEFAULT_CACHE__NAMESPACE      ,
+                         cache_key        : Safe_Str__File__Path         = None                          ,
+                         file_id          : Safe_Str__Id                 = None                          ,
+                         json_field_path  : Safe_Str__Json__Field_Path   = None                          ,
+                    ) -> Schema__Cache__Store__Response:                                                # Store JSON data
 
-        cache_hash = self.cache_service.hash_from_json(data)
+        if json_field_path:                                                                             # Field-based hashing
+            cache_hash = self.cache_service.hash_from_json_field(data=data, json_field=json_field_path)
+        else:
+            cache_hash = self.cache_service.hash_from_json(data)
 
-        return self.cache_service.store_with_strategy(storage_data = data      ,        # todo: review refactoring opportunity with store_string since a lot of the code in this method is very similar
-                                                      cache_hash   = cache_hash,
-                                                      cache_key    = cache_key ,
-                                                      file_id      = file_id   ,
-                                                      strategy     = strategy  ,
-                                                      namespace    = namespace  )
+        return self.cache_service.store_with_strategy(storage_data    = data           ,        # todo: review refactoring opportunity with store_string since a lot of the code in this method is very similar
+                                                      cache_hash      = cache_hash     ,
+                                                      cache_key       = cache_key      ,
+                                                      file_id         = file_id        ,
+                                                      json_field_path = json_field_path,
+                                                      strategy        = strategy       ,
+                                                      namespace       = namespace      )
 
     @type_safe
     def store_binary(self, data             : bytes,

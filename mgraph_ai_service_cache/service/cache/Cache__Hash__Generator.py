@@ -1,9 +1,11 @@
 import hashlib
 import json
-from typing                                                      import List
-from osbot_utils.type_safe.Type_Safe                             import Type_Safe
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash                      import Safe_Str__Cache_Hash
-from mgraph_ai_service_cache.service.cache.Cache__Hash__Config   import Cache__Hash__Config, Enum__Hash__Algorithm
+from typing                                                                              import List
+from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
+from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                           import Cache__Hash__Config, Enum__Hash__Algorithm
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Json__Field_Path    import Safe_Str__Json__Field_Path
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
+
 
 class Cache__Hash__Generator(Type_Safe):                                           # Generate consistent hashes from various input types
     config: Cache__Hash__Config
@@ -33,6 +35,35 @@ class Cache__Hash__Generator(Type_Safe):                                        
         return self.from_string(json_str)
 
     def from_type_safe(self, obj           : Type_Safe     ,                      # Hash Type_Safe object
-                            exclude_fields : List[str] = None
-                       ) -> Safe_Str__Cache_Hash:
+                             exclude_fields : List[str] = None
+                        ) -> Safe_Str__Cache_Hash:
         return self.from_json(obj.json(), exclude_fields)
+
+    def from_json_field(self, data      : dict,
+                              json_field: Safe_Str__Json__Field_Path
+                         ) -> Safe_Str__Cache_Hash:
+
+        field_value = self.extract_field_value(data, json_field)                                                                    # Extract field value using dot notation
+
+        if field_value is None:
+            raise ValueError(f"Field '{json_field}' not found in data")
+
+        if   isinstance(field_value, str):                      return self.from_string(           field_value )                    # Convert field value to string representation
+        elif isinstance(field_value, (int, float, bool)):       return self.from_string(str       (field_value))
+        elif isinstance(field_value, dict):                     return self.from_json  (           field_value )
+        elif isinstance(field_value, list):                     return self.from_string(json.dumps(field_value, sort_keys=True))    # Hash the JSON representation of the list
+        else:
+            raise ValueError(f"Unsupported field type: {type(field_value)}")
+
+    def extract_field_value(self, data: dict, json_field: Safe_Str__Json__Field_Path):
+        parts  = json_field.split('.')
+        current = data
+
+        for part in parts:
+            if not isinstance(current, dict):
+                return None
+            current = current.get(part)
+            if current is None:
+                return None
+
+        return current
