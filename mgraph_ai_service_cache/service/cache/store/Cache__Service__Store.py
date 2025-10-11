@@ -28,10 +28,7 @@ class Cache__Service__Store(Type_Safe):                                         
         if not data:                                                                    # Validate input
             return None                                                                 # Let route handler decide error response
 
-        if cache_key:
-            cache_hash = self.cache_service.hash_from_string(cache_key)                 # Calculate hash based on whether cache_key is provided
-        else:
-            cache_hash = self.cache_service.hash_from_string(data)
+        cache_hash = self.cache_service.hash_from_string(data)
 
         return self.cache_service.store_with_strategy(storage_data = data       ,       # todo: convert this into a Type_Safe object
                                                       cache_hash   = cache_hash ,
@@ -48,10 +45,7 @@ class Cache__Service__Store(Type_Safe):                                         
                          file_id   : Safe_Str__Id                 = None
                     ) -> Schema__Cache__Store__Response:                                # Store JSON data
 
-        if cache_key:
-            cache_hash = self.cache_service.hash_from_string(cache_key)                 # Calculate hash based on whether cache_key is provided
-        else:
-            cache_hash = self.cache_service.hash_from_json(data)
+        cache_hash = self.cache_service.hash_from_json(data)
 
         return self.cache_service.store_with_strategy(storage_data = data      ,        # todo: review refactoring opportunity with store_string since a lot of the code in this method is very similar
                                                       cache_hash   = cache_hash,
@@ -74,17 +68,11 @@ class Cache__Service__Store(Type_Safe):                                         
 
         # todo: review the move of this gzip capability into a separate store_binary__gzip method (to keep the paths clean
         if content_encoding == 'gzip':                                                  # Handle compression
-            decompressed = gzip.decompress(data)
-            if cache_key:
-                cache_hash = self.cache_service.hash_from_string(cache_key)
-            else:
-                cache_hash = self.cache_service.hash_from_bytes(decompressed)           # todo: question: if we are storing the compressed bytes, shouldn't the hash be calculated from those compressed bytes?
+            decompressed = gzip.decompress(data)                                        # get decompressed data so that we can use it to calculate the hash
+            cache_hash = self.cache_service.hash_from_bytes(decompressed)               # todo: question: if we are storing the compressed bytes, shouldn't the hash be calculated from those compressed bytes?
             storage_data = data                                                         # Store compressed
         else:
-            if cache_key:
-                cache_hash = self.cache_service.hash_from_string(cache_key)
-            else:
-                cache_hash = self.cache_service.hash_from_bytes(data)
+            cache_hash = self.cache_service.hash_from_bytes(data)
             storage_data = data
 
 

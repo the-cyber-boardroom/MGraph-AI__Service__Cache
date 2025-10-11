@@ -96,7 +96,7 @@ class test_Routes__File__Store(TestCase):
             assert type(_)              is Schema__Cache__Store__Response
             assert type(_.cache_id)     is Random_Guid
             assert type(_.cache_hash)   is Safe_Str__Cache_Hash
-            assert _.cache_hash         == 'de8f38963b887052'                                       # Consistent hash
+            assert _.cache_hash         == '96af669d785b90b6'                                       # Consistent hash
 
     def test_store__json__cache_key__file_id(self):                                                               # Test JSON storage endpoint
         cache_key = "an/cache-key"
@@ -111,7 +111,7 @@ class test_Routes__File__Store(TestCase):
             assert type(_)              is Schema__Cache__Store__Response
             assert type(_.cache_id)     is Random_Guid
             assert type(_.cache_hash)   is Safe_Str__Cache_Hash
-            assert _.cache_hash         == 'de8f38963b887052'                                       # Consistent hash
+            assert _.cache_hash         == '96af669d785b90b6'                                       # Consistent hash
 
     def test_store__binary(self):                                                                   # Test binary storage
         binary_data = b'\x89PNG\r\n\x1a\n' + b'\x00' * 100                                          # Fake PNG header
@@ -336,16 +336,15 @@ class test_Routes__File__Store(TestCase):
         response__store            = self.routes.store__string__cache_key(**kwargs)
         cache_id                   = response__store.cache_id
         cache_hash                 = response__store.cache_hash
-
         assert response__store.obj() == __(cache_id     = cache_id ,
-                                           cache_hash   = 'f7fc607505c67177',
+                                           cache_hash   = 'bc7e8a24e2911a58',
                                            namespace    = 'default',
                                            paths        = __(data   = [ 'default/data/key-based/aaa/bbb/page-structure.json'         ,
                                                                         'default/data/key-based/aaa/bbb/page-structure.json.config'  ,
                                                                         'default/data/key-based/aaa/bbb/page-structure.json.metadata'],
-                                                            by_hash = [ 'default/refs/by-hash/f7/fc/f7fc607505c67177.json'               ,
-                                                                        'default/refs/by-hash/f7/fc/f7fc607505c67177.json.config'        ,
-                                                                        'default/refs/by-hash/f7/fc/f7fc607505c67177.json.metadata'      ],
+                                                            by_hash = [ 'default/refs/by-hash/bc/7e/bc7e8a24e2911a58.json'               ,
+                                                                        'default/refs/by-hash/bc/7e/bc7e8a24e2911a58.json.config'        ,
+                                                                        'default/refs/by-hash/bc/7e/bc7e8a24e2911a58.json.metadata'      ],
                                                             by_id   = __SKIP__                                                           ),
                                            size=18)
 

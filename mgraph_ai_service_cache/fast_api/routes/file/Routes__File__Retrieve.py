@@ -287,11 +287,11 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
         self.add_route_get(self.retrieve__cache_id__refs            )
         self.add_route_get(self.retrieve__cache_id__refs__all       )
 
-        self.add_route_get(self.retrieve__hash__cache_hash          )
-
         self.add_route_get(self.retrieve__cache_id__string          )               # Type-specific retrieval
         self.add_route_get(self.retrieve__cache_id__json            )
         self.add_route_get(self.retrieve__cache_id__binary          )
+
+        self.add_route_get(self.retrieve__hash__cache_hash          )
         self.add_route_get(self.retrieve__hash__cache_hash__string  )
         self.add_route_get(self.retrieve__hash__cache_hash__json    )
         self.add_route_get(self.retrieve__hash__cache_hash__binary  )

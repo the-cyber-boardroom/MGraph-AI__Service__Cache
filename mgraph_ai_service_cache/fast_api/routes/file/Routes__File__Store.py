@@ -67,14 +67,14 @@ class Routes__File__Store(Fast_API__Routes):                                    
 
         if not data:                                                                                    # Validate input
             error = self.store_service().get_invalid_input_error(field_name    = "data"                       ,
-                                                               expected_type = "non-empty string"           ,
-                                                               message       = "String data cannot be empty")
+                                                                 expected_type = "non-empty string"           ,
+                                                                 message       = "String data cannot be empty")
             raise HTTPException(status_code=400, detail=error.json())
 
         if not cache_key:
             error = self.store_service().get_invalid_input_error(field_name    = "cache_key"                              ,
-                                                               expected_type = "valid file path"                        ,
-                                                               message       = "Cache key is required for this endpoint")
+                                                                 expected_type = "valid file path"                        ,
+                                                                 message       = "Cache key is required for this endpoint")
             raise HTTPException(status_code=400, detail=error.json())
 
         result = self.store_service().store_string(data      = data       ,                               # Use service layer

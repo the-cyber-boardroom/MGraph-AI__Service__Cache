@@ -98,7 +98,7 @@ class test_Cache__Service__Store(TestCase):
 
             assert type(result)    is Schema__Cache__Store__Response
 
-            expected_hash = _.cache_service.hash_from_string(cache_key)         # Hash based on cache_key not data
+            expected_hash = _.cache_service.hash_from_string(self.test_string)         # Hash based on data NOT on cache_key
             assert result.cache_hash == expected_hash
 
     def test_store_json__using_fixture(self):                                        # Test JSON storage with fixture
