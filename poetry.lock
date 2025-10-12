@@ -294,14 +294,14 @@ osbot-utils = "*"
 
 [[package]]
 name = "mgraph-ai-service-cache-client"
-version = "0.3.0"
+version = "0.4.0"
 description = "MGraph-AI__Service__Cache__Client"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "mgraph_ai_service_cache_client-0.3.0-py3-none-any.whl", hash = "sha256:b5ad2e3fab5ae65de49384a611f5ec1e83003b48487c83b3d2b267b308ddbe43"},
-    {file = "mgraph_ai_service_cache_client-0.3.0.tar.gz", hash = "sha256:184d05b98d9d0bf00b7080fa4ce63ae87f66ef9f41976a0d74fdbabad1660ea0"},
+    {file = "mgraph_ai_service_cache_client-0.4.0-py3-none-any.whl", hash = "sha256:9e33bd841587f3e23a15066d0a0a7e7482d029256058fea039f82d6cd43f256c"},
+    {file = "mgraph_ai_service_cache_client-0.4.0.tar.gz", hash = "sha256:fb63fd7ccc99c99c5d8ecf7036fb381d3503d1e1c26d239419631a822b3e85ad"},
 ]
 
 [package.dependencies]
@@ -361,14 +361,14 @@ osbot-fast-api = "*"
 
 [[package]]
 name = "osbot-utils"
-version = "3.18.0"
+version = "3.19.0"
 description = "OWASP Security Bot - Utils"
 optional = false
 python-versions = "<4.0,>=3.7"
 groups = ["main"]
 files = [
-    {file = "osbot_utils-3.18.0-py3-none-any.whl", hash = "sha256:89855f560a83c3c14f3b24e30b0eb2ce9447e594dd288fc1efdb93c06ae753e3"},
-    {file = "osbot_utils-3.18.0.tar.gz", hash = "sha256:2b7f964c9742be79332a7afb5dc6fc5b5bd18231fcb31e5f40380e2dcebd5cbf"},
+    {file = "osbot_utils-3.19.0-py3-none-any.whl", hash = "sha256:f232181e1ce0e23b49cb62370cb1b773e96ca5dc7913c38df453a0ab37a37dfb"},
+    {file = "osbot_utils-3.19.0.tar.gz", hash = "sha256:1e79c294333c82adb1d2a0b8548e77347f99be2242c80b61dd70e9dba380aba8"},
 ]
 
 [[package]]
