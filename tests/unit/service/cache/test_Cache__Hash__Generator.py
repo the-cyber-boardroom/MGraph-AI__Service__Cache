@@ -174,3 +174,12 @@ class test_Cache__Hash__Generator(TestCase):
 
         with pytest.raises(ValueError, match="Field 'url' not found"):
             generator.from_json_field(data, json_field="url")
+
+    def test_from_json__values_consistency(self):
+        with Cache__Hash__Generator() as _:
+            data_1 = {"Answer": 42 }
+            data_2 = {"Answer": 43 }
+            assert _.from_json      (data_1)                      == 'a67c5a4568211ec5'
+            assert _.from_json_field(data_1, json_field='Answer') == '73475cb40a568e8d'
+            assert _.from_json      (data_2)                      == 'e92ec70711870c51'
+            assert _.from_json_field(data_2, json_field='Answer') == '44cb730c420480a0'

@@ -6,15 +6,15 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.core.Safe_Float                           import Safe_Float
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
 from osbot_utils.utils.Env                                                      import set_env
-from mgraph_ai_service_cache.fast_api.Service__Fast_API                         import Service__Fast_API
-from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                     import  CACHE__TEST__FIXTURES__NAMESPACE
+from mgraph_ai_service_cache.fast_api.Cache_Service__Fast_API                   import Cache_Service__Fast_API
+from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API              import  CACHE__TEST__FIXTURES__NAMESPACE
 from mgraph_ai_service_cache.utils.testing.Cache__Test__Fixtures                import Cache__Test__Fixtures
 
 TEST_API_KEY__NAME = 'key-used-in-pytest'
 TEST_API_KEY__VALUE = Random_Guid()
 
 class Service__Cache__Test_Objs(Type_Safe):
-    fast_api        : Service__Fast_API     = None
+    fast_api        : Cache_Service__Fast_API     = None
     fast_api__app   : FastAPI               = None
     cache_fixtures  : Cache__Test__Fixtures = None
     cache_service   : Cache__Service        = None
@@ -37,7 +37,7 @@ def setup__service__cache__test_objs():
                 set_env(ENV_VAR__FAST_API__AUTH__API_KEY__VALUE , TEST_API_KEY__VALUE               )
 
                 with capture_duration() as load_duration:
-                    _.fast_api         = Service__Fast_API().setup()
+                    _.fast_api         = Cache_Service__Fast_API().setup()
                     _.fast_api__app    = _.fast_api.app()
                     _.fast_api__client = _.fast_api.client()
                     #_.local_stack      = setup_local_stack()

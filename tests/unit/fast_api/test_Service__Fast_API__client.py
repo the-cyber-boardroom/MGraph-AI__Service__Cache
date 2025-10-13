@@ -5,7 +5,7 @@ from osbot_fast_api.api.schemas.consts.consts__Fast_API                     impo
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix  import Safe_Str__Fast_API__Route__Prefix
 from osbot_utils.utils.Env                                                  import get_env
 from starlette.testclient                                                   import TestClient
-from mgraph_ai_service_cache.fast_api.Service__Fast_API                     import Service__Fast_API
+from mgraph_ai_service_cache.fast_api.Cache_Service__Fast_API               import Cache_Service__Fast_API
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Delete      import ROUTES_PATHS__DELETE__DATA
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Retrieve    import ROUTES_PATHS__RETRIEVE__DATA
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store       import ROUTES_PATHS__STORE__DATA
@@ -34,7 +34,7 @@ class test_Service__Fast_API__client(TestCase):
     def test__init__(self):
         with self.service_fast_api_test_objs as _:
             assert type(_) is Service__Cache__Test_Objs
-            assert type(_.fast_api        ) is Service__Fast_API
+            assert type(_.fast_api        ) is Cache_Service__Fast_API
             assert type(_.fast_api__app   ) is FastAPI
             assert type(_.fast_api__client) is TestClient
             assert self.fast_api            == _.fast_api
