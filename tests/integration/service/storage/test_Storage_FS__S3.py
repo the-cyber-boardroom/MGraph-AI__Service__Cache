@@ -4,7 +4,7 @@ from osbot_aws.utils.AWS_Sanitization                                           
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
 from osbot_utils.utils.Misc                                                         import random_string_short
-from osbot_utils.utils.Objects                                                      import base_classes, __
+from osbot_utils.utils.Objects                                                      import base_classes
 from osbot_aws.AWS_Config                                                           import aws_config
 from memory_fs.storage_fs.Storage_FS                                                import Storage_FS
 from mgraph_ai_service_cache.service.storage.Storage_FS__S3                         import Storage_FS__S3
