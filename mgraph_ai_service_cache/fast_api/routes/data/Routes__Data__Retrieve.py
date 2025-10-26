@@ -137,13 +137,13 @@ class Routes__Data__Retrieve(Fast_API__Routes):                                 
 
     def handle_string_result(self, result: Schema__Cache__Data__Retrieve__Response) -> Response:               # Handle string-specific result processing
         if not result or not result.found:
-            return Response(content="Not found", status_code=404)
+            return Response(content="", status_code=404)                                # return no content if not found
 
         return Response(content=result.data, media_type="text/plain")
 
     def handle_binary_result(self, result: Schema__Cache__Data__Retrieve__Response) -> Response:               # Handle binary-specific result processing
         if not result or not result.found:
-            return Response(content=b"Not found", status_code=404)
+            return Response(content=b"", status_code=404)                               # return no content if not found
 
         return Response(content=result.data, media_type="application/octet-stream")
 

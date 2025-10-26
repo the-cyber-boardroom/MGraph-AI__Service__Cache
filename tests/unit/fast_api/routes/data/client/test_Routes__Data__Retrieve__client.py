@@ -113,7 +113,7 @@ class test_Routes__Data__Retrieve__client(TestCase):                            
         response = self.client.get(f'/{self.test_namespace}/cache/{self.parent_cache_id}/data/string/missing-string')
 
         assert response.status_code == 404
-        assert response.text        == "Not found"
+        assert response.text        == ""
 
     def test__data_retrieve__binary_with_id(self):                                              # Test binary retrieval with ID only
         response = self.client.get(f'/{self.test_namespace}/cache/{self.parent_cache_id}/data/binary/{self.binary_id_1}')
@@ -132,13 +132,13 @@ class test_Routes__Data__Retrieve__client(TestCase):                            
         response = self.client.get(f'/{self.test_namespace}/cache/{self.parent_cache_id}/data/binary/missing-binary')
 
         assert response.status_code == 404
-        assert response.content     == b"Not found"
+        assert response.content     == b""
 
     def test__data_retrieve__wrong_type(self):                                                  # Test retrieving data as wrong types
         # Try to get JSON as string
         response = self.client.get(f'/{self.test_namespace}/cache/{self.parent_cache_id}/data/string/{self.json_id_1}')
         assert response.status_code == 404
-        assert response.text        == "Not found"
+        assert response.text        == ""
 
         # Try to get binary as JSON
         response = self.client.get(f'/{self.test_namespace}/cache/{self.parent_cache_id}/data/json/{self.binary_id_1}')
@@ -148,7 +148,7 @@ class test_Routes__Data__Retrieve__client(TestCase):                            
         # Try to get string as binary
         response = self.client.get(f'/{self.test_namespace}/cache/{self.parent_cache_id}/data/binary/{self.string_id_1}')
         assert response.status_code == 404
-        assert response.content     == b"Not found"
+        assert response.content     == b""
 
     def test__data_retrieve__parent_not_found(self):                                            # Test with non-existent parent
         non_existent_id = "00000000-0000-0000-0000-000000000000"

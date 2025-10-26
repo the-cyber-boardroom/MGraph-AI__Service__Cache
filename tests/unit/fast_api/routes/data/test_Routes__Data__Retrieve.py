@@ -188,7 +188,7 @@ class test_Routes__Data__Retrieve(TestCase):
 
             assert type(result)       is Response
             assert result.status_code == 404
-            assert result.body        == b"Not found"
+            assert result.body        == b""
 
     def test_data__string__wrong_type(self):                                                    # Test string 415 response for wrong type
         with self.routes_data_retrieve as _:
@@ -198,7 +198,7 @@ class test_Routes__Data__Retrieve(TestCase):
 
             assert type(result)       is Response
             assert result.status_code   == 404
-            assert result.body          == b"Not found"
+            assert result.body          == b""
 
     def test_data__binary__with__id(self):                                                      # Test binary retrieval with ID only
         with self.routes_data_retrieve as _:
@@ -230,7 +230,7 @@ class test_Routes__Data__Retrieve(TestCase):
 
             assert type(result)       is Response
             assert result.status_code == 404
-            assert result.body        == b"Not found"
+            assert result.body        == b""
 
     def test_data__binary__wrong_type(self):                                                    # Test binary 415 response for wrong type
         with self.routes_data_retrieve as _:
@@ -240,7 +240,7 @@ class test_Routes__Data__Retrieve(TestCase):
 
             assert type(result)       is Response
             assert result.status_code   == 404
-            assert result.body          == b"Not found"
+            assert result.body          == b""
 
     def test__delegation_pattern(self):                                                         # Test methods properly delegate
         with self.routes_data_retrieve as _:
@@ -308,7 +308,7 @@ class test_Routes__Data__Retrieve(TestCase):
             mock_result.found = False
             result = _.handle_string_result(mock_result)
             assert result.status_code == 404
-            assert result.body        == b"Not found"
+            assert result.body        == b""
 
     def test_handle_binary_result(self):                                                       # Test binary result handler
         with self.routes_data_retrieve as _:
@@ -329,7 +329,7 @@ class test_Routes__Data__Retrieve(TestCase):
             mock_result.found = False
             result = _.handle_binary_result(mock_result)
             assert result.status_code == 404
-            assert result.body        == b"Not found"
+            assert result.body        == b""
 
     def test_retrieve__with_special_characters(self):                                          # Test handling special characters
         with self.routes_data_retrieve as _:
