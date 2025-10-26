@@ -1,9 +1,10 @@
 from unittest                                                                            import TestCase
 from osbot_fast_api.api.routes.Fast_API__Routes                                          import Fast_API__Routes
+from osbot_utils.testing.__                                                              import __
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from osbot_utils.utils.Objects                                                           import base_classes, __
+from osbot_utils.utils.Objects                                                           import base_classes
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Exists                   import Routes__File__Exists, TAG__ROUTES_EXISTS, PREFIX__ROUTES_EXISTS, BASE_PATH__ROUTES_EXISTS, ROUTES_PATHS__EXISTS
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs

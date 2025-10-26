@@ -7,7 +7,7 @@ from unittest                                           import TestCase
 from osbot_fast_api.utils.Fast_API_Server               import Fast_API_Server
 from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
 from osbot_utils.testing.__                             import __, __SKIP__
-from osbot_utils.utils.Objects                          import obj
+from osbot_utils.testing.__helpers                      import obj
 from tests.unit.Service__Cache__Test_Objs               import setup__service__cache__test_objs, TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
 

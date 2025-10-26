@@ -2,7 +2,7 @@ from unittest                                                   import TestCase
 from osbot_fast_api_serverless.utils.testing.skip_tests         import skip__if_not__in_github_actions
 from memory_fs.path_handlers.Path__Handler__Temporal            import Path__Handler__Temporal
 from osbot_utils.testing.__                                     import __, __SKIP__
-from osbot_utils.utils.Objects                                  import obj
+from osbot_utils.testing.__helpers                              import obj
 from osbot_utils.utils.Zip                                      import zip_bytes_empty, zip_bytes__add_file
 from mgraph_ai_service_cache.fast_api.routes.zip.Routes__Zip    import Routes__Zip
 from mgraph_ai_service_cache.service.cache.Cache__Service       import Cache__Service

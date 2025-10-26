@@ -5,11 +5,12 @@ from unittest                                                                   
 from fastapi                                                                     import HTTPException, Response
 from osbot_fast_api.api.routes.Fast_API__Routes                                  import Fast_API__Routes
 from osbot_utils.testing.__                                                      import __, __SKIP__
+from osbot_utils.testing.__helpers                                               import obj
 from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid            import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id  import Safe_Str__Id
 from osbot_utils.utils.Misc                                                      import list_set
-from osbot_utils.utils.Objects                                                   import base_classes, obj
+from osbot_utils.utils.Objects                                                   import base_classes
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve         import Routes__File__Retrieve, TAG__ROUTES_RETRIEVE
 from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                 import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs        import Schema__Cache__File__Refs

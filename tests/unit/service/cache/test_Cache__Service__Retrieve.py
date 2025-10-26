@@ -10,7 +10,8 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Random_Hash           
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now         import Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.utils.Misc                                                              import list_set
-from osbot_utils.utils.Objects                                                           import base_classes, obj
+from osbot_utils.utils.Objects                                                           import base_classes
+from osbot_utils.testing.__helpers                                                       import obj
 from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Metadata                       import Schema__Cache__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success              import Schema__Cache__Retrieve__Success
 from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                  import Enum__Cache__Data_Type
