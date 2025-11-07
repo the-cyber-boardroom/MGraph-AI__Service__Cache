@@ -134,7 +134,7 @@ class Cache__Service(Type_Safe):                                                
                 hash_parts  = file_id.split('/')
                 if hash_parts:
                     file_hashes.append(hash_parts[-1])
-        return file_hashes
+        return sorted(file_hashes)
 
     def get_namespace__file_ids(self, namespace: Safe_Str__Id) -> List[str]:
         file_ids = []
@@ -148,7 +148,7 @@ class Cache__Service(Type_Safe):                                                
                 id_parts = file_id.split('/')                                                                   # Extract just the ID part (last segment after any sharding)
                 if id_parts:
                     file_ids.append(id_parts[-1])
-        return file_ids
+        return sorted(file_ids)
 
     def get_namespace__file_counts(self, namespace: Safe_Str__Id = None) -> Dict[str, Any]:       # Get file counts for all strategies in a namespace
         namespace = namespace or Safe_Str__Id("default")

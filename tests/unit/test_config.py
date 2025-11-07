@@ -1,5 +1,5 @@
 from unittest                          import TestCase
-from mgraph_ai_service_cache.config      import SERVICE_NAME
+from mgraph_ai_service_cache.config    import SERVICE_NAME
 
 
 class test_config(TestCase):

@@ -3,7 +3,7 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid             import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id   import Safe_Str__Id
 from osbot_utils.utils.Misc                                                       import timestamp_now
-from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                       import CACHE__TEST__FIXTURES__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.consts.const__Fast_API                import CACHE__TEST__FIXTURES__NAMESPACE
 from mgraph_ai_service_cache.service.cache.Cache__Service                         import Cache__Service
 
 FILE_ID__CACHE__TEST__FIXTURES__MANIFEST = "00000000-0000-0000-0000-000000000001"

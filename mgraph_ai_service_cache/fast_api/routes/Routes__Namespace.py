@@ -30,12 +30,9 @@ class Routes__Namespace(Fast_API__Routes):
         try:
             # Get file counts using shared method
             counts_data = self.cache_service.get_namespace__file_counts(namespace)
-            handler = counts_data['handler']
-
+            handler     = counts_data['handler']
             # Build stats response
             stats = { "namespace": str(namespace)         ,
-                      "s3_bucket": handler.s3__bucket     ,
-                      "s3_prefix": handler.s3__prefix     ,
                       "ttl_hours": handler.cache_ttl_hours,
                       **counts_data['file_counts'        ]}  # Spread all the file counts
 

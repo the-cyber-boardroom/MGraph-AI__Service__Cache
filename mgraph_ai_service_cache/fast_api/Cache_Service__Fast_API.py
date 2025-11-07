@@ -1,3 +1,4 @@
+from mgraph_ai_service_cache.fast_api.routes.Routes__Namespaces             import Routes__Namespaces
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Delete      import Routes__Data__Delete
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Retrieve    import Routes__Data__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store       import Routes__Data__Store
@@ -35,6 +36,7 @@ class Cache_Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__Data__Delete  )
         self.add_routes(Routes__Zip           )
         self.add_routes(Routes__Namespace     )
+        self.add_routes(Routes__Namespaces    )
         self.add_routes(Routes__Admin__Storage)
         self.add_routes(Routes__Server        )
         self.add_routes(Routes__Info          )
