@@ -6,7 +6,8 @@ from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                  
 from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Json__Field_Path    import Safe_Str__Json__Field_Path
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 
-
+# todo: move this to OSBot_Utils, since this is quite an useful class for multiple services and clients
+#       and the current mgraph_ai_service_cache imports also make sense to exist on OSBot_Utils
 class Cache__Hash__Generator(Type_Safe):                                           # Generate consistent hashes from various input types
     config: Cache__Hash__Config
 

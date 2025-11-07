@@ -12,11 +12,11 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.utils.Misc                                                              import list_set
 from osbot_utils.utils.Objects                                                           import base_classes
 from osbot_utils.testing.__helpers                                                       import obj
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Metadata                       import Schema__Cache__Metadata
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success              import Schema__Cache__Retrieve__Success
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                  import Enum__Cache__Data_Type
-from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Gone                   import Schema__Cache__Error__Gone
-from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Not_Found              import Schema__Cache__Error__Not_Found
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Metadata                import Schema__Cache__Metadata
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success       import Schema__Cache__Retrieve__Success
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type           import Enum__Cache__Data_Type
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Gone            import Schema__Cache__Error__Gone
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Not_Found       import Schema__Cache__Error__Not_Found
 from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve             import Cache__Service__Retrieve
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                   import Cache__Service__Store
