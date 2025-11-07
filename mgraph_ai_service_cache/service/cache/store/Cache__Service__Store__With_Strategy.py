@@ -7,7 +7,7 @@ from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs
 from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Cache__Store__Metadata   import Schema__Cache__Store__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Cache__Store__Paths      import Schema__Cache__Store__Paths
 from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Cache__Hash__Reference   import Schema__Cache__Hash__Reference, Schema__Cache__Hash__Entry
-from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Store__Context           import Schema__Store__Context
+from mgraph_ai_service_cache.schemas.service.cache_service.Schema__Store__Context        import Schema__Store__Context       # todo: review this schema since it is not currently stored in the client project
 
 class Cache__Service__Store__With_Strategy(Type_Safe):                                       # Orchestrates the storage of cache entries with different strategies
 

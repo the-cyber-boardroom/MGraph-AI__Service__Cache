@@ -12,11 +12,11 @@ from osbot_utils.utils.Files                                                    
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
 from osbot_utils.utils.Http                                                              import url_join_safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
+from mgraph_ai_service_cache.schemas.service.cache_service.Schema__Store__Context        import Schema__Store__Context       # todo: review this schema since it is not currently stored in the client project
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
 from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                  import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
 from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Json__Field_Path    import Safe_Str__Json__Field_Path
-from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Store__Context           import Schema__Store__Context
 from mgraph_ai_service_cache.service.cache.Cache__Config                                 import Cache__Config
 from mgraph_ai_service_cache.service.cache.Cache__Handler                                import Cache__Handler
 from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                           import Cache__Hash__Config
