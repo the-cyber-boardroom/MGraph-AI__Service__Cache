@@ -17,3 +17,6 @@ mgraph-ai-service-cache-client = "*"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+# used this to force update from pypi
+# poetry update mgraph-ai-service-cache-client --no-cache
