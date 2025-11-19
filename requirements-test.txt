@@ -1,5 +1,7 @@
 # for main app
+memory_fs
 osbot-fast-api-serverless
+mgraph-ai-service-cache-client
 
 # for pytest
 pytest

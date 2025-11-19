@@ -17,6 +17,10 @@ on:
         required: false
         type: boolean
         default: false
+      should_publish_pypi:
+        required: false
+        type: boolean
+        default: false
     secrets:
       AWS_SECRET_ACCESS_KEY:
         required: false
@@ -32,19 +36,14 @@ on:
         required: false
 
 env:
-  PACKAGE_NAME: 'mgraph_ai_service_base'
+  PACKAGE_NAME: 'mgraph_ai_service_cache'
 
 jobs:
-  run-tests:
-    name: "Run tests"
+  run-tests__unit:
+    name: "Run tests (Unit)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Start Local Stack
-        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/docker__local-stack@dev
-        with:
-          LOCAL_STACK_SERVICES: 's3,lambda,iam,logs'
 
       - name: "run-tests"
         uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/pytest__run-tests@dev
@@ -54,11 +53,30 @@ jobs:
           FAST_API__AUTH__API_KEY__NAME: 'api-key__in_github_test'
           FAST_API__AUTH__API_KEY__VALUE: 'this-is-the-value-of-the-api-key'
 
+  run-tests__integration:
+    name: "Run tests (Integration)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start Local Stack
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/docker__local-stack@dev
+        with:
+          LOCAL_STACK_SERVICES: 's3,lambda,iam,logs'
+
+      - name: "run-tests"
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/pytest__run-tests@dev
+        with:
+          test_target: "tests/integration"
+        env:
+          FAST_API__AUTH__API_KEY__NAME: 'api-key__in_github_test'
+          FAST_API__AUTH__API_KEY__VALUE: 'this-is-the-value-of-the-api-key'
+
   increment-tag:
-    # Always define this job, but skip the actual tag increment step conditionally
     name: Increment Tag
     runs-on: ubuntu-latest
-    needs: run-tests
+    needs:
+      - run-tests__unit
+      - run-tests__integration
     steps:
       - uses: actions/checkout@v4
 
@@ -75,7 +93,6 @@ jobs:
   check-aws-credentials:
     name: Check AWS Credentials
     runs-on: ubuntu-latest
-    needs: run-tests
     outputs:
       has-credentials: ${{ steps.check.outputs.has-credentials }}
     steps:
@@ -112,3 +129,17 @@ jobs:
           FAST_API__AUTH__API_KEY__VALUE: ${{ secrets.FAST_API__AUTH__API_KEY__VALUE }}
         with:
           target: ${{ inputs.target_deploy }}
+
+  publish-to-pypi:
+    if: inputs.should_publish_pypi && needs.increment-tag.result == 'success'
+    name: "Publish to: PYPI"
+    permissions:
+      id-token: write
+    runs-on: ubuntu-latest
+    needs: [ increment-tag ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Git Update Current Branch
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/git__update_branch@dev
+      - name: publish-to-pypi
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/pypi__publish@dev

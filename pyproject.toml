@@ -1,17 +1,22 @@
 [tool.poetry]
-name        = "mgraph_ai_service_base"
-version     = "v0.5.0"
-description = "MGraph-AI__Service__Base"
+name        = "mgraph_ai_service_cache"
+version     = "v0.5.79"
+description = "MGraph-AI__Service__Cache"
 authors     = ["Dinis Cruz <dinis.cruz@owasp.org>"]
 license     = "Apache 2.0"
 readme      = "README.md"
-homepage    = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Base"
-repository  = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Base"
+homepage    = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Cache"
+repository  = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Cache"
 
 [tool.poetry.dependencies]
-python                     = "^3.12"
-osbot-fast-api-serverless  = "*"
+python                         = "^3.12"
+memory_fs                      = "*"
+osbot-fast-api-serverless      = "*"
+mgraph-ai-service-cache-client = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+# used this to force update from pypi
+# poetry update mgraph-ai-service-cache-client --no-cache

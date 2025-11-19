@@ -1,0 +1,6 @@
+[submodule "modules/MGraph-AI__Service__Cache__Client"]
+	path = modules/MGraph-AI__Service__Cache__Client
+	url = git@github.com:the-cyber-boardroom/MGraph-AI__Service__Cache__Client.git
+[submodule "modules/MGraph-AI__Service__Cache__CLI"]
+	path = modules/MGraph-AI__Service__Cache__CLI
+	url = git@github.com:the-cyber-boardroom/MGraph-AI__Service__Cache__CLI.git
