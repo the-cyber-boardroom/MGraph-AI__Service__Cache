@@ -1,34 +1,34 @@
 import gzip
 import json
-from typing                                                                              import Dict, Optional, Any, List
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
-from memory_fs.schemas.Schema__Memory_FS__File__Metadata                                 import Schema__Memory_FS__File__Metadata
-from memory_fs.schemas.Schema__Memory_FS__File__Config                                   import Schema__Memory_FS__File__Config
-from osbot_utils.decorators.methods.cache_on_self                                        import cache_on_self
-from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
-from osbot_utils.utils.Files                                                             import file_extension, file_name_without_extension
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
-from osbot_utils.utils.Http                                                              import url_join_safe
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from mgraph_ai_service_cache.schemas.service.cache_service.Schema__Store__Context        import Schema__Store__Context       # todo: review this schema since it is not currently stored in the client project
-from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
-from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                  import DEFAULT_CACHE__NAMESPACE
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Json__Field_Path    import Safe_Str__Json__Field_Path
-from mgraph_ai_service_cache.service.cache.Cache__Config                                 import Cache__Config
-from mgraph_ai_service_cache.service.cache.Cache__Handler                                import Cache__Handler
-from mgraph_ai_service_cache.service.cache.Cache__Hash__Config                           import Cache__Hash__Config
-from mgraph_ai_service_cache.service.cache.Cache__Hash__Generator                        import Cache__Hash__Generator
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response         import Schema__Cache__Store__Response
-from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__With_Strategy    import Cache__Service__Store__With_Strategy
+from typing                                                                                      import Dict, Optional, Any, List
+from osbot_utils.helpers.cache.Cache__Hash__Generator                                            import Cache__Hash__Generator
+from osbot_utils.helpers.cache.schemas.Schema__Cache__Hash__Config                               import Schema__Cache__Hash__Config
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                   import type_safe
+from memory_fs.schemas.Schema__Memory_FS__File__Metadata                                         import Schema__Memory_FS__File__Metadata
+from memory_fs.schemas.Schema__Memory_FS__File__Config                                           import Schema__Memory_FS__File__Config
+from osbot_utils.decorators.methods.cache_on_self                                                import cache_on_self
+from osbot_utils.type_safe.Type_Safe                                                             import Type_Safe
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                  import Safe_Str__Id
+from osbot_utils.utils.Files                                                                     import file_extension, file_name_without_extension
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                            import Random_Guid
+from osbot_utils.utils.Http                                                                      import url_join_safe
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash         import Safe_Str__Cache_Hash
+from mgraph_ai_service_cache.schemas.service.cache_service.Schema__Store__Context                import Schema__Store__Context       # todo: review this schema since it is not currently stored in the client project
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                 import Schema__Cache__File__Refs
+from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                          import DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy             import Enum__Cache__Store__Strategy
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Json__Field_Path    import Safe_Str__Json__Field_Path
+from mgraph_ai_service_cache.service.cache.Cache__Config                                         import Cache__Config
+from mgraph_ai_service_cache.service.cache.Cache__Handler                                        import Cache__Handler
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response                 import Schema__Cache__Store__Response
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store__With_Strategy            import Cache__Service__Store__With_Strategy
 
 
 class Cache__Service(Type_Safe):                                                    # Main cache service orchestrator
     cache_config      : Cache__Config                                               # Configuration object
     cache_handlers    : Dict[Safe_Str__Id, Cache__Handler]                          # Multiple cache handlers by namespace
-    hash_config       : Cache__Hash__Config                                         # Hash generation config
+    hash_config       : Schema__Cache__Hash__Config                                         # Hash generation config
     hash_generator    : Cache__Hash__Generator                                      # Hash generator instance
 
     # todo: I think we can now remove this file and just use the self.storage_fs()

@@ -160,7 +160,7 @@ class test_Cache__Service__Retrieve(TestCase):
 
     def test__build_metadata(self):                                                  # Test metadata building
         cache_id   = Random_Guid()
-        cache_hash = Random_Hash()
+        cache_hash = Safe_Str__Cache_Hash()
         stored_at  = Timestamp_Now()
         with self.retrieve_service as _:
             cache_result = {"metadata": { "cache_id"        : cache_id      ,

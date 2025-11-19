@@ -1,15 +1,15 @@
-from typing                                                                                 import Union, Dict
-from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash    import Safe_Str__Cache_Hash
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path           import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now            import Timestamp_Now
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id             import Safe_Str__Id
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy        import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Paths           import Schema__Cache__File__Paths
-from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Json__Field_Path       import Safe_Str__Json__Field_Path
-from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Cache__Store__Metadata      import Schema__Cache__Store__Metadata
-from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Cache__Store__Paths         import Schema__Cache__Store__Paths
+from typing                                                                                     import Union, Dict
+from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash        import Safe_Str__Cache_Hash
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path               import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                           import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now                import Timestamp_Now
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                 import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Json__Field_Path   import Safe_Str__Json__Field_Path
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Paths               import Schema__Cache__File__Paths
+from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Cache__Store__Metadata          import Schema__Cache__Store__Metadata
+from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Cache__Store__Paths             import Schema__Cache__Store__Paths
 
 # todo: review the use of Cache__Handler since it is this dependency that makes this entire schema to need to be placed in the mgraph_ai_service_cache project (instead of the mgraph_ai_service_cache__client project)
 from mgraph_ai_service_cache.service.cache.Cache__Handler                                   import Cache__Handler

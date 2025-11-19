@@ -191,7 +191,7 @@ class test_Env__get_env_enum_and_primitive(TestCase):
         assert result       == test_url
 
         # Invalid URL (too long)
-        long_url = "https://example.com/" + "a" * 3000                          # > 2048 char limit
+        long_url = "https://example.com/" + "a" * 10000                          # > 8048 char limit
         set_env("TEST_URL", long_url)
         result = get_env_primitive("TEST_URL", Safe_Str__Url)
         assert result is None
