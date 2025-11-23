@@ -1,12 +1,11 @@
 from typing                                                                              import Dict, List
 from unittest                                                                            import TestCase
-from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
 from osbot_utils.testing.__                                                              import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Hash                    import Random_Hash
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now         import Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.utils.Misc                                                              import list_set
@@ -55,6 +54,42 @@ class test_Cache__Service__Retrieve(TestCase):
                                   cache_handlers    = __()                      ,
                                   hash_config       = __(algorithm = 'sha256', length=16),
                                   hash_generator    = __(config    = __(algorithm='sha256', length=16))))
+
+    def test_retrieve_by_hash(self):
+        with self.retrieve_service as _:
+            cache_id   = self.cache_fixtures.get_fixture_id  ("string_simple")
+            cache_hash = self.cache_fixtures.get_fixture_hash("string_simple")
+            result     = _.retrieve_by_hash(cache_hash, self.namespace)
+            assert type(result) is Schema__Cache__Retrieve__Success
+            assert result.obj() == __(data='test retrieve string data',
+                                      metadata = __(cache_id   = cache_id,
+                                                    cache_hash = cache_hash,
+                                                    cache_key  ='',
+                                                    file_id    = cache_id,
+                                                    namespace='fixtures-namespace',
+                                                    strategy='direct',
+                                                    stored_at=__SKIP__,
+                                                    file_type='json',
+                                                    content_encoding=None,
+                                                    content_size=0),
+                                      data_type='string')
+
+    def test_retrieve_by_hash__metadata(self):
+        with self.retrieve_service as _:
+            cache_id   = self.cache_fixtures.get_fixture_id  ("string_simple")
+            cache_hash = self.cache_fixtures.get_fixture_hash("string_simple")
+            result     = _.retrieve_by_hash__metadata(cache_hash, self.namespace)
+            assert type(result) is Schema__Cache__Metadata
+            assert result.obj() ==  __(cache_id   = cache_id,
+                                       cache_hash = cache_hash,
+                                       cache_key  ='',
+                                       file_id    = cache_id,
+                                       namespace  = 'fixtures-namespace',
+                                       strategy   = 'direct',
+                                       stored_at  = __SKIP__,
+                                       file_type  = 'json',
+                                       content_encoding = None,
+                                       content_size     = 0)
 
     def test_retrieve_by_hash__not_found(self):                                      # Test retrieval of non-existent hash
         with self.retrieve_service as _:

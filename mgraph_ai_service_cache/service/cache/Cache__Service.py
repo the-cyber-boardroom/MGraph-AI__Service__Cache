@@ -42,6 +42,7 @@ class Cache__Service(Type_Safe):                                                
 
     # todo: this logic is starting to be quite complex to be in a method, I think we can refactor this logic into a separate class and have methods for
     #       each logic step/action
+    # todo: refactor to add type safe return type
     def delete_by_id(self, cache_id: Random_Guid, namespace: Safe_Str__Id = None) -> Dict[str, Any]:
         namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
@@ -242,6 +243,7 @@ class Cache__Service(Type_Safe):                                                
         store_strategy = Cache__Service__Store__With_Strategy()
         return store_strategy.execute(context)                                                  # Execute storage strategy
 
+    # todo: change return to type_safe value
     @type_safe
     def retrieve_by_hash(self, cache_hash : Safe_Str__Cache_Hash,
                                namespace  : Safe_Str__Id = None

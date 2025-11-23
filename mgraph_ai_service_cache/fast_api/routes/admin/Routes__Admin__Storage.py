@@ -23,6 +23,7 @@ ROUTES_PATHS__STORAGE = [ f'/{TAG__ROUTES_STORAGE}/bucket-name'                 
                           f'/{TAG__ROUTES_STORAGE}/file/delete/{{path:path}}'            ]  # File Delete
 
 # todo: move to different Fast_API server/endpoint and add admin authorization
+# todo: add missing type_safety return types
 class Routes__Admin__Storage(Fast_API__Routes):
     tag           : str          = TAG__ROUTES_STORAGE
     cache_service : Cache__Service

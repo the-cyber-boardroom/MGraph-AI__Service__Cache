@@ -6,6 +6,7 @@ from memory_fs.schemas.Schema__Memory_FS__File__Metadata                        
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                   import Schema__Memory_FS__File__Config
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Metadata                import Schema__Cache__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from osbot_fast_api.api.decorators.route_path                                            import route_path
@@ -35,7 +36,8 @@ ROUTES_PATHS__RETRIEVE                = [ BASE_PATH__ROUTES_RETRIEVE + '{cache_i
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}'        ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/binary' ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/json'   ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/string' ]
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/string' ,
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/metadata']
 
 class Routes__File__Retrieve(Fast_API__Routes):                                             # FastAPI routes for cache retrieval operations
     tag            : Safe_Str__Fast_API__Route__Tag    = TAG__ROUTES_RETRIEVE
@@ -256,6 +258,19 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
                      "encoding"  : "base64",
                      "data"      : base64.b64encode(result.data).decode('utf-8')  }
 
+    @route_path("/retrieve/hash/{cache_hash}/metadata")
+    def retrieve__hash__cache_hash__metadata(self, cache_hash : Safe_Str__Cache_Hash,
+                                                   namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                              ) -> Schema__Cache__Metadata:                                   # Retrieve metadata by hash
+
+
+        result = self.retrieve_service().retrieve_by_hash__metadata(cache_hash, namespace)
+
+        if result is None:
+            raise HTTPException(status_code=404, detail="Cache entry not found")
+
+        return result
+
     
     @route_path("/retrieve/hash/{cache_hash}/binary")
     def retrieve__hash__cache_hash__binary(self, cache_hash : Safe_Str__Cache_Hash,
@@ -295,3 +310,4 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
         self.add_route_get(self.retrieve__hash__cache_hash__string  )
         self.add_route_get(self.retrieve__hash__cache_hash__json    )
         self.add_route_get(self.retrieve__hash__cache_hash__binary  )
+        self.add_route_get(self.retrieve__hash__cache_hash__metadata)

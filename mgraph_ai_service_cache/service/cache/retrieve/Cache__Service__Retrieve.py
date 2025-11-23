@@ -47,6 +47,19 @@ class Cache__Service__Retrieve(Type_Safe):                                      
         return Schema__Cache__Retrieve__Success(data      = result.get("data")     ,
                                                 metadata  = metadata               ,
                                                 data_type = self._determine_data_type(result))
+
+    @type_safe
+    def retrieve_by_hash__metadata(self,                                                                # Retrieve metadata by content hash
+                                   cache_hash : Safe_Str__Cache_Hash,
+                                   namespace  : Safe_Str__Id        = DEFAULT_CACHE__NAMESPACE
+                              ) -> Schema__Cache__Metadata:
+        with self.cache_service as _:
+            result   = _.retrieve_by_hash(cache_hash, namespace)                           # Use cache service to get the data
+            if result is None:
+                return None
+            metadata = self._build_metadata(result)                                         # Convert to Type_Safe response schema
+            return metadata
+
     
     @type_safe
     def retrieve_by_id(self, cache_id  : Random_Guid,
