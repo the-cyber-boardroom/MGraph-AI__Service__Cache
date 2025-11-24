@@ -91,6 +91,18 @@ class test_Cache__Service__Retrieve(TestCase):
                                        content_encoding = None,
                                        content_size     = 0)
 
+    def test_retrieve_by_hash__refs_hash(self):
+        with self.retrieve_service as _:
+            cache_id   = self.cache_fixtures.get_fixture_id  ("string_simple")
+            cache_hash = self.cache_fixtures.get_fixture_hash("string_simple")
+            result     = _.retrieve_by_hash__refs_hash(cache_hash, self.namespace)
+            assert type(result) is dict
+            assert obj(result)  == __(cache_hash      = cache_hash,
+                                      cache_ids       = [__(cache_id  = cache_id,
+                                                            timestamp = __SKIP__)],
+                                       latest_id      = cache_id,
+                                       total_versions = 1)
+
     def test_retrieve_by_hash__not_found(self):                                      # Test retrieval of non-existent hash
         with self.retrieve_service as _:
             non_existent_hash = Safe_Str__Cache_Hash("0000000000000000")

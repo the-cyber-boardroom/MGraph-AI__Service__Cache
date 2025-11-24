@@ -60,6 +60,15 @@ class Cache__Service__Retrieve(Type_Safe):                                      
             metadata = self._build_metadata(result)                                         # Convert to Type_Safe response schema
             return metadata
 
+    # todo: change return to type_safe value
+    @type_safe
+    def retrieve_by_hash__refs_hash(self,                                                                # Retrieve metadata by content hash
+                                   cache_hash : Safe_Str__Cache_Hash,
+                                   namespace  : Safe_Str__Id        = DEFAULT_CACHE__NAMESPACE
+                              ) -> Dict:
+        with self.cache_service as _:
+            refs_hash   = _.retrieve_by_hash__refs_hash(cache_hash, namespace)                           # Use cache service to get the data
+            return refs_hash
     
     @type_safe
     def retrieve_by_id(self, cache_id  : Random_Guid,
