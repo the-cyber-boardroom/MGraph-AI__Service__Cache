@@ -176,7 +176,17 @@ class test_Routes__File__Retrieve(TestCase):
         with self.routes as _:
             result = _.retrieve__hash__cache_hash__metadata(self.fixture_hash_json,
                                                             self.fixtures_namespace)
-            assert type(result) is Schema__Cache__Metadata
+            assert type(result) is dict
+            assert obj(result)  == __( cache_id=self.fixture_id_json,
+                                       cache_hash=self.fixture_hash_json,
+                                       cache_key='',
+                                       file_id=self.fixture_id_json,
+                                       namespace='fixtures-namespace',
+                                       strategy='direct',
+                                       stored_at=__SKIP__,
+                                       file_type='json',
+                                       content_encoding=None,
+                                       content_size=0)
 
     def test_retrieve__hash__cache_hash__refs_hash(self):
         with self.routes as _:
@@ -189,6 +199,14 @@ class test_Routes__File__Retrieve(TestCase):
                                        latest_id      = self.fixture_id_json,
                                        total_versions = 1)
 
+    def test_retrieve__hash__cache_hash__cache_id(self):
+        with self.routes as _:
+            result = _.retrieve__hash__cache_hash__cache_id(self.fixture_hash_json,
+                                                            self.fixtures_namespace)
+            assert type(result) is dict
+            assert obj(result ) == __( namespace    = self.fixtures_namespace,
+                                       cache_hash   = self.fixture_hash_json,
+                                       cache_id     = self.fixture_id_json)
 
 
     def test_retrieve__hash__cache_hash__binary(self):                               # Test binary by hash
