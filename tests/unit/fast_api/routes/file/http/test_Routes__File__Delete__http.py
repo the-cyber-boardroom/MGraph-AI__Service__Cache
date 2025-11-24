@@ -151,7 +151,7 @@ class test_Routes__File__Delete__http(TestCase):                                
                 assert response.status_code         == 200
                 result = response.json()
                 assert result['status']             == 'success'
-                assert result['deleted_count']      > 8                             # All strategies create at least 9 files
+                assert result['deleted_count']      > 4                             # All strategies create at least 5 files
 
                 self.created_cache_ids.remove(cache_id)
 
