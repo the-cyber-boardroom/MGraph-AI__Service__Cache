@@ -25,19 +25,20 @@ from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve    
 TAG__ROUTES_RETRIEVE                  = 'retrieve'
 PREFIX__ROUTES_RETRIEVE               = '/{namespace}'
 BASE_PATH__ROUTES_RETRIEVE            = f'{PREFIX__ROUTES_RETRIEVE}/{TAG__ROUTES_RETRIEVE}/'
-ROUTES_PATHS__RETRIEVE                = [ BASE_PATH__ROUTES_RETRIEVE + '{cache_id}'               ,
-                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/config'        ,
-                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/refs'          ,
-                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/refs/all'      ,
-                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/metadata'      ,
-                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/binary'        ,
-                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/json'          ,
-                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/string'        ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}'        ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/binary' ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/json'   ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/string' ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/metadata']
+ROUTES_PATHS__RETRIEVE                = [ BASE_PATH__ROUTES_RETRIEVE + '{cache_id}'                 ,
+                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/config'          ,
+                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/refs'            ,
+                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/refs/all'        ,
+                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/metadata'        ,
+                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/binary'          ,
+                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/json'            ,
+                                          BASE_PATH__ROUTES_RETRIEVE + '{cache_id}/string'          ,
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}'          ,
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/binary'   ,
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/json'     ,
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/string'   ,
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/metadata' ,
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/refs-hash']
 
 class Routes__File__Retrieve(Fast_API__Routes):                                             # FastAPI routes for cache retrieval operations
     tag            : Safe_Str__Fast_API__Route__Tag    = TAG__ROUTES_RETRIEVE
@@ -271,7 +272,19 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
 
         return result
 
-    
+    @route_path("/retrieve/hash/{cache_hash}/refs-hash")
+    def retrieve__hash__cache_hash__refs_hash(self, cache_hash : Safe_Str__Cache_Hash,
+                                                    namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                               ) -> Schema__Cache__Metadata:                                   # Retrieve metadata by hash
+
+
+        result = self.retrieve_service().retrieve_by_hash__refs_hash(cache_hash, namespace)
+
+        if result is None:
+            raise HTTPException(status_code=404, detail="Cache entry not found")
+
+        return result
+
     @route_path("/retrieve/hash/{cache_hash}/binary")
     def retrieve__hash__cache_hash__binary(self, cache_hash : Safe_Str__Cache_Hash,
                                                  namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
@@ -306,8 +319,9 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
         self.add_route_get(self.retrieve__cache_id__json            )
         self.add_route_get(self.retrieve__cache_id__binary          )
 
-        self.add_route_get(self.retrieve__hash__cache_hash          )
-        self.add_route_get(self.retrieve__hash__cache_hash__string  )
-        self.add_route_get(self.retrieve__hash__cache_hash__json    )
-        self.add_route_get(self.retrieve__hash__cache_hash__binary  )
-        self.add_route_get(self.retrieve__hash__cache_hash__metadata)
+        self.add_route_get(self.retrieve__hash__cache_hash           )
+        self.add_route_get(self.retrieve__hash__cache_hash__string   )
+        self.add_route_get(self.retrieve__hash__cache_hash__json     )
+        self.add_route_get(self.retrieve__hash__cache_hash__binary   )
+        self.add_route_get(self.retrieve__hash__cache_hash__metadata )
+        self.add_route_get(self.retrieve__hash__cache_hash__refs_hash)

@@ -262,6 +262,20 @@ class Cache__Service(Type_Safe):                                                
 
         return self.retrieve_by_id(Random_Guid(latest_id), namespace)           # Delegate to retrieve_by_id which handles the path lookup
 
+    # todo: change return to type_safe value
+    @type_safe
+    def retrieve_by_hash__refs_hash(self, cache_hash : Safe_Str__Cache_Hash,
+                               namespace  : Safe_Str__Id = None
+                          ) -> Optional[Dict[str, Any]]:                        # Retrieve latest by hash"""
+        namespace = namespace or Safe_Str__Id("default")
+        handler   = self.get_or_create_handler(namespace)
+        file_id   = Safe_Str__Id(cache_hash)                                    # Get hash->ID mapping
+        with handler.fs__refs_hash.file__json(file_id=file_id) as ref_fs:
+            if not ref_fs.exists():
+                return None
+            refs_hash = ref_fs.content()
+            return refs_hash
+
     # todo: same as with the delete method above,  this logic is starting to be too complex to be all in one method
     #       also I think we are doing too much here, with far too many calls to the file system
     #       at least we should just return the data (i.e. we don't need to return the metadata here (since there is an enpoint to get that)
