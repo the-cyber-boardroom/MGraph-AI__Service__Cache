@@ -36,7 +36,7 @@ class Routes__File__Exists(Fast_API__Routes):
         handler   = self.cache_service.get_or_create_handler(namespace)
         file_id   = Safe_Str__Id(cache_hash)                                                                         # cast hash to File_Id (which is what file__json will use)
 
-        with handler.fs__refs_hash.file__json(file_id) as ref_fs:
+        with handler.fs__refs_hash.file__json__single(file_id) as ref_fs:
             exists = ref_fs.exists()
 
         return {"exists"     : exists         ,

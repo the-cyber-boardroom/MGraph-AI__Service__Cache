@@ -263,14 +263,11 @@ class test_Cache__Handler(TestCase):                                            
             test_id   = "doc-001"
 
             path_prefix   = CACHE__HANDLER__PREFIX_PATH__FS__REFS_HASH
-            files_created = [f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json'         ,
-                             f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json.config'  ,
-                             f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json.metadata']
-            files_updated = [f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json'         ,
-                             f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json.metadata']
+            files_created = [f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json']
+            files_updated = [f'{self.namespace}/{path_prefix}/ab/c1/abc123def456.json']
 
             # Save hash->id mapping
-            file_fs = _.fs__refs_hash.file__json(test_hash)
+            file_fs = _.fs__refs_hash.file__json__single(test_hash)
             assert file_fs.create()                   == files_created
             assert file_fs.update({"id": test_id})    == files_updated
 
@@ -285,13 +282,10 @@ class test_Cache__Handler(TestCase):                                            
             test_id   = "doc-001"
             test_hash = "abc123def456"
             path_prefix   = CACHE__HANDLER__PREFIX_PATH__FS__REFS_ID
-            files_created = [f'{self.namespace}/{path_prefix}/do/c-/doc-001.json'         ,
-                             f'{self.namespace}/{path_prefix}/do/c-/doc-001.json.config'  ,
-                             f'{self.namespace}/{path_prefix}/do/c-/doc-001.json.metadata']
-            files_updated = [f'{self.namespace}/{path_prefix}/do/c-/doc-001.json'         ,
-                             f'{self.namespace}/{path_prefix}/do/c-/doc-001.json.metadata']
+            files_created = [f'{self.namespace}/{path_prefix}/do/c-/doc-001.json'         ]
+            files_updated = [f'{self.namespace}/{path_prefix}/do/c-/doc-001.json'         ]
             # Save id->hash mapping
-            file_fs = _.fs__refs_id.file__json(test_id)
+            file_fs = _.fs__refs_id.file__json__single(test_id)
             assert file_fs.create()                          == files_created
             assert file_fs.update({"cache_hash": test_hash}) == files_updated
 

@@ -6,7 +6,7 @@ from memory_fs.path_handlers.Path__Handler__Key_Based                           
 from memory_fs.storage_fs.Storage_FS                                                    import Storage_FS
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy           import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy    import Enum__Cache__Store__Strategy
 from osbot_utils.utils.Http                                                             import url_join_safe
 
 # Constants for all prefix paths
@@ -32,11 +32,11 @@ class Cache__Handler(Type_Safe):                                                
     fs__data_temporal           : Memory_FS__Temporal         = None                                    # Temporal organization
     fs__data_temporal_latest    : Memory_FS__Latest_Temporal  = None                                    # Temporal + latest
     fs__data_temporal_versioned : Memory_FS                   = None                                    # Temporal + latest + versions
-    fs__data_key_based      : Memory_FS                   = None                                    # For Semantic Files
+    fs__data_key_based          : Memory_FS                   = None                                    # For Semantic Files
 
     # Reference stores (always needed)
-    fs__refs_hash           : Memory_FS                   = None                                        # Hash->ID mappings
-    fs__refs_id             : Memory_FS                   = None                                        # ID->Hash mappings
+    fs__refs_hash               : Memory_FS                   = None                                        # Hash->ID mappings
+    fs__refs_id                 : Memory_FS                   = None                                        # ID->Hash mappings
 
     def build_namespaced_path(self, base_path: str) -> Safe_Str__File__Path:                           # Helper to build namespace-prefixed paths
         if self.namespace:                                                                              # Build a path with namespace prefix if namespace is set

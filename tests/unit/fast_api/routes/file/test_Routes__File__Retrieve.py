@@ -12,7 +12,6 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id 
 from osbot_utils.utils.Misc                                                        import list_set
 from osbot_utils.utils.Objects                                                     import base_classes
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve           import Routes__File__Retrieve, TAG__ROUTES_RETRIEVE
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Metadata          import Schema__Cache__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service            import DEFAULT_CACHE__NAMESPACE
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs   import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.service.cache.retrieve.Cache__Service__Retrieve       import Cache__Service__Retrieve

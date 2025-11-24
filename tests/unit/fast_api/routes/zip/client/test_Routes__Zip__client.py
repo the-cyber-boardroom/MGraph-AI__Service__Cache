@@ -83,12 +83,8 @@ class test_Routes__Zip__client(TestCase):
                                    paths         = __(data   = [ f'{self.test_namespace}/data/temporal/{self.path_now}/{file_id}.bin',
                                                                  f'{self.test_namespace}/data/temporal/{self.path_now}/{file_id}.bin.config',
                                                                  f'{self.test_namespace}/data/temporal/{self.path_now}/{file_id}.bin.metadata'],
-                                                     by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json',
-                                                                 #f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.config',            # this file is not created in this flow because it already exists (another test has created it )
-                                                                 f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json.metadata'],
-                                                     by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json',
-                                                                 f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.config',
-                                                                 f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json.metadata']),
+                                                     by_hash = [ f'{self.test_namespace}/refs/by-hash/{cache_hash[0:2]}/{cache_hash[2:4]}/{cache_hash}.json'],
+                                                     by_id   = [ f'{self.test_namespace}/refs/by-id/{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}.json']),
                                    size          = 232          ,
                                    file_count    = 2            ,
                                    stored_at     = __SKIP__     )

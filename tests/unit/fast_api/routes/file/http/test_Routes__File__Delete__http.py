@@ -238,7 +238,7 @@ class test_Routes__File__Delete__http(TestCase):                                
         assert response.status_code             == 200
         result = response.json()
         assert result['status']                 == 'success'
-        assert result['deleted_count']          == 9
+        assert result['deleted_count']          == 5                                # 3x content files, 1x ref-id and 1x ref-hash
 
     def test_11_delete_json_data(self):                                             # Test deleting JSON data
         namespace = f"delete-json-{int(time.time())}"

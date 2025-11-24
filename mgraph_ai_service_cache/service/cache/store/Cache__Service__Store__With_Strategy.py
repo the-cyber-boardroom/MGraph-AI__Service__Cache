@@ -67,7 +67,8 @@ class Cache__Service__Store__With_Strategy(Type_Safe):                          
     def update_hash_reference(self, context: Schema__Store__Context):                       # Update or create the hash-to-ID reference
         file_id = Safe_Str__Id(str(context.cache_hash))                                      # Use hash as file ID for reference
 
-        with context.handler.fs__refs_hash.file__json(file_id) as ref_fs:
+        #with context.handler.fs__refs_hash.file__json__single(file_id) as ref_fs:
+        with context.handler.fs__refs_hash.file__json__single(file_id) as ref_fs:
             if ref_fs.exists():
                 self.update_existing_hash_reference(ref_fs, context)                       # Update existing reference
             else:
@@ -109,7 +110,7 @@ class Cache__Service__Store__With_Strategy(Type_Safe):                          
     def create_file_refs(self, context: Schema__Store__Context):                         # Create the ID-to-hash reference with content paths
         file_id = Safe_Str__Id(str(context.cache_id))                                        # Use cache ID as file ID
 
-        with context.handler.fs__refs_id.file__json(file_id) as ref_fs:
+        with context.handler.fs__refs_id.file__json__single(file_id) as ref_fs:
             context.all_paths.by_id = ref_fs.paths()                                         # Track paths
 
             # Build complete reference with Type_Safe

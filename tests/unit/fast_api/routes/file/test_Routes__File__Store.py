@@ -342,10 +342,8 @@ class test_Routes__File__Store(TestCase):
                                            paths        = __(data   = [ 'default/data/key-based/aaa/bbb/page-structure.json'         ,
                                                                         'default/data/key-based/aaa/bbb/page-structure.json.config'  ,
                                                                         'default/data/key-based/aaa/bbb/page-structure.json.metadata'],
-                                                            by_hash = [ 'default/refs/by-hash/bc/7e/bc7e8a24e2911a58.json'               ,
-                                                                        'default/refs/by-hash/bc/7e/bc7e8a24e2911a58.json.config'        ,
-                                                                        'default/refs/by-hash/bc/7e/bc7e8a24e2911a58.json.metadata'      ],
-                                                            by_id   = __SKIP__                                                           ),
+                                                            by_hash = [ 'default/refs/by-hash/bc/7e/bc7e8a24e2911a58.json'           ],
+                                                            by_id   = __SKIP__                                                       ),
                                            size=18)
 
         response__refs             = self.routes_retrieve.retrieve__cache_id__refs        (cache_id=cache_id, namespace=namespace)
@@ -356,4 +354,4 @@ class test_Routes__File__Store(TestCase):
         assert type(response__refs)                  is Schema__Cache__File__Refs
         assert cache_id                              in response__namespace_ids
         assert cache_hash                            in response__namespace_hashes
-        assert response__delete.get('deleted_count') == 9
+        assert response__delete.get('deleted_count') == 5                                   # 3x content , 1x by-id , 1x by hash

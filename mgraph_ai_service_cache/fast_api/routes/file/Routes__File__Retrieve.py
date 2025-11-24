@@ -6,7 +6,6 @@ from memory_fs.schemas.Schema__Memory_FS__File__Metadata                        
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                   import Schema__Memory_FS__File__Config
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Metadata                import Schema__Cache__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from osbot_fast_api.api.decorators.route_path                                            import route_path
@@ -69,7 +68,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
         result = self.retrieve_service().retrieve_by_id(cache_id, namespace)                                              # Use service layer
         
         if result:
-            # todo: this logic should not be happeining in this routes class, this should be handled by retrieve_by_id
+            # todo: this logic should not be happening in this routes class, this should be handled by retrieve_by_id
             if result.data_type == Enum__Cache__Data_Type.BINARY:                           # Handle binary data that can't be returned in JSON
                 binary_url = f"/{namespace}/retrieve/{cache_id}/binary"
                 return Schema__Cache__Binary__Reference(message      = "Binary data requires separate endpoint"    ,        # todo: refactor this to use the Schema__Cache__Retrieve__Success
