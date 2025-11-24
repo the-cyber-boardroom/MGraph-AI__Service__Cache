@@ -46,18 +46,18 @@ trio = ["trio (>=0.31.0)"]
 
 [[package]]
 name = "boto3"
-version = "1.41.1"
+version = "1.41.2"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.41.1-py3-none-any.whl", hash = "sha256:05009dadcb0c63a2a4a11780f615362a811aa85e7a6950f2793ecf8055fcd1f2"},
-    {file = "boto3-1.41.1.tar.gz", hash = "sha256:fdee48cff828cfe0fb66295ae4d5f47736ee35f11e1de6be6c6dcd910f0810a4"},
+    {file = "boto3-1.41.2-py3-none-any.whl", hash = "sha256:edcde82fdae4201aa690e3683f8e5b1a846cf1bbf79d03db4fa8a2f6f46dba9c"},
+    {file = "boto3-1.41.2.tar.gz", hash = "sha256:7054fbc61cadab383f40ea6d725013ba6c8f569641dddb14c0055e790280ad6c"},
 ]
 
 [package.dependencies]
-botocore = ">=1.41.1,<1.42.0"
+botocore = ">=1.41.2,<1.42.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.15.0,<0.16.0"
 
@@ -66,14 +66,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.41.1"
+version = "1.41.2"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.41.1-py3-none-any.whl", hash = "sha256:0db40b7dbddef56fe8cfa06b5eda73b327786db9d64c09c3a616fc9b5548120d"},
-    {file = "botocore-1.41.1.tar.gz", hash = "sha256:e98095492ef8f18d0d6a02ba87d9135c663d4627322e049228143b3a4ef4c2a3"},
+    {file = "botocore-1.41.2-py3-none-any.whl", hash = "sha256:154052dfaa7292212f01c8fab822c76cd10a15a7e164e4c45e4634eb40214b90"},
+    {file = "botocore-1.41.2.tar.gz", hash = "sha256:49a3e8f4c1a1759a687941fef8b36efd7bafcf63c1ef74aa75d6497eb4887c9c"},
 ]
 
 [package.dependencies]
@@ -326,14 +326,14 @@ typing-extensions = "*"
 
 [[package]]
 name = "memory-fs"
-version = "0.36.0"
+version = "0.37.0"
 description = "Memory-FS"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "memory_fs-0.36.0-py3-none-any.whl", hash = "sha256:f55ecaf84a2083590f88eb19b6b6ef8e9dadbcbf5cd3b8d135761190119fc0b5"},
-    {file = "memory_fs-0.36.0.tar.gz", hash = "sha256:e073ce495005ba88f67a24cc13e56a975acded60a827b64dd8ec70e78ef9b3e8"},
+    {file = "memory_fs-0.37.0-py3-none-any.whl", hash = "sha256:b58cc2de16a50344834303446fca71b8ce7e4aa33845fe814ea08c56a28cc2e1"},
+    {file = "memory_fs-0.37.0.tar.gz", hash = "sha256:978df2f122fc3fbfa2cf4cbb8cb8ad61be3e6d65e9076b53d611358e5c5d2d33"},
 ]
 
 [package.dependencies]
@@ -341,14 +341,14 @@ osbot-utils = "*"
 
 [[package]]
 name = "mgraph-ai-service-cache-client"
-version = "0.11.0"
+version = "0.12.0"
 description = "MGraph-AI__Service__Cache__Client"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "mgraph_ai_service_cache_client-0.11.0-py3-none-any.whl", hash = "sha256:7ed9b143bcaa7752fdce918a6dbcda69a3bee2bf1bdca2170d1a7ca52421b42c"},
-    {file = "mgraph_ai_service_cache_client-0.11.0.tar.gz", hash = "sha256:6ea3faf84a005f75459aaf4609b7d71e915861d144d7b23019c60a54a9990dde"},
+    {file = "mgraph_ai_service_cache_client-0.12.0-py3-none-any.whl", hash = "sha256:580438a59f6d4ff32cfe573ecb3391e473d4bfa40dbf1dbcd9fbcf7290a06142"},
+    {file = "mgraph_ai_service_cache_client-0.12.0.tar.gz", hash = "sha256:d07860ea04aa6412a7849bc393355eec7ff5024e6fb23095a2d4934866ff4446"},
 ]
 
 [package.dependencies]
@@ -407,14 +407,14 @@ osbot-fast-api = "*"
 
 [[package]]
 name = "osbot-utils"
-version = "3.42.0"
+version = "3.43.0"
 description = "OWASP Security Bot - Utils"
 optional = false
 python-versions = "<4.0,>=3.7"
 groups = ["main"]
 files = [
-    {file = "osbot_utils-3.42.0-py3-none-any.whl", hash = "sha256:6b92cf21ea41fb6657a997008844e837e36544055a53996fe34e7990effcde19"},
-    {file = "osbot_utils-3.42.0.tar.gz", hash = "sha256:c21f05cf43912409b9256568d7ce088597a46f3c096f65aaeabb548d784ddbf8"},
+    {file = "osbot_utils-3.43.0-py3-none-any.whl", hash = "sha256:bb0fa88c5f12bd1af321da5cd83a3ff683749e84130e365fcf2012d65b29b87f"},
+    {file = "osbot_utils-3.43.0.tar.gz", hash = "sha256:977215e211c4303c6b46155ce4302ba60b174f61b8f68b2eca4825db431fedc1"},
 ]
 
 [[package]]
