@@ -14,8 +14,8 @@ from mgraph_ai_service_cache.service.cache.Cache__Service                       
 from mgraph_ai_service_cache.service.cache.update.Cache__Service__Update             import Cache__Service__Update
 
 TAG__ROUTES_UPDATE                  = 'update'
-PREFIX__ROUTES_UPDATE               = '/{namespace}/update'
-BASE_PATH__ROUTES_UPDATE            = f'{PREFIX__ROUTES_UPDATE}/{{cache_id}}'
+PREFIX__ROUTES_UPDATE               = '/{namespace}'
+BASE_PATH__ROUTES_UPDATE            = f'{PREFIX__ROUTES_UPDATE}/update/{{cache_id}}'
 ROUTES_PATHS__UPDATE                = [ BASE_PATH__ROUTES_UPDATE + '/string'   ,
                                         BASE_PATH__ROUTES_UPDATE + '/json'     ,
                                         BASE_PATH__ROUTES_UPDATE + '/binary'   ]

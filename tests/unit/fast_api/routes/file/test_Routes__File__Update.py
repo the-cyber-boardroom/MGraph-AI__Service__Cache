@@ -297,8 +297,8 @@ class test_Routes__File__Update(TestCase):
             assert update_result.cache_id == cache_id
 
             # Verify strategy preserved
-            config = self.cache_service.retrieve_by_id__config(cache_id, self.test_namespace)
-            assert config.strategy == Enum__Cache__Store__Strategy.TEMPORAL_VERSIONED
+            refs = self.cache_service.retrieve_by_id__refs(cache_id, self.test_namespace)
+            assert refs.strategy == Enum__Cache__Store__Strategy.TEMPORAL_VERSIONED
 
     def test_update__different_strategies(self):                                     # Test updates work with all strategies
         skip__if_not__in_github_actions()
@@ -327,8 +327,8 @@ class test_Routes__File__Update(TestCase):
                     assert update_result.namespace  == namespace
 
                     # Verify strategy preserved
-                    config = self.cache_service.retrieve_by_id__config(cache_id, namespace)
-                    assert config.strategy == strategy
+                    refs = self.cache_service.retrieve_by_id__refs(cache_id, namespace)
+                    assert refs.strategy == strategy
 
     def test_update__with_fixtures(self):                                            # Test updates using fixture data
         skip__if_not__in_github_actions()
