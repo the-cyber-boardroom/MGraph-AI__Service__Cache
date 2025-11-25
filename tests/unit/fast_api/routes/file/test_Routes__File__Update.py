@@ -79,7 +79,7 @@ class test_Routes__File__Update(TestCase):
             assert type(_.cache_service) is Cache__Service
 
             assert _.obj() == __(tag='update',
-                                 prefix='/{namespace}/update',
+                                 prefix='/{namespace}',
                                  router='APIRouter',
                                  route_registration=__(analyzer=__(),
                                                        converter=__(),
