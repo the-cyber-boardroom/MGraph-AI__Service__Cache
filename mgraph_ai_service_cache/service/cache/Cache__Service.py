@@ -281,7 +281,7 @@ class Cache__Service(Type_Safe):                                                
     #       at least we should just return the data (i.e. we don't need to return the metadata here (since there is an enpoint to get that)
     def retrieve_by_id(self, cache_id  : Random_Guid,
                              namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
-                        ):  #  -> Optional[Dict[str, Any]]:                     # todo: review this return value, since we had some exceptions here
+                        ) -> Optional[Dict[str, Any]]:                     # todo: review this return value, since we had some exceptions here
         handler   = self.get_or_create_handler(namespace)
 
         # Get ID reference with content path

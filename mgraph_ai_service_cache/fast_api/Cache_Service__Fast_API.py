@@ -2,6 +2,7 @@ from mgraph_ai_service_cache.fast_api.routes.Routes__Namespaces             impo
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Delete      import Routes__Data__Delete
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Retrieve    import Routes__Data__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store       import Routes__Data__Store
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Update      import Routes__File__Update
 from mgraph_ai_service_cache.fast_api.routes.zip.Routes__Zip                import Routes__Zip
 from mgraph_ai_service_cache.service.cache.Cache__Service                   import Cache__Service
 from osbot_fast_api.api.routes.Routes__Set_Cookie                           import Routes__Set_Cookie
@@ -30,6 +31,7 @@ class Cache_Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__File__Store   )
         self.add_routes(Routes__File__Retrieve)
         self.add_routes(Routes__File__Exists  )
+        self.add_routes(Routes__File__Update  )
         self.add_routes(Routes__File__Delete  )
         self.add_routes(Routes__Data__Store   )
         self.add_routes(Routes__Data__Retrieve)
