@@ -46,14 +46,6 @@ class Storage_FS__S3(Storage_FS):
         if self.file__exists(path):
             return self.s3.file_bytes(bucket=self.s3_bucket, key=s3_key)
         return None
-
-    @type_safe
-    def file__json(self, path: Safe_Str__File__Path                                                 # Read file content as bytes from S3
-                    ):     # : -> Optional[bytes]:          #   todo: review this usafe since it was cause some exceptions on the fast_api service
-        file_bytes = self.file__bytes(path)
-        if file_bytes:
-            return bytes_to_json(file_bytes)
-        return None
     
     @type_safe
     def file__delete(self, path: Safe_Str__File__Path                                  # Delete a file from S3
@@ -68,13 +60,14 @@ class Storage_FS__S3(Storage_FS):
                      ) -> bool:
         s3_key = self._get_s3_key(path)
         return self.s3.file_exists(bucket=self.s3_bucket, key=s3_key)
-    
+
+    # todo: review why we are having issues with the return type
     @type_safe
-    def file__json(self, path: Safe_Str__File__Path                                    # Read file content as JSON from S3
-                   ) -> Optional[dict]:
-        file_bytes_data = self.file__bytes(path)
-        if file_bytes_data:
-            return bytes_to_json(file_bytes_data)
+    def file__json(self, path: Safe_Str__File__Path                                                 # Read file content as bytes from S3
+                    ):     # : -> Optional[bytes]:          #   todo: review this usafe since it was cause some exceptions on the fast_api service
+        file_bytes = self.file__bytes(path)
+        if file_bytes:
+            return bytes_to_json(file_bytes)
         return None
     
     @type_safe
