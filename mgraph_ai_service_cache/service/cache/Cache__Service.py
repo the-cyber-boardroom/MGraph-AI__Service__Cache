@@ -47,7 +47,7 @@ class Cache__Service(Type_Safe):                                                
         namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
 
-        with handler.fs__refs_id.file__json(Safe_Str__Id(str(cache_id))) as ref_fs:
+        with handler.fs__refs_id.file__json__single(Safe_Str__Id(str(cache_id))) as ref_fs:
             if not ref_fs.exists():
                 return {"status": "not_found", "message": f"Cache ID {cache_id} not found"}
 
@@ -70,7 +70,7 @@ class Cache__Service(Type_Safe):                                                
                 failed_paths.append(f"{path}: {str(e)}")
 
         if cache_hash:                                                                              # Update hash reference (remove this cache_id from the list)
-            with handler.fs__refs_hash.file__json(Safe_Str__Id(cache_hash)) as ref_fs:
+            with handler.fs__refs_hash.file__json__single(Safe_Str__Id(cache_hash)) as ref_fs:
                 if ref_fs.exists():
                     refs                   = ref_fs.content()
                     refs["cache_ids"]      = [entry for entry in refs["cache_ids"]                  # Remove this cache_id from the list
@@ -251,7 +251,7 @@ class Cache__Service(Type_Safe):                                                
         namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
 
-        with handler.fs__refs_hash.file__json(Safe_Str__Id(cache_hash)) as ref_fs:   # Get hash->ID mapping
+        with handler.fs__refs_hash.file__json__single(Safe_Str__Id(cache_hash)) as ref_fs:   # Get hash->ID mapping
             if not ref_fs.exists():
                 return None
             refs = ref_fs.content()
@@ -270,7 +270,7 @@ class Cache__Service(Type_Safe):                                                
         namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
         file_id   = Safe_Str__Id(cache_hash)                                    # Get hash->ID mapping
-        with handler.fs__refs_hash.file__json(file_id=file_id) as ref_fs:
+        with handler.fs__refs_hash.file__json__single(file_id=file_id) as ref_fs:
             if not ref_fs.exists():
                 return None
             refs_hash = ref_fs.content()
@@ -281,11 +281,11 @@ class Cache__Service(Type_Safe):                                                
     #       at least we should just return the data (i.e. we don't need to return the metadata here (since there is an enpoint to get that)
     def retrieve_by_id(self, cache_id  : Random_Guid,
                              namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
-                        ):  #  -> Optional[Dict[str, Any]]:                     # todo: review this return value, since we had some exceptions here
+                        ) -> Optional[Dict[str, Any]]:                     # todo: review this return value, since we had some exceptions here
         handler   = self.get_or_create_handler(namespace)
 
         # Get ID reference with content path
-        with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:
+        with handler.fs__refs_id.file__json__single(Safe_Str__Id(cache_id)) as ref_fs:
             if not ref_fs.exists():
                 return None
             ref_data = ref_fs.content()
@@ -341,26 +341,46 @@ class Cache__Service(Type_Safe):                                                
 
     def retrieve_by_id__config(self, cache_id  : Random_Guid,
                                      namespace : Safe_Str__Id
-                                ) -> Schema__Memory_FS__File__Config:                    #   Retrieve by cache ID using direct path from reference
-        handler   = self.get_or_create_handler(namespace)
+                                ) -> Schema__Memory_FS__File__Config:
+        file_refs = self.retrieve_by_id__refs(cache_id, namespace)
+        if not file_refs or not file_refs.file_paths.content_files:
+            return None
 
-        with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
-            return ref_fs.config()
+        handler      = self.get_or_create_handler(namespace)
+        for content_path in file_refs.file_paths.content_files:
+            config_path  = content_path + '.config'
+            config_json  = handler.storage_backend.file__json(config_path)
+
+            if not config_json:
+                return None
+
+            return Schema__Memory_FS__File__Config.from_json(config_json)
+        return None
 
     def retrieve_by_id__metadata(self, cache_id  : Random_Guid,
-                                       namespace : Safe_Str__Id
-                                  ) -> Schema__Memory_FS__File__Metadata:                  #   Retrieve by cache ID using direct path from reference
-        handler   = self.get_or_create_handler(namespace)
+                                   namespace : Safe_Str__Id
+                              ) -> Schema__Memory_FS__File__Metadata:
+        file_refs = self.retrieve_by_id__refs(cache_id, namespace)                  # Step 1: Use existing helper to get refs
+        if not file_refs or not file_refs.file_paths.content_files:
+            return None
 
-        with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
-            return ref_fs.metadata()
+        handler       = self.get_or_create_handler(namespace)                       # Step 2: Read metadata from the DATA file
+        for content_path in file_refs.file_paths.content_files:
+            metadata_path = content_path + '.metadata'
+            metadata_json = handler.storage_backend.file__json(metadata_path)
+
+            if not metadata_json:
+                return None
+
+            return Schema__Memory_FS__File__Metadata.from_json(metadata_json)
+        return None
 
     def retrieve_by_id__refs(self, cache_id  : Random_Guid,
                                    namespace : Safe_Str__Id
                                 ) -> Schema__Cache__File__Refs:                      #   Retrieve by cache ID using direct path from reference
         if cache_id:
             handler   = self.get_or_create_handler(namespace)
-            with handler.fs__refs_id.file__json(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
+            with handler.fs__refs_id.file__json__single(Safe_Str__Id(cache_id)) as ref_fs:           # get the main by-id file, which contains pointers to the other files
                 json_data = ref_fs.content()                                                 # todo refactor this so that we get the Schema__Cache__File__Refs directly from fs__refs_id
                 if json_data:
                     return Schema__Cache__File__Refs.from_json(json_data)

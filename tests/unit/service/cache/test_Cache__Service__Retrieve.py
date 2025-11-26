@@ -160,7 +160,7 @@ class test_Cache__Service__Retrieve(TestCase):
         cache_id      = self.cache_fixtures.get_fixture_id('string_simple')
         with self.retrieve_service as _:
             entry_details_all = _.get_entry_details__all(cache_id, self.namespace)
-            assert len(list_set(entry_details_all.get('details'))) == 8                 # todo: add better tests here
+            assert len(list_set(entry_details_all.get('details'))) == 4                 # todo: add better tests here
 
     def test_get_not_found_error(self):                                             # Test error response building
         with self.retrieve_service as _:

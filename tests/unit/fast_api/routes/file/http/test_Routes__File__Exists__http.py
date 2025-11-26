@@ -1,4 +1,3 @@
-import pytest
 import requests
 import time
 import concurrent.futures

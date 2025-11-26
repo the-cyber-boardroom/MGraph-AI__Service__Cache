@@ -1,6 +1,8 @@
 from unittest                                                                        import TestCase
 from memory_fs.path_handlers.Path__Handler__Temporal                                 import Path__Handler__Temporal
 from osbot_utils.testing.__                                                          import __, __SKIP__
+from memory_fs.schemas.Schema__Memory_FS__File__Config                               import Schema__Memory_FS__File__Config
+from memory_fs.schemas.Schema__Memory_FS__File__Metadata                             import Schema__Memory_FS__File__Metadata
 from memory_fs.storage_fs.providers.Storage_FS__Memory                               import Storage_FS__Memory
 from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                import Random_Guid
@@ -171,10 +173,10 @@ class test_Cache__Service(TestCase):
             cache_id = Random_Guid()
 
             _.store_with_strategy(storage_data = test_data,
-                                 cache_hash   = cache_hash,
-                                 cache_id     = cache_id,
-                                 strategy     = Enum__Cache__Store__Strategy.DIRECT,
-                                 namespace    = self.test_namespace)
+                                  cache_hash   = cache_hash,
+                                  cache_id     = cache_id,
+                                  strategy     = Enum__Cache__Store__Strategy.DIRECT,
+                                  namespace    = self.test_namespace)
 
             # Delete it
             result = _.delete_by_id(cache_id, self.test_namespace)
@@ -275,9 +277,7 @@ class test_Cache__Service(TestCase):
                                     all_paths       =__(data    = [f'test-service/data/temporal/{self.path_now}/{cache_id}.json'            ,
                                                                    f'test-service/data/temporal/{self.path_now}/{cache_id}.json.config'     ,
                                                                    f'test-service/data/temporal/{self.path_now}/{cache_id}.json.metadata'   ],
-                                                       by_hash  = [ 'test-service/refs/by-hash/9e/db/9edb6ed62ec59b6c.json'                 ,
-                                                                    'test-service/refs/by-hash/9e/db/9edb6ed62ec59b6c.json.config'          ,
-                                                                    'test-service/refs/by-hash/9e/db/9edb6ed62ec59b6c.json.metadata'        ],
+                                                       by_hash  = [ 'test-service/refs/by-hash/9e/db/9edb6ed62ec59b6c.json'                 ],
                                                        by_id     = __SKIP__                                                                 ),
                                    file_paths       = __( content_files = [f'test-service/data/temporal/{self.path_now}/{cache_id}.json'],
                                                           data_folders  = [f'test-service/data/temporal/{self.path_now}/{cache_id}/data']),
@@ -402,10 +402,33 @@ class test_Cache__Service(TestCase):
                                            content_encoding = None)
 
             metadata = _.retrieve_by_id__metadata(cache_id=cache_id, namespace="test")
-            assert metadata.obj() == __(content__hash         =  __SKIP__,               # todo: research why the context_hash is different on all saves
-                                        chain_hash            = None     ,               # todo: see if really need this now (the idea was to capture chain information (ie. the hash of all previous versions)
-                                        previous_version_path = None     ,               # todo: add the ability to capture the json_field_path in this metadata (since it should be useful to capture it)
-                                        content__size         = 1158     ,
-                                        tags                  = []       ,
-                                        timestamp             =__SKIP__  ,
-                                        data                  = __()     )
+            assert type(metadata) is Schema__Memory_FS__File__Metadata
+            assert metadata.obj() == __(content__hash          = '7e4893df99'                      ,
+                                        chain_hash             = None                              ,
+                                        previous_version_path  = None                              ,
+                                        content__size          = 103                               ,
+                                        tags                   = []                                ,
+                                        timestamp              = __SKIP__                          ,
+                                        data                   = __(cache_hash        =  url_hash  ,
+                                                                   cache_key          = ''         ,
+                                                                   cache_id           = cache_id   ,
+                                                                   content_encoding   = None       ,
+                                                                   file_id            = cache_id   ,
+                                                                   file_type          = 'json'     ,
+                                                                   json_field_path    = 'url'      ,
+                                                                   namespace          = 'test'     ,
+                                                                   stored_at          = __SKIP__   ,
+                                                                   strategy           = 'direct')  )
+
+
+            config = _.retrieve_by_id__config(cache_id=cache_id, namespace="test")
+            assert type(config) is Schema__Memory_FS__File__Config
+            assert config.obj() == __(file_id         = cache_id                                            ,
+                                      exists_strategy = 'first'                                            ,
+                                      file_key        = ''                                                 ,
+                                      file_paths      = [f'test/data/direct/{cache_id[0:2]}/{cache_id[2:4]}'] ,
+                                      file_type       = __(name           = 'json'                         ,
+                                                           content_type   = 'application/json; charset=utf-8' ,
+                                                           file_extension = 'json'                         ,
+                                                           encoding       = 'utf-8'                         ,
+                                                           serialization  = 'json')                        )

@@ -6,7 +6,6 @@ from memory_fs.schemas.Schema__Memory_FS__File__Metadata                        
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                   import Schema__Memory_FS__File__Config
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Metadata                import Schema__Cache__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
 from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
 from osbot_fast_api.api.decorators.route_path                                            import route_path
@@ -38,7 +37,8 @@ ROUTES_PATHS__RETRIEVE                = [ BASE_PATH__ROUTES_RETRIEVE + '{cache_i
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/json'     ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/string'   ,
                                           BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/metadata' ,
-                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/refs-hash']
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/refs-hash',
+                                          BASE_PATH__ROUTES_RETRIEVE + 'hash/{cache_hash}/cache-id']
 
 class Routes__File__Retrieve(Fast_API__Routes):                                             # FastAPI routes for cache retrieval operations
     tag            : Safe_Str__Fast_API__Route__Tag    = TAG__ROUTES_RETRIEVE
@@ -68,7 +68,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
         result = self.retrieve_service().retrieve_by_id(cache_id, namespace)                                              # Use service layer
         
         if result:
-            # todo: this logic should not be happeining in this routes class, this should be handled by retrieve_by_id
+            # todo: this logic should not be happening in this routes class, this should be handled by retrieve_by_id
             if result.data_type == Enum__Cache__Data_Type.BINARY:                           # Handle binary data that can't be returned in JSON
                 binary_url = f"/{namespace}/retrieve/{cache_id}/binary"
                 return Schema__Cache__Binary__Reference(message      = "Binary data requires separate endpoint"    ,        # todo: refactor this to use the Schema__Cache__Retrieve__Success
@@ -262,20 +262,20 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
     @route_path("/retrieve/hash/{cache_hash}/metadata")
     def retrieve__hash__cache_hash__metadata(self, cache_hash : Safe_Str__Cache_Hash,
                                                    namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                                              ) -> Schema__Cache__Metadata:                                   # Retrieve metadata by hash
+                                              ) -> dict:                                   # Retrieve metadata by hash
 
 
         result = self.retrieve_service().retrieve_by_hash__metadata(cache_hash, namespace)
 
         if result is None:
             raise HTTPException(status_code=404, detail="Cache entry not found")
-
-        return result
+        #return result                       # todo: see why this raises the pydantic error: Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+        return result.json()                 #       this works, but it would be better to not need this (at least here)
 
     @route_path("/retrieve/hash/{cache_hash}/refs-hash")
     def retrieve__hash__cache_hash__refs_hash(self, cache_hash : Safe_Str__Cache_Hash,
                                                     namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                                               ) -> Schema__Cache__Metadata:                                   # Retrieve metadata by hash
+                                               ) -> dict:                                   # Retrieve metadata by hash
 
 
         result = self.retrieve_service().retrieve_by_hash__refs_hash(cache_hash, namespace)
@@ -284,6 +284,22 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
             raise HTTPException(status_code=404, detail="Cache entry not found")
 
         return result
+
+    @route_path("/retrieve/hash/{cache_hash}/cache-id")
+    def retrieve__hash__cache_hash__cache_id(self, cache_hash : Safe_Str__Cache_Hash,
+                                                   namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
+                                              ) -> Dict:                                   # Retrieve metadata by hash
+
+
+        result = self.retrieve_service().retrieve_by_hash__refs_hash(cache_hash, namespace)
+
+        if result is None:
+            raise HTTPException(status_code=404, detail="Cache entry not found")
+
+        return dict(namespace  = namespace,
+                    cache_hash = cache_hash,
+                    cache_id   = result.get('latest_id'))
+
 
     @route_path("/retrieve/hash/{cache_hash}/binary")
     def retrieve__hash__cache_hash__binary(self, cache_hash : Safe_Str__Cache_Hash,
@@ -325,3 +341,4 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
         self.add_route_get(self.retrieve__hash__cache_hash__binary   )
         self.add_route_get(self.retrieve__hash__cache_hash__metadata )
         self.add_route_get(self.retrieve__hash__cache_hash__refs_hash)
+        self.add_route_get(self.retrieve__hash__cache_hash__cache_id )

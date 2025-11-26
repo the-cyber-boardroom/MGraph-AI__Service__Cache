@@ -29,7 +29,7 @@ class Cache__Service__Retrieve(Type_Safe):                                      
 
         handler   = self.cache_service.get_or_create_handler(namespace)
 
-        with handler.fs__refs_hash.file__json(Safe_Str__Id(str(cache_hash))) as ref_fs:
+        with handler.fs__refs_hash.file__json__single(Safe_Str__Id(str(cache_hash))) as ref_fs:
             return ref_fs.exists()
 
     @type_safe
