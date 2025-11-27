@@ -122,7 +122,7 @@ class Cache__Service(Type_Safe):                                                
                  'grand_total_files': sum(ns['total_files'] for ns in all_stats.values()),
                  'storage_mode'     : self.cache_config.storage_mode.value                }     # Include storage mode in stats
 
-
+    # todo: BUG: rename form file_hashes to cache_hashes
     def get_namespace__file_hashes(self, namespace: Safe_Str__Id) -> List[str]:
         file_hashes = []
         handler = self.get_or_create_handler(namespace)
@@ -137,6 +137,7 @@ class Cache__Service(Type_Safe):                                                
                     file_hashes.append(hash_parts[-1])
         return sorted(file_hashes)
 
+    # todo: BUG: rename form file_hashes to cache_ids_hashes
     def get_namespace__file_ids(self, namespace: Safe_Str__Id) -> List[str]:
         file_ids = []
         handler = self.get_or_create_handler(namespace)

@@ -272,6 +272,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
         #return result                       # todo: see why this raises the pydantic error: Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
         return result.json()                 #       this works, but it would be better to not need this (at least here)
 
+    # todo: bug this should be just "/retrieve/hash/{cache_hash}/refs" (i.e. replace the /refs-hash with /refs)
     @route_path("/retrieve/hash/{cache_hash}/refs-hash")
     def retrieve__hash__cache_hash__refs_hash(self, cache_hash : Safe_Str__Cache_Hash,
                                                     namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE

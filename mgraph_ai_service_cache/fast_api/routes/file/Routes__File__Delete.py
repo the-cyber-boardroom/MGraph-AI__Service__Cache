@@ -18,7 +18,7 @@ class Routes__File__Delete(Fast_API__Routes):
     prefix        : Safe_Str__Fast_API__Route__Prefix  =  PREFIX__ROUTES_DELETE
     cache_service : Cache__Service
 
-    # todo: this should return a Type_Safe class
+    # todo: this should a variation of the Schema__Cache__Delete__Success (which needed refactoring)
     def delete__cache_id(self, cache_id  : Random_Guid,
                                namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                           ) -> Dict[str, Any]:

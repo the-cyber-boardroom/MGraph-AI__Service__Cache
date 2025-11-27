@@ -17,17 +17,9 @@ class Routes__File__Exists(Fast_API__Routes):
     prefix        : Safe_Str__Fast_API__Route__Prefix  =  PREFIX__ROUTES_EXISTS
     cache_service : Cache__Service
 
-    # this was on Routes__Retrieve (but needs to be here on Routes__Exists)
-    # @route_path("/retrieve/exists/{cache_hash}")
-    # def retrieve__exists__cache_hash(self, cache_hash : Safe_Str__Cache_Hash,
-    #                                        namespace  : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-    #                                   ) -> Schema__Cache__Exists__Response:                                                 # Check if entry exists
-    #
-    #     exists = self.retrieve_service().check_exists(cache_hash, namespace)                                                  # todo: this should return the type Schema__Cache__Exists__Response
-    #
-    #     return Schema__Cache__Exists__Response(exists     = exists     ,                                                    # todo: we should need to do this conversion here
-    #                                            cache_hash = cache_hash ,
-    #                                            namespace  = namespace  )
+
+    # todo: add exists__hash__cache_id      # where we can resolve if a particular cache_id exists (without needing to use the cache
+
     # todo: refactor code below with the version above (which is using Schema__Cache__Exists__Response)
     def exists__hash__cache_hash(self, cache_hash  : Safe_Str__Cache_Hash                                   ,  # Check if hash exists
                                        namespace   : Safe_Str__Id = None
