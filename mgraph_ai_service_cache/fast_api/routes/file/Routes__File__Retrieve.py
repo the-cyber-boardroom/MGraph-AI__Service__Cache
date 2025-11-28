@@ -1,7 +1,7 @@
 import base64
 import json
 from typing                                                                              import Union, Dict
-from fastapi                                                                             import HTTPException, Response, Path
+from fastapi                                                                             import HTTPException, Response
 from memory_fs.schemas.Schema__Memory_FS__File__Metadata                                 import Schema__Memory_FS__File__Metadata
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                   import Schema__Memory_FS__File__Config
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
