@@ -26,54 +26,53 @@ files = [
 
 [[package]]
 name = "anyio"
-version = "4.11.0"
+version = "4.12.0"
 description = "High-level concurrency and networking framework on top of asyncio or Trio"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "anyio-4.11.0-py3-none-any.whl", hash = "sha256:0287e96f4d26d4149305414d4e3bc32f0dcd0862365a4bddea19d7a1ec38c4fc"},
-    {file = "anyio-4.11.0.tar.gz", hash = "sha256:82a8d0b81e318cc5ce71a5f1f8b5c4e63619620b63141ef8c995fa0db95a57c4"},
+    {file = "anyio-4.12.0-py3-none-any.whl", hash = "sha256:dad2376a628f98eeca4881fc56cd06affd18f659b17a747d3ff0307ced94b1bb"},
+    {file = "anyio-4.12.0.tar.gz", hash = "sha256:73c693b567b0c55130c104d0b43a9baf3aa6a31fc6110116509f27bf75e21ec0"},
 ]
 
 [package.dependencies]
 idna = ">=2.8"
-sniffio = ">=1.1"
 typing_extensions = {version = ">=4.5", markers = "python_version < \"3.13\""}
 
 [package.extras]
-trio = ["trio (>=0.31.0)"]
+trio = ["trio (>=0.31.0)", "trio (>=0.32.0)"]
 
 [[package]]
 name = "boto3"
-version = "1.41.3"
+version = "1.42.0"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.41.3-py3-none-any.whl", hash = "sha256:10a3f5a72e071c362f5aa8443bd949edc31b7494c48a315ccdab14b1c387a1fd"},
-    {file = "boto3-1.41.3.tar.gz", hash = "sha256:8a89f3900a356879022c1600f72cbb3d8b85708f094d2d08a461bd193d0b07ca"},
+    {file = "boto3-1.42.0-py3-none-any.whl", hash = "sha256:af32b7f61dd6293cad728ec205bcb3611ab1bf7b7dbccfd0f2bd7b9c9af96039"},
+    {file = "boto3-1.42.0.tar.gz", hash = "sha256:9c67729a6112b7dced521ea70b0369fba138e89852b029a7876041cd1460c084"},
 ]
 
 [package.dependencies]
-botocore = ">=1.41.3,<1.42.0"
+botocore = ">=1.41.6,<1.42.0"
 jmespath = ">=0.7.1,<2.0.0"
-s3transfer = ">=0.15.0,<0.16.0"
+s3transfer = ">=0.16.0,<0.17.0"
 
 [package.extras]
 crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.41.3"
+version = "1.41.6"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.41.3-py3-none-any.whl", hash = "sha256:fe2379b30cc726e9e44bf47c3834fe208b85f7eaa57b934ab05f305ca9d05a8b"},
-    {file = "botocore-1.41.3.tar.gz", hash = "sha256:1c6ad338f445c9bf02e231bfa302239d60520ec6dd88ded3206b34dca100103c"},
+    {file = "botocore-1.41.6-py3-none-any.whl", hash = "sha256:963cc946e885acb941c96e7d343cb6507b479812ca22566ceb3e9410d0588de0"},
+    {file = "botocore-1.41.6.tar.gz", hash = "sha256:08fe47e9b306f4436f5eaf6a02cb6d55c7745d13d2d093ce5d917d3ef3d3df75"},
 ]
 
 [package.dependencies]
@@ -82,7 +81,7 @@ python-dateutil = ">=2.1,<3.0.0"
 urllib3 = {version = ">=1.25.4,<2.2.0 || >2.2.0,<3", markers = "python_version >= \"3.10\""}
 
 [package.extras]
-crt = ["awscrt (==0.29.0)"]
+crt = ["awscrt (==0.29.1)"]
 
 [[package]]
 name = "certifi"
@@ -249,14 +248,14 @@ files = [
 
 [[package]]
 name = "fastapi"
-version = "0.122.0"
+version = "0.123.4"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "fastapi-0.122.0-py3-none-any.whl", hash = "sha256:a456e8915dfc6c8914a50d9651133bd47ec96d331c5b44600baa635538a30d67"},
-    {file = "fastapi-0.122.0.tar.gz", hash = "sha256:cd9b5352031f93773228af8b4c443eedc2ac2aa74b27780387b853c3726fb94b"},
+    {file = "fastapi-0.123.4-py3-none-any.whl", hash = "sha256:fc2b5cbc10fa05f4f22d87ef7ebc8993b5110ffd9850c08e1fc35a0da37f492e"},
+    {file = "fastapi-0.123.4.tar.gz", hash = "sha256:c2d0ac82f3534c8e35692fda67e2412ac60bad846bb903a65cd8145a65741474"},
 ]
 
 [package.dependencies]
@@ -341,14 +340,14 @@ osbot-utils = "*"
 
 [[package]]
 name = "mgraph-ai-service-cache-client"
-version = "0.15.0"
+version = "0.20.0"
 description = "MGraph-AI__Service__Cache__Client"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "mgraph_ai_service_cache_client-0.15.0-py3-none-any.whl", hash = "sha256:87a2352893e82677477e178a5276528eaa790fcf0a0d0abb8018079b4209ac17"},
-    {file = "mgraph_ai_service_cache_client-0.15.0.tar.gz", hash = "sha256:e36bed56c8342b447727d2de4bae9f508ce22799ababde5062db3d598299ed1c"},
+    {file = "mgraph_ai_service_cache_client-0.20.0-py3-none-any.whl", hash = "sha256:abada51c5a063ead515aa255c2723207ec17fcbcd853237b8100b6ef6513988e"},
+    {file = "mgraph_ai_service_cache_client-0.20.0.tar.gz", hash = "sha256:3f83d373b24c0dc1cdc1d4e1813d37eeb384b38241422fa5092b8356dc8fc87e"},
 ]
 
 [package.dependencies]
@@ -390,14 +389,14 @@ uvicorn = "*"
 
 [[package]]
 name = "osbot-fast-api-serverless"
-version = "1.29.0"
+version = "1.30.0"
 description = "OSBot-Fast-API-Serverless"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "osbot_fast_api_serverless-1.29.0-py3-none-any.whl", hash = "sha256:defd896e7290f5b24ed82458f7c41049cd2e242140482fa13cdad604e5b6c2fd"},
-    {file = "osbot_fast_api_serverless-1.29.0.tar.gz", hash = "sha256:947b9c3f8aa494aae583ca5c6294c25a9ba5f49d19bbb04de442b94c4433119d"},
+    {file = "osbot_fast_api_serverless-1.30.0-py3-none-any.whl", hash = "sha256:680718a78e9d86c9dd210853f6c6df4ee5b41e9f91a79246b7442c4dac1b5906"},
+    {file = "osbot_fast_api_serverless-1.30.0.tar.gz", hash = "sha256:53603ec601bbae8fc4218d0667235fef3f84997492a8a0c7c8e0e6a4cc2ea90c"},
 ]
 
 [package.dependencies]
@@ -407,26 +406,26 @@ osbot-fast-api = "*"
 
 [[package]]
 name = "osbot-utils"
-version = "3.43.0"
+version = "3.53.0"
 description = "OWASP Security Bot - Utils"
 optional = false
 python-versions = "<4.0,>=3.7"
 groups = ["main"]
 files = [
-    {file = "osbot_utils-3.43.0-py3-none-any.whl", hash = "sha256:bb0fa88c5f12bd1af321da5cd83a3ff683749e84130e365fcf2012d65b29b87f"},
-    {file = "osbot_utils-3.43.0.tar.gz", hash = "sha256:977215e211c4303c6b46155ce4302ba60b174f61b8f68b2eca4825db431fedc1"},
+    {file = "osbot_utils-3.53.0-py3-none-any.whl", hash = "sha256:c5915397efb161c5554970696f9331bf09bb9bc7510507ab6495c30ae63cf91c"},
+    {file = "osbot_utils-3.53.0.tar.gz", hash = "sha256:87401a18eb47f16a9e82f6f22d74638af07bc7fcbd80ccc4aa1394075a2cde2a"},
 ]
 
 [[package]]
 name = "pydantic"
-version = "2.12.4"
+version = "2.12.5"
 description = "Data validation using Python type hints"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "pydantic-2.12.4-py3-none-any.whl", hash = "sha256:92d3d202a745d46f9be6df459ac5a064fdaa3c1c4cd8adcfa332ccf3c05f871e"},
-    {file = "pydantic-2.12.4.tar.gz", hash = "sha256:0f8cb9555000a4b5b617f66bfd2566264c4984b27589d3b845685983e8ea85ac"},
+    {file = "pydantic-2.12.5-py3-none-any.whl", hash = "sha256:e561593fccf61e8a20fc46dfc2dfe075b8be7d0188df33f221ad1f0139180f9d"},
+    {file = "pydantic-2.12.5.tar.gz", hash = "sha256:4d351024c75c0f085a9febbb665ce8c0c6ec5d30e903bdb6394b7ede26aebb49"},
 ]
 
 [package.dependencies]
@@ -612,14 +611,14 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "s3transfer"
-version = "0.15.0"
+version = "0.16.0"
 description = "An Amazon S3 Transfer Manager"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "s3transfer-0.15.0-py3-none-any.whl", hash = "sha256:6f8bf5caa31a0865c4081186689db1b2534cef721d104eb26101de4b9d6a5852"},
-    {file = "s3transfer-0.15.0.tar.gz", hash = "sha256:d36fac8d0e3603eff9b5bfa4282c7ce6feb0301a633566153cbd0b93d11d8379"},
+    {file = "s3transfer-0.16.0-py3-none-any.whl", hash = "sha256:18e25d66fed509e3868dc1572b3f427ff947dd2c56f844a5bf09481ad3f3b2fe"},
+    {file = "s3transfer-0.16.0.tar.gz", hash = "sha256:8e990f13268025792229cd52fa10cb7163744bf56e719e0b9cb925ab79abf920"},
 ]
 
 [package.dependencies]
@@ -638,18 +637,6 @@ groups = ["main"]
 files = [
     {file = "six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"},
     {file = "six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"},
-]
-
-[[package]]
-name = "sniffio"
-version = "1.3.1"
-description = "Sniff out which async library your code is running under"
-optional = false
-python-versions = ">=3.7"
-groups = ["main"]
-files = [
-    {file = "sniffio-1.3.1-py3-none-any.whl", hash = "sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2"},
-    {file = "sniffio-1.3.1.tar.gz", hash = "sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc"},
 ]
 
 [[package]]
