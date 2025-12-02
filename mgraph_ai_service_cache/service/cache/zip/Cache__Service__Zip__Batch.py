@@ -1,15 +1,16 @@
 import fnmatch
 import io
 import zipfile
-from typing                                                                              import List, Tuple, Optional, Any
-from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
-from osbot_utils.utils.Zip                                                               import (zip_bytes__file_list, zip_bytes__add_file,
-                                                                                                 zip_bytes__remove_files, zip_bytes__replace_file)
-from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
-from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Request        import Schema__Cache__Zip__Batch__Request, Schema__Zip__Batch__Operation
-from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Response       import Schema__Cache__Zip__Batch__Response, Schema__Zip__Operation__Result
+from typing                                                                                 import List, Tuple, Optional, Any
+from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                              import type_safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                          import Cache_Id
+from osbot_utils.utils.Zip                                                                  import (zip_bytes__file_list, zip_bytes__add_file,
+                                                                                                    zip_bytes__remove_files, zip_bytes__replace_file)
+from mgraph_ai_service_cache.service.cache.Cache__Service                                   import Cache__Service
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Request    import Schema__Cache__Zip__Batch__Request, Schema__Zip__Batch__Operation
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Response   import Schema__Cache__Zip__Batch__Response, Schema__Zip__Operation__Result
 
 
 class Cache__Service__Zip__Batch(Type_Safe):                                             # Service layer for batch zip operations
@@ -106,29 +107,29 @@ class Cache__Service__Zip__Batch(Type_Safe):                                    
                                                    new_size             = len(working_zip)                        ,
                                                    rollback_performed   = False                                   )
 
-    def retrieve_zip(self, cache_id: Random_Guid, namespace: str) -> Optional[bytes]:    # Get zip from cache
+    def retrieve_zip(self, cache_id: Cache_Id   , namespace: str) -> Optional[bytes]:    # Get zip from cache
         result = self.cache_service.retrieve_by_id(cache_id, namespace)
         if result and result.get('data_type') == 'binary':
             return result.get('data')
         return None
 
-    def create_modified_zip(self, original_id : Random_Guid ,
+    def create_modified_zip(self, original_id : Cache_Id    ,
                                   namespace   : str          ,
                                   zip_bytes   : bytes        ,
                                   metadata    : dict = None
-                           ) -> Optional[Random_Guid]:                                   # Create new immutable cache entry
+                           ) -> Optional[Cache_Id   ]:                                   # Create new immutable cache entry
         cache_hash = self.cache_service.hash_from_bytes(zip_bytes)
 
         original_entry    = self.cache_service.retrieve_by_id(original_id, namespace)               # Get original entry to preserve strategy
         original_strategy = original_entry.get('strategy', 'direct') if original_entry else 'direct'
 
         # Store as new immutable entry
-        result = self.cache_service.store_with_strategy(storage_data = zip_bytes        ,
-                                                        cache_hash   = cache_hash       ,
-                                                        cache_id     = Random_Guid()    ,  # Always new ID for immutability
-                                                        namespace    = namespace        ,
-                                                        strategy     = original_strategy,  # Preserve original's strategy
-                                                        metadata     = metadata         )   # Include batch metadata
+        result = self.cache_service.store_with_strategy(storage_data = zip_bytes                ,
+                                                        cache_hash   = cache_hash               ,
+                                                        cache_id     = Cache_Id(Random_Guid())  ,  # Always new ID for immutability
+                                                        namespace    = namespace                ,
+                                                        strategy     = original_strategy        ,  # Preserve original's strategy
+                                                        metadata     = metadata                 )   # Include batch metadata
 
         return result.cache_id if result else None
 

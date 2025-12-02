@@ -5,7 +5,7 @@ from osbot_fast_api.api.routes.Fast_API__Routes                                 
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix           import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag              import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.decorators.methods.cache_on_self                                    import cache_on_self
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                   import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe
 from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Update__Response    import Schema__Cache__Update__Response
@@ -33,7 +33,7 @@ class Routes__File__Update(Fast_API__Routes):                                   
     @route_path("/update/{cache_id}/string")
     def update__string(self,
                        data      : str           = Body(...)                     ,
-                       cache_id  : Random_Guid   = None                          ,
+                       cache_id  : Cache_Id      = None                          ,
                        namespace : Safe_Str__Id  = FAST_API__PARAM__NAMESPACE
                   ) -> Schema__Cache__Update__Response:                          # Update existing cache entry with string data
 
@@ -50,7 +50,7 @@ class Routes__File__Update(Fast_API__Routes):                                   
     @route_path("/update/{cache_id}/json")
     def update__json(self,
                      data      : dict          = Body(...)                     ,
-                     cache_id  : Random_Guid   = None                          ,
+                     cache_id  : Cache_Id      = None                          ,
                      namespace : Safe_Str__Id  = FAST_API__PARAM__NAMESPACE
                 ) -> Schema__Cache__Update__Response:                            # Update existing cache entry with JSON data
 
@@ -61,7 +61,7 @@ class Routes__File__Update(Fast_API__Routes):                                   
     @route_path("/update/{cache_id}/binary")
     def update__binary(self,
                        body      : bytes         = Body(..., media_type="application/octet-stream"),
-                       cache_id  : Random_Guid   = None                          ,
+                       cache_id  : Cache_Id      = None                          ,
                        namespace : Safe_Str__Id  = FAST_API__PARAM__NAMESPACE
                   ) -> Schema__Cache__Update__Response:                          # Update existing cache entry with binary data
 
@@ -77,7 +77,7 @@ class Routes__File__Update(Fast_API__Routes):                                   
 
     @type_safe
     def _execute_update(self,
-                        cache_id  : Random_Guid   ,
+                        cache_id  : Cache_Id      ,
                         namespace : Safe_Str__Id  ,
                         data      : Any           ,
                    ) -> Schema__Cache__Update__Response:                         # Common update logic for all data types

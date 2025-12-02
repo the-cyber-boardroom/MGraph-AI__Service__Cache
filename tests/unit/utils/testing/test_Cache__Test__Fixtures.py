@@ -1,7 +1,7 @@
 from unittest                                                                       import TestCase
 from osbot_fast_api_serverless.utils.testing.skip_tests                             import skip__if_not__in_github_actions
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                  import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
 from osbot_utils.utils.Objects                                                      import base_classes
 from mgraph_ai_service_cache.service.cache.Cache__Service                           import Cache__Service
@@ -60,7 +60,7 @@ class test_Cache__Test__Fixtures(TestCase):
 
             # Delete one fixture manually
             fixture_info = _.fixtures['string_simple']
-            cache_id = Random_Guid(fixture_info['cache_id'])
+            cache_id = Cache_Id(fixture_info['cache_id'])
             _.cache_service.delete_by_id(cache_id  = cache_id,
                                          namespace = _.namespace)
 
@@ -85,7 +85,7 @@ class test_Cache__Test__Fixtures(TestCase):
             assert type(_.cache_service) is Cache__Service
 
             # Verify manifest ID was set
-            assert type(_.manifest_cache_id) is Random_Guid
+            assert type(_.manifest_cache_id) is Cache_Id
             assert str(_.manifest_cache_id)  == "00000000-0000-0000-0000-000000000001"  # Predictable ID
 
             # Verify namespace was used
@@ -140,7 +140,7 @@ class test_Cache__Test__Fixtures(TestCase):
 
             # Get ID for existing fixture
             fixture_id = _.get_fixture_id('string_simple')
-            assert type(fixture_id) is Random_Guid
+            assert type(fixture_id) is Cache_Id
 
             # Use ID to retrieve directly
             result = _.cache_service.retrieve_by_id(cache_id  = fixture_id,

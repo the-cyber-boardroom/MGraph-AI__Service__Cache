@@ -1,5 +1,6 @@
 from typing                                                                              import Dict, List
 from unittest                                                                            import TestCase
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                       import Cache_Id
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
 from osbot_utils.testing.__                                                              import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
@@ -164,7 +165,7 @@ class test_Cache__Service__Retrieve(TestCase):
 
     def test_get_not_found_error(self):                                             # Test error response building
         with self.retrieve_service as _:
-            cache_id   = Random_Guid()
+            cache_id   = Cache_Id(Random_Guid())
             cache_hash = Safe_Str__Cache_Hash("abc123def456789")
 
             error = _.get_not_found_error(cache_id   = cache_id,
@@ -191,7 +192,7 @@ class test_Cache__Service__Retrieve(TestCase):
 
     def test_get_expired_error(self):                                                # Test expired error response
         with self.retrieve_service as _:
-            cache_id   = Random_Guid  ()
+            cache_id   = Cache_Id(Random_Guid())
             expired_at = Timestamp_Now()
             error = _.get_expired_error(cache_id   = cache_id,
                                         expired_at = expired_at,
@@ -206,7 +207,7 @@ class test_Cache__Service__Retrieve(TestCase):
             assert error.namespace  == self.namespace
 
     def test__build_metadata(self):                                                  # Test metadata building
-        cache_id   = Random_Guid()
+        cache_id   = Cache_Id(Random_Guid())
         cache_hash = Safe_Str__Cache_Hash()
         stored_at  = Timestamp_Now()
         with self.retrieve_service as _:

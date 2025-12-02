@@ -4,7 +4,7 @@ from osbot_utils.utils.Json                                                     
 from osbot_utils.utils.Misc                                                                      import str_to_bytes
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                           import Schema__Memory_FS__File__Config
 from osbot_utils.type_safe.Type_Safe                                                             import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                            import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                               import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                  import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash         import Safe_Str__Cache_Hash
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                   import type_safe
@@ -18,7 +18,7 @@ class Cache__Service__Update(Type_Safe):                                        
 
     @type_safe
     def update_by_id(self,
-                     cache_id  : Random_Guid            ,
+                     cache_id  : Cache_Id               ,
                      namespace : Safe_Str__Id           ,
                      data      : Union[str, dict, bytes],
                 ) -> Schema__Cache__Update__Response:                                # Update existing cache entry (hash-stable only, V1 limitation)
@@ -47,7 +47,7 @@ class Cache__Service__Update(Type_Safe):                                        
                                                updated_id_ref   = False                           )  # V1: ID ref never updated
     @type_safe
     def _load_existing_config(self,
-                              cache_id  : Random_Guid   ,
+                              cache_id  : Cache_Id      ,
                               namespace : Safe_Str__Id
                          ) -> Schema__Memory_FS__File__Config:         # Retrieve existing entry's configuration
 
@@ -58,7 +58,7 @@ class Cache__Service__Update(Type_Safe):                                        
 
     @type_safe
     def _load_existing_refs(self,
-                              cache_id  : Random_Guid   ,
+                              cache_id  : Cache_Id      ,
                               namespace : Safe_Str__Id
                          ) -> Schema__Cache__File__Refs:            # Retrieve existing entry's refs
 

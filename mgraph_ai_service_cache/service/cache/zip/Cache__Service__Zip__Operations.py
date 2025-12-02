@@ -1,16 +1,17 @@
-from typing                                                                              import Optional
-from osbot_utils.decorators.methods.cache_on_self                                        import cache_on_self
-from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
-from osbot_utils.utils.Zip                                                               import (zip_bytes__file_list, zip_bytes__file,
-                                                                                                 zip_bytes__add_file, zip_bytes__remove_file,
-                                                                                                 zip_bytes__replace_file)
+from typing                                                                                     import Optional
+from osbot_utils.decorators.methods.cache_on_self                                               import cache_on_self
+from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                           import Random_Guid
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                  import type_safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                              import Cache_Id
+from osbot_utils.utils.Zip                                                                      import (zip_bytes__file_list, zip_bytes__file,
+                                                                                                        zip_bytes__add_file, zip_bytes__remove_file,
+                                                                                                        zip_bytes__replace_file)
 from mgraph_ai_service_cache_client.schemas.cache.zip.enums.Enum__Cache__Zip__Operation         import Enum__Cache__Zip__Operation
-from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
+from mgraph_ai_service_cache.service.cache.Cache__Service                                       import Cache__Service
 from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Operation__Request    import Schema__Cache__Zip__Operation__Request
 from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Operation__Response   import Schema__Cache__Zip__Operation__Response
-from mgraph_ai_service_cache.utils.for_osbot_utils.Zip                                   import zip_bytes__content_hash
+from mgraph_ai_service_cache.utils.for_osbot_utils.Zip                                          import zip_bytes__content_hash
 
 
 class Cache__Service__Zip__Operations(Type_Safe):                                        # Service layer for zip file operations
@@ -164,12 +165,12 @@ class Cache__Service__Zip__Operations(Type_Safe):                               
             files_affected    = [request.file_path]                                    ,
             message           = f"Replaced '{request.file_path}' in zip (new cache_id: {new_cache_id})")
 
-    def create_modified_zip(self, original_id : Random_Guid  ,
+    def create_modified_zip(self, original_id : Cache_Id     ,
                                   namespace   : str          ,
                                   zip_bytes   : bytes        ,
                                   operation   : str          ,
                                   details     : dict = None
-                             ) -> Optional[Random_Guid]:                                                            # Create new immutable cache entry for modified zip
+                             ) -> Optional[Cache_Id   ]:                                                            # Create new immutable cache entry for modified zip
 
         hash_length = self.cache_service.hash_config.length
         cache_hash  = zip_bytes__content_hash(zip_bytes   = zip_bytes,
@@ -189,10 +190,10 @@ class Cache__Service__Zip__Operations(Type_Safe):                               
         # if details:
         #     metadata["operation_details"] = details
 
-        result = self.cache_service.store_with_strategy(storage_data = zip_bytes         ,  # Store as new immutable entry with same strategy as original
-                                                        cache_hash   = cache_hash       ,
-                                                        cache_id     = Random_Guid()    ,   # Always new ID for immutability
-                                                        namespace    = namespace        ,
+        result = self.cache_service.store_with_strategy(storage_data = zip_bytes              ,  # Store as new immutable entry with same strategy as original
+                                                        cache_hash   = cache_hash             ,
+                                                        cache_id     = Cache_Id(Random_Guid()),   # Always new ID for immutability
+                                                        namespace    = namespace              ,
                                                         strategy     = original_strategy)   # Preserve original's strategy
         return result.cache_id if result else None
 

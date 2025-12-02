@@ -4,7 +4,7 @@ from osbot_fast_api.api.routes.Fast_API__Routes                                 
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                      import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag                         import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.decorators.methods.cache_on_self                                               import cache_on_self
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                           import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                              import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                 import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path               import Safe_Str__File__Path
 from osbot_utils.utils.Zip                                                                      import zip_bytes_empty
@@ -94,7 +94,7 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
         return response
 
     @route_path("/zip/{cache_id}/files/list")
-    def zip_files_list(self, cache_id : Random_Guid,
+    def zip_files_list(self, cache_id : Cache_Id   ,
                              namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                         ) -> Schema__Cache__Zip__Operation__Response:       # List files in stored zip
 
@@ -110,7 +110,7 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
         return result
 
     @route_path("/zip/{cache_id}/file/retrieve/{file_path:path}")
-    def zip_file_retrieve(self, cache_id  : Random_Guid,
+    def zip_file_retrieve(self, cache_id  : Cache_Id   ,
                            file_path : Safe_Str__File__Path,
                            namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                       ) -> Response:                                         # Get specific file from zip
@@ -128,7 +128,7 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
         return Response(content=result.file_content, media_type="application/octet-stream")
 
     @route_path("/zip/{cache_id}/file/add/from/string/{file_path:path}")
-    def zip_file_add_from_string(self, cache_id  : Random_Guid,
+    def zip_file_add_from_string(self, cache_id  : Cache_Id   ,
                                        body      : str = Body(...),
                                        file_path : Safe_Str__File__Path = None,
                                        namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
@@ -140,7 +140,7 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
                                             namespace = namespace ,)
 
     @route_path("/zip/{cache_id}/file/add/from/bytes/{file_path:path}")
-    def zip_file_add_from_bytes(self, cache_id  : Random_Guid,
+    def zip_file_add_from_bytes(self, cache_id  : Cache_Id   ,
                                       body      : bytes = Body(...),
                                       file_path : Safe_Str__File__Path = None,
                                       namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
@@ -163,7 +163,7 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
         return result
 
     @route_path("/zip/{cache_id}/file/delete/{file_path:path}")
-    def zip_file_delete(self, cache_id  : Random_Guid,
+    def zip_file_delete(self, cache_id  : Cache_Id   ,
                               file_path : Safe_Str__File__Path,
                               namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                          ) -> Schema__Cache__Zip__Operation__Response:      # Remove file from zip
@@ -182,7 +182,7 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
 
     @route_path("/zip/{cache_id}/batch/operations")
     def batch_operations(self, request  : Schema__Cache__Zip__Batch__Request,
-                               cache_id : Random_Guid,
+                               cache_id : Cache_Id   ,
                                namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                           ) -> Schema__Cache__Zip__Batch__Response:         # Perform batch operations
 
@@ -195,7 +195,7 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
             raise HTTPException(status_code=500, detail=f"Batch operation failed: {str(e)}")
 
     @route_path("/zip/{cache_id}/retrieve")
-    def zip_retrieve(self, cache_id : Random_Guid,
+    def zip_retrieve(self, cache_id : Cache_Id   ,
                            namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                       ) -> Response:                                         # Download entire zip file
 

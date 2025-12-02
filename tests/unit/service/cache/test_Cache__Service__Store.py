@@ -4,7 +4,7 @@ from osbot_utils.testing.__                                                     
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                    import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.utils.Objects                                                           import base_classes
 from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                   import Cache__Service__Store
@@ -71,7 +71,7 @@ class test_Cache__Service__Store(TestCase):
             self._track_cache_id(result)
 
             assert type(result)            is Schema__Cache__Store__Response
-            assert type(result.cache_id  ) is Random_Guid
+            assert type(result.cache_id  ) is Cache_Id
             assert type(result.cache_hash) is Safe_Str__Cache_Hash
             assert result.namespace        == self.test_namespace
             assert result.size              > 0
@@ -109,7 +109,7 @@ class test_Cache__Service__Store(TestCase):
             self._track_cache_id(result)
 
             assert type(result)            is Schema__Cache__Store__Response
-            assert type(result.cache_id  ) is Random_Guid
+            assert type(result.cache_id  ) is Cache_Id
             assert type(result.cache_hash) is Safe_Str__Cache_Hash
             assert result.size             > 0
 
@@ -133,7 +133,7 @@ class test_Cache__Service__Store(TestCase):
             self._track_cache_id(result)
 
             assert type(result)          is Schema__Cache__Store__Response
-            assert type(result.cache_id) is Random_Guid
+            assert type(result.cache_id) is Cache_Id
             assert result.size           == len(self.test_binary)
 
     def test_store_binary__compressed(self):                                         # Test compression
@@ -194,7 +194,7 @@ class test_Cache__Service__Store(TestCase):
                     self._track_cache_id(result)
 
                     assert type(result)          is Schema__Cache__Store__Response
-                    assert type(result.cache_id) is Random_Guid
+                    assert type(result.cache_id) is Cache_Id
 
     def test_store_duplicate_data(self):                                             # Test duplicate storage
         skip__if_not__in_github_actions()

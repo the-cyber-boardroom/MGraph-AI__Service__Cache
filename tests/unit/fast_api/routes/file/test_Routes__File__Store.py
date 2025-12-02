@@ -7,7 +7,7 @@ from osbot_fast_api_serverless.utils.testing.skip_tests                         
 from osbot_utils.testing.__                                                              import __, __SKIP__
 from memory_fs.path_handlers.Path__Handler__Temporal                                     import Path__Handler__Temporal
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                    import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from osbot_utils.utils.Objects                                                           import base_classes
@@ -70,7 +70,7 @@ class test_Routes__File__Store(TestCase):
                                   size       = 20                 )
 
             assert type(_)            is Schema__Cache__Store__Response
-            assert type(_.cache_id  ) is Random_Guid
+            assert type(_.cache_id  ) is Cache_Id
             assert type(_.cache_hash) is Safe_Str__Cache_Hash
 
     def test_store__json(self):                                                               # Test JSON storage endpoint
@@ -80,7 +80,7 @@ class test_Routes__File__Store(TestCase):
 
         with response__store as _:
             assert type(_)              is Schema__Cache__Store__Response
-            assert type(_.cache_id)     is Random_Guid
+            assert type(_.cache_id)     is Cache_Id
             assert type(_.cache_hash)   is Safe_Str__Cache_Hash
             assert _.cache_hash         == '96af669d785b90b6'                                       # Consistent hash
 
@@ -94,7 +94,7 @@ class test_Routes__File__Store(TestCase):
 
         with response__store as _:
             assert type(_)              is Schema__Cache__Store__Response
-            assert type(_.cache_id)     is Random_Guid
+            assert type(_.cache_id)     is Cache_Id
             assert type(_.cache_hash)   is Safe_Str__Cache_Hash
             assert _.cache_hash         == '96af669d785b90b6'                                       # Consistent hash
 
@@ -109,7 +109,7 @@ class test_Routes__File__Store(TestCase):
 
         with response__store as _:
             assert type(_)              is Schema__Cache__Store__Response
-            assert type(_.cache_id)     is Random_Guid
+            assert type(_.cache_id)     is Cache_Id
             assert type(_.cache_hash)   is Safe_Str__Cache_Hash
             assert _.cache_hash         == '96af669d785b90b6'                                       # Consistent hash
 
@@ -123,7 +123,7 @@ class test_Routes__File__Store(TestCase):
                                             namespace = self.test_namespace                 )
 
             assert type(response_store)          is Schema__Cache__Store__Response
-            assert type(response_store.cache_id) is Random_Guid
+            assert type(response_store.cache_id) is Cache_Id
             assert response_store.size           > 100
 
     def test_store__binary__cache_key(self):                                                        # Test binary storage
@@ -137,7 +137,7 @@ class test_Routes__File__Store(TestCase):
                                                         cache_key = cache_key                           )
 
             assert type(response_store)          is Schema__Cache__Store__Response
-            assert type(response_store.cache_id) is Random_Guid
+            assert type(response_store.cache_id) is Cache_Id
             assert response_store.size           > 100
 
     def test_store__binary__cache_key__file_id(self):                                               # Test binary storage
@@ -153,7 +153,7 @@ class test_Routes__File__Store(TestCase):
                                                         file_id   = file_id                             )
 
             assert type(response_store)          is Schema__Cache__Store__Response
-            assert type(response_store.cache_id) is Random_Guid
+            assert type(response_store.cache_id) is Cache_Id
             assert response_store.size           > 100
 
     def test_store__binary__compressed(self):                                                 # Test compressed binary storage
@@ -170,7 +170,7 @@ class test_Routes__File__Store(TestCase):
                                             namespace = self.test_namespace                  )
 
             assert type(response_store)          is Schema__Cache__Store__Response
-            assert type(response_store.cache_id) is Random_Guid
+            assert type(response_store.cache_id) is Cache_Id
             assert response_store.size           < len(original_data)                         # Compressed size
 
     def test_store__binary__uncompressed(self):                                               # Test uncompressed binary
@@ -183,7 +183,7 @@ class test_Routes__File__Store(TestCase):
                                       namespace = self.test_namespace                            )
 
             assert type(response)            is Schema__Cache__Store__Response
-            assert type(response.cache_id  ) is Random_Guid
+            assert type(response.cache_id  ) is Cache_Id
             assert type(response.cache_hash) is Safe_Str__Cache_Hash
             assert response.size             == len(binary_data)
 
@@ -202,7 +202,7 @@ class test_Routes__File__Store(TestCase):
                                               strategy  = strategy                             ,
                                               namespace = Safe_Str__Id(f"strat-{strategy}")   )
 
-                    assert type(response.cache_id) is Random_Guid
+                    assert type(response.cache_id) is Cache_Id
                     assert response.cache_hash     is not None
                     assert 'paths' in response.json()
 
@@ -215,7 +215,7 @@ class test_Routes__File__Store(TestCase):
                                             namespace = DEFAULT_CACHE__NAMESPACE            )
 
             assert type(response_store)          is Schema__Cache__Store__Response
-            assert type(response_store.cache_id) is Random_Guid
+            assert type(response_store.cache_id) is Cache_Id
 
     def test_json_that_is_compressed(self):                                                   # Test compressed JSON as binary
         json_data       = {"users": [{"id": i, "name": f"User_{i}"} for i in range(10)]}
@@ -232,7 +232,7 @@ class test_Routes__File__Store(TestCase):
                                             namespace = self.test_namespace                          )
 
             assert type(response_store)          is Schema__Cache__Store__Response
-            assert type(response_store.cache_id) is Random_Guid
+            assert type(response_store.cache_id) is Cache_Id
             assert response_store.cache_hash     is not None
 
     def test_multiple_stores_same_data(self):                                                 # Test same data multiple times
@@ -277,7 +277,7 @@ class test_Routes__File__Store(TestCase):
                                     namespace = self.test_namespace                )
 
             assert type(response)          is Schema__Cache__Store__Response
-            assert type(response.cache_id) is Random_Guid
+            assert type(response.cache_id) is Cache_Id
             assert response.cache_hash     == '44136fa355b3678a'
             assert response.namespace      == self.test_namespace
 
@@ -293,7 +293,7 @@ class test_Routes__File__Store(TestCase):
                                     namespace = self.test_namespace                            )
 
             assert type(response)          is Schema__Cache__Store__Response
-            assert type(response.cache_id) is Random_Guid
+            assert type(response.cache_id) is Cache_Id
             assert response.size           > 1000
 
     def test_store_with_special_characters(self):                                             # Test special characters
@@ -305,7 +305,7 @@ class test_Routes__File__Store(TestCase):
                                       namespace = self.test_namespace                )
 
             assert type(response)          is Schema__Cache__Store__Response
-            assert type(response.cache_id) is Random_Guid
+            assert type(response.cache_id) is Cache_Id
 
     def test_store_json_with_null_values(self):                                               # Test JSON with nulls
         json_with_nulls = {"key1"  : None              ,
@@ -319,7 +319,7 @@ class test_Routes__File__Store(TestCase):
                                     namespace = self.test_namespace                 )
 
             assert type(response)          is Schema__Cache__Store__Response
-            assert type(response.cache_id) is Random_Guid
+            assert type(response.cache_id) is Cache_Id
 
     def test_store_string_in_advanced_path(self):                                             # Test semantic file path
         an_string = "this is a string"

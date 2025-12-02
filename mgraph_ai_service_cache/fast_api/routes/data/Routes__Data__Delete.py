@@ -5,7 +5,7 @@ from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix      
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag                           import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.decorators.methods.cache_on_self                                                 import cache_on_self
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                 import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                             import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                                import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                   import Safe_Str__Id
 from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__Retrieve__Request     import Schema__Cache__Data__Retrieve__Request
 from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                    import Enum__Cache__Data_Type
@@ -33,7 +33,7 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
         return Cache__Service__Data__Delete(cache_service=self.cache_service)
 
     @route_path("/data/delete/{data_type}/{data_file_id}")
-    def delete__data__file__with__id(self, cache_id     : Random_Guid            = None                          ,
+    def delete__data__file__with__id(self, cache_id     : Cache_Id               = None                          ,
                                            namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,
                                            data_type    : Enum__Cache__Data_Type = None                          ,
                                            data_file_id : Safe_Str__Id           = None
@@ -45,7 +45,7 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
                                                          data_file_id = data_file_id)
 
     @route_path("/data/delete/{data_type}/{data_key:path}/{data_file_id}")
-    def delete__data__file__with__id_and_key(self, cache_id     : Random_Guid            = None                          ,
+    def delete__data__file__with__id_and_key(self, cache_id     : Cache_Id               = None                          ,
                                                    namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,
                                                    data_type    : Enum__Cache__Data_Type = None                          ,
                                                    data_key     : Safe_Str__File__Path   = None                          ,
@@ -87,7 +87,7 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
                 "namespace"     : str(namespace)                                               }
 
     @route_path("/data/delete/all")
-    def delete__all__data__files(self, cache_id  : Random_Guid = None                          ,
+    def delete__all__data__files(self, cache_id  : Cache_Id    = None                          ,
                                        namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                 ) -> dict:
         return self.delete__all__data__files__with__key(cache_id  = cache_id ,
@@ -95,7 +95,7 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
                                                         data_key  = ''       )
 
     @route_path("/data/delete/all/{data_key:path}")
-    def delete__all__data__files__with__key(self, cache_id  : Random_Guid          = None                          ,
+    def delete__all__data__files__with__key(self, cache_id  : Cache_Id             = None                          ,
                                                   namespace : Safe_Str__Id         = FAST_API__PARAM__NAMESPACE    ,
                                                   data_key  : Safe_Str__File__Path = None
                                            ) -> dict:                                                               # Delete all data files

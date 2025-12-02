@@ -13,7 +13,7 @@ from osbot_fast_api.api.routes.Fast_API__Routes                                 
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix               import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag                  import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.decorators.methods.cache_on_self                                        import cache_on_self
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                       import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Binary__Reference       import Schema__Cache__Binary__Reference
@@ -51,7 +51,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
 
     @type_safe
     def handle_not_found(self, result        : Union[Type_Safe, Dict] = None,                                 # Base method for 404 handling
-                               cache_id      : Random_Guid            = None,
+                               cache_id      : Cache_Id            = None,
                                cache_hash    : Safe_Str__Cache_Hash   = None,
                                namespace     : Safe_Str__Id           = None):
         if result is None:
@@ -61,7 +61,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
             raise HTTPException(status_code=404, detail=error.json())
         return result
 
-    def retrieve__cache_id(self, cache_id  : Random_Guid,
+    def retrieve__cache_id(self, cache_id  : Cache_Id,
                                  namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                             ): # todo union is not supported by Fast_API. Refactor to one class -> Union[Schema__Cache__Retrieve__Success, Schema__Cache__Binary__Reference]:             # Retrieve by cache ID with metadata
                 
@@ -81,28 +81,28 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
                                                         metadata     = result.metadata                             )
         return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
 
-    def retrieve__cache_id__config(self, cache_id  : Random_Guid,
+    def retrieve__cache_id__config(self, cache_id  : Cache_Id,
                                          namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                     ) -> Schema__Memory_FS__File__Config:                                           # Retrieve by cache ID with metadata
 
         response_data = self.retrieve_service().retrieve_by_id__config(cache_id, namespace)
         return self.handle_not_found(response_data, cache_id=cache_id, namespace=namespace)
 
-    def retrieve__cache_id__refs(self, cache_id : Random_Guid,
+    def retrieve__cache_id__refs(self, cache_id : Cache_Id,
                                        namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                   ) -> Schema__Cache__File__Refs:                                                    # Get cache entry details
 
         result = self.retrieve_service().retrieve_by_id__refs(cache_id, namespace)
         return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
 
-    def retrieve__cache_id__metadata(self, cache_id : Random_Guid,
+    def retrieve__cache_id__metadata(self, cache_id : Cache_Id,
                                            namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                       ) -> Schema__Memory_FS__File__Metadata:                                                       # Get cache entry details
         result = self.retrieve_service().retrieve_by_id__metadata(cache_id, namespace)                                              # todo: this class should return Schema__Cache__File__Refs
         return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
 
 
-    def retrieve__cache_id__refs__all(self, cache_id: Random_Guid,
+    def retrieve__cache_id__refs__all(self, cache_id: Cache_Id,
                                             namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                       ) -> Dict:
         result = self.retrieve_service().get_entry_details__all(cache_id, namespace)                                              # todo: this class should return Schema__Cache__File__Refs
@@ -136,7 +136,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
         return result
     
     @route_path("/retrieve/{cache_id}/string")
-    def retrieve__cache_id__string(self, cache_id : Random_Guid,
+    def retrieve__cache_id__string(self, cache_id : Cache_Id,
                                          namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                     ) -> Response:                                                          # Retrieve as string format
         
@@ -158,7 +158,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
         return Response(content=content, media_type="text/plain")
     
     @route_path("/retrieve/{cache_id}/json")
-    def retrieve__cache_id__json(self, cache_id  : Random_Guid,
+    def retrieve__cache_id__json(self, cache_id  : Cache_Id,
                                        namespace : Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                   ) -> dict:                                                                    # Retrieve as JSON format
         namespace = namespace or Safe_Str__Id("default")
@@ -190,7 +190,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
         return {"data": result.data, "data_type": str(result.data_type)}                                                    # todo: look at how to handle this scenario that shouldn't happen
     
     @route_path("/retrieve/{cache_id}/binary")
-    def retrieve__cache_id__binary(self, cache_id : Random_Guid,
+    def retrieve__cache_id__binary(self, cache_id : Cache_Id,
                                          namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                                     ) -> Response:                                                                          # Retrieve as binary format
         
