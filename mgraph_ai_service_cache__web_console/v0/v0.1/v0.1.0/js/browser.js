@@ -57,7 +57,7 @@ class CacheBrowser {
 
     initKeyboardShortcuts() {
         // Initialize keyboard shortcuts manager
-        const configPath = ComponentPaths.getDataPath('keyboard-shortcuts.json');
+        const configPath = ComponentPaths.getDataPath('../../v0.1.0/data/keyboard-shortcuts.json');
         this.keyboardShortcuts = new KeyboardShortcuts({
             configUrl: configPath
         });

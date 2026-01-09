@@ -1,0 +1,29 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser - View Tabs
+   v0.1.1 - Tab switcher for Files/Hashes/Raw views
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="view-tabs-container">
+    <button class="view-tab-btn" data-view="files" title="View by File ID">
+        <span class="tab-icon">📋</span>
+        <span class="tab-label">Files</span>
+        <span class="tab-count" id="files-count">-</span>
+    </button>
+    
+    <button class="view-tab-btn" data-view="hashes" title="View by Content Hash">
+        <span class="tab-icon">🔗</span>
+        <span class="tab-label">Hashes</span>
+        <span class="tab-count" id="hashes-count">-</span>
+    </button>
+    
+    <button class="view-tab-btn active" data-view="raw" title="Raw Storage View">
+        <span class="tab-icon">📁</span>
+        <span class="tab-label">Raw</span>
+    </button>
+    
+    <div style="flex: 1;"></div>
+    
+    <span class="view-tabs-namespace" id="current-namespace">
+        <!-- Populated dynamically -->
+    </span>
+</div>

@@ -25,7 +25,7 @@
 function KeyboardShortcuts(options) {
     options = options || {};
 
-    this.configUrl = options.configUrl || 'data/keyboard-shortcuts.json';
+    this.configUrl = options.configUrl || '../v0.1.0/data/keyboard-shortcuts.json';
     this.shortcuts = [];
     this.categories = {};
     this.enabled = true;
