@@ -1,0 +1,51 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser - File Tree
+   v0.1.0 - Hierarchical file browser for cache entries
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="file-tree-container">
+    <div class="file-tree-header">
+        <span class="file-tree-title">Files</span>
+        <div class="file-tree-actions">
+            <button class="btn btn-ghost btn-sm" id="refresh-btn" title="Refresh (r)">↻</button>
+            <button class="btn btn-ghost btn-sm" id="collapse-all-btn" title="Collapse all">⊟</button>
+            <button class="btn btn-ghost btn-sm" id="expand-all-btn" title="Expand all">⊞</button>
+        </div>
+    </div>
+    
+    <div class="file-tree-filter">
+        <input type="text" 
+               class="file-tree-search" 
+               id="filter-input" 
+               placeholder="Filter files... (/)"
+               autocomplete="off">
+        <span class="file-tree-count" id="file-count">0 files</span>
+    </div>
+    
+    <div class="file-tree-content" id="tree-content">
+        <div class="file-tree-loading" id="loading-state">
+            <span class="spinner"></span>
+            <span>Loading files...</span>
+        </div>
+        
+        <div class="file-tree-empty" id="empty-state" style="display: none;">
+            <div class="empty-state-icon">📁</div>
+            <div class="empty-state-text">No files in this namespace</div>
+        </div>
+        
+        <div class="file-tree-error" id="error-state" style="display: none;">
+            <div class="empty-state-icon">⚠️</div>
+            <div class="empty-state-text" id="error-message">Failed to load files</div>
+            <button class="btn btn-sm btn-primary" id="retry-btn">Retry</button>
+        </div>
+        
+        <div class="tree-root" id="tree-root" style="display: none;"></div>
+    </div>
+    
+    <div class="file-tree-footer">
+        <div class="tree-stats">
+            <span class="stat-item" id="stat-refs">refs: -</span>
+            <span class="stat-item" id="stat-data">data: -</span>
+        </div>
+    </div>
+</div>

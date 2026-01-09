@@ -1,0 +1,50 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser - Top Navigation
+   v0.1.0 - Header with branding, namespace tabs, and status
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<header class="top-nav">
+    <div class="top-nav-left">
+        <div class="brand">
+            <span class="brand-icon">🗄️</span>
+            <span class="brand-text">Cache Browser</span>
+            <span class="brand-version">v0.1.0</span>
+        </div>
+    </div>
+    
+    <div class="top-nav-center">
+        <div class="namespace-tabs" id="namespace-tabs">
+            <!-- Populated dynamically -->
+            <div class="namespace-loading">
+                <span class="spinner"></span>
+                <span>Loading namespaces...</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="top-nav-right">
+        <div class="status-indicator" id="status-indicator">
+            <span class="status-dot" id="health-dot"></span>
+            <span class="status-text" id="health-text">Checking...</span>
+        </div>
+        
+        <div class="storage-badge" id="storage-badge" style="display: none;">
+            <span class="badge badge-info" id="storage-mode">--</span>
+        </div>
+        
+        <button class="btn btn-ghost btn-icon" id="help-btn" title="Keyboard shortcuts (h)">
+            <span>⌨️</span>
+        </button>
+        
+        <a href="/docs" target="_blank" class="btn btn-ghost btn-sm">
+            API Docs
+        </a>
+    </div>
+</header>
+
+<!-- Auth error banner (hidden by default) -->
+<div class="auth-banner" id="auth-banner">
+    <span class="auth-banner-icon">🔒</span>
+    <span class="auth-banner-text">Authentication required. Please <a href="/auth/set-cookie-form" target="_blank">log in</a> to access the cache service.</span>
+    <button class="btn btn-sm btn-ghost" id="auth-retry-btn">Retry</button>
+</div>

@@ -181,14 +181,13 @@ class Routes__Zip(Fast_API__Routes):                                       # Fas
         return result
 
     @route_path("/zip/{cache_id}/batch/operations")
-    def batch_operations(self, request  : Schema__Cache__Zip__Batch__Request,
-                               cache_id : Cache_Id   ,
+    def batch_operations(self, request  : Schema__Cache__Zip__Batch__Request   ,
+                               cache_id : Cache_Id                          ,
                                namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
                           ) -> Schema__Cache__Zip__Batch__Response:         # Perform batch operations
 
         request.cache_id  = cache_id                                        # Ensure cache_id and namespace match  #todo: review this pattern, since it very weird to accept a value that is not used (in this case request.cache_id)
         request.namespace = namespace
-
         try:
             return self.zip_batch_service().perform_batch(request)
         except Exception as e:

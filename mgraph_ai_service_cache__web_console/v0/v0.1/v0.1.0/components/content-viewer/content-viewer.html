@@ -1,0 +1,153 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser - Content Viewer
+   v0.1.0 - Multi-format content viewer with maximize mode
+   
+   Supports: JSON, Text, HTML, Images, Binary
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="content-viewer-container">
+    <!-- Header with file info -->
+    <div class="viewer-header" id="viewer-header">
+        <div class="viewer-file-info">
+            <span class="viewer-icon" id="file-icon">📄</span>
+            <span class="viewer-filename" id="file-name">No file selected</span>
+            <span class="viewer-path" id="file-path"></span>
+        </div>
+        <div class="viewer-actions">
+            <button class="btn btn-ghost btn-sm" id="copy-btn" title="Copy content (c)" disabled>
+                📋 Copy
+            </button>
+            <button class="btn btn-ghost btn-sm" id="reload-btn" title="Reload (r)" disabled>
+                ↻ Reload
+            </button>
+            <button class="btn btn-ghost btn-sm" id="maximize-btn" title="Maximize (m)" disabled>
+                ⛶ Maximize
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabs for different views -->
+    <div class="viewer-tabs" id="viewer-tabs">
+        <button class="viewer-tab active" data-tab="formatted">Formatted</button>
+        <button class="viewer-tab" data-tab="raw">Raw</button>
+        <button class="viewer-tab" data-tab="info">Info</button>
+    </div>
+
+    <!-- Content Area -->
+    <div class="viewer-body" id="viewer-body">
+        <!-- Empty State -->
+        <div class="viewer-empty" id="empty-state">
+            <div class="empty-state-icon">📂</div>
+            <div class="empty-state-title">No file selected</div>
+            <div class="empty-state-description">
+                Select a file from the tree to view its contents
+            </div>
+            <div class="empty-state-shortcuts">
+                <kbd>j</kbd>/<kbd>k</kbd> navigate • <kbd>Enter</kbd> select • <kbd>/</kbd> search
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="viewer-loading" id="loading-state" style="display: none;">
+            <span class="spinner"></span>
+            <span>Loading content...</span>
+        </div>
+
+        <!-- Error State -->
+        <div class="viewer-error" id="error-state" style="display: none;">
+            <div class="empty-state-icon">⚠️</div>
+            <div class="empty-state-title">Failed to load content</div>
+            <div class="empty-state-description" id="error-message"></div>
+            <button class="btn btn-sm btn-primary" id="error-retry-btn">Retry</button>
+        </div>
+
+        <!-- Formatted Content -->
+        <div class="viewer-content" id="formatted-content" style="display: none;">
+            <!-- JSON Viewer -->
+            <div class="json-viewer-container" id="json-viewer" style="display: none;">
+                <div class="json-toolbar">
+                    <button class="btn btn-ghost btn-sm" id="json-expand-all">Expand All</button>
+                    <button class="btn btn-ghost btn-sm" id="json-collapse-all">Collapse All</button>
+                    <span class="json-stats" id="json-stats"></span>
+                </div>
+                <pre class="json-content" id="json-content"></pre>
+            </div>
+
+            <!-- Text Viewer -->
+            <div class="text-viewer-container" id="text-viewer" style="display: none;">
+                <div class="text-toolbar">
+                    <span class="text-stats" id="text-stats"></span>
+                    <label class="text-option">
+                        <input type="checkbox" id="wrap-lines" checked>
+                        Wrap lines
+                    </label>
+                </div>
+                <pre class="text-content" id="text-content"></pre>
+            </div>
+
+            <!-- HTML Viewer -->
+            <div class="html-viewer-container" id="html-viewer" style="display: none;">
+                <div class="html-toolbar">
+                    <button class="btn btn-ghost btn-sm active" id="html-preview-btn" data-mode="preview">Preview</button>
+                    <button class="btn btn-ghost btn-sm" id="html-source-btn" data-mode="source">Source</button>
+                </div>
+                <div class="html-preview" id="html-preview">
+                    <iframe id="html-iframe" sandbox="allow-same-origin" class="html-iframe"></iframe>
+                </div>
+                <pre class="html-source" id="html-source" style="display: none;"></pre>
+            </div>
+
+            <!-- Image Viewer -->
+            <div class="image-viewer-container" id="image-viewer" style="display: none;">
+                <div class="image-toolbar">
+                    <span class="image-stats" id="image-stats"></span>
+                    <button class="btn btn-ghost btn-sm" id="image-zoom-in">+</button>
+                    <button class="btn btn-ghost btn-sm" id="image-zoom-out">−</button>
+                    <button class="btn btn-ghost btn-sm" id="image-zoom-fit">Fit</button>
+                </div>
+                <div class="image-container" id="image-container">
+                    <img id="image-element" alt="Preview">
+                </div>
+            </div>
+
+            <!-- Binary Viewer -->
+            <div class="binary-viewer-container" id="binary-viewer" style="display: none;">
+                <div class="binary-info">
+                    <span class="empty-state-icon">📦</span>
+                    <div class="binary-message">Binary content</div>
+                    <div class="binary-size" id="binary-size"></div>
+                    <button class="btn btn-sm btn-primary" id="binary-download-btn">Download</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Raw Content -->
+        <div class="viewer-content" id="raw-content" style="display: none;">
+            <pre class="raw-text" id="raw-text"></pre>
+        </div>
+
+        <!-- Info Content -->
+        <div class="viewer-content" id="info-content" style="display: none;">
+            <div class="info-grid" id="info-grid">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Maximize Overlay -->
+<div class="maximize-overlay" id="maximize-overlay" style="display: none;">
+    <div class="maximize-toolbar">
+        <div class="maximize-toolbar-left">
+            <button class="btn btn-sm" id="minimize-btn">✕ Close</button>
+            <span class="maximize-filename" id="max-filename"></span>
+        </div>
+        <div class="maximize-toolbar-right">
+            <button class="btn btn-ghost btn-sm" id="max-copy-btn">📋 Copy</button>
+            <button class="btn btn-ghost btn-sm" id="max-reload-btn">↻ Reload</button>
+        </div>
+    </div>
+    <div class="maximize-content" id="maximize-content">
+        <!-- Content cloned here when maximized -->
+    </div>
+</div>

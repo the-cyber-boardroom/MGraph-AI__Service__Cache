@@ -1,0 +1,152 @@
+{
+  "version": "0.1.0",
+  "shortcuts": [
+    {
+      "key": "r",
+      "event": "shortcut:reload",
+      "label": "Reload",
+      "description": "Reload current data",
+      "category": "actions"
+    },
+    {
+      "key": "m",
+      "event": "shortcut:maximize-toggle",
+      "label": "Maximize",
+      "description": "Toggle fullscreen content viewer",
+      "category": "view"
+    },
+    {
+      "key": "n",
+      "event": "shortcut:namespace-next",
+      "label": "Next Namespace",
+      "description": "Switch to next namespace",
+      "category": "navigation"
+    },
+    {
+      "key": "N",
+      "shift": true,
+      "event": "shortcut:namespace-prev",
+      "label": "Prev Namespace",
+      "description": "Switch to previous namespace",
+      "category": "navigation"
+    },
+    {
+      "key": "1",
+      "event": "shortcut:namespace-select",
+      "data": { "index": 0 },
+      "label": "Namespace 1",
+      "description": "Select 1st namespace",
+      "category": "navigation"
+    },
+    {
+      "key": "2",
+      "event": "shortcut:namespace-select",
+      "data": { "index": 1 },
+      "label": "Namespace 2",
+      "description": "Select 2nd namespace",
+      "category": "navigation"
+    },
+    {
+      "key": "3",
+      "event": "shortcut:namespace-select",
+      "data": { "index": 2 },
+      "label": "Namespace 3",
+      "description": "Select 3rd namespace",
+      "category": "navigation"
+    },
+    {
+      "key": "4",
+      "event": "shortcut:namespace-select",
+      "data": { "index": 3 },
+      "label": "Namespace 4",
+      "description": "Select 4th namespace",
+      "category": "navigation"
+    },
+    {
+      "key": "5",
+      "event": "shortcut:namespace-select",
+      "data": { "index": 4 },
+      "label": "Namespace 5",
+      "description": "Select 5th namespace",
+      "category": "navigation"
+    },
+    {
+      "key": "t",
+      "event": "shortcut:tab-next",
+      "label": "Next Tab",
+      "description": "Switch to next content tab",
+      "category": "view"
+    },
+    {
+      "key": "T",
+      "shift": true,
+      "event": "shortcut:tab-prev",
+      "label": "Prev Tab",
+      "description": "Switch to previous content tab",
+      "category": "view"
+    },
+    {
+      "key": "j",
+      "event": "shortcut:item-next",
+      "label": "Next Item",
+      "description": "Select next file in tree",
+      "category": "navigation"
+    },
+    {
+      "key": "k",
+      "event": "shortcut:item-prev",
+      "label": "Prev Item",
+      "description": "Select previous file in tree",
+      "category": "navigation"
+    },
+    {
+      "key": "Enter",
+      "event": "shortcut:item-open",
+      "label": "Open",
+      "description": "Open/expand selected item",
+      "category": "navigation"
+    },
+    {
+      "key": "c",
+      "event": "shortcut:copy",
+      "label": "Copy",
+      "description": "Copy content to clipboard",
+      "category": "actions"
+    },
+    {
+      "key": "/",
+      "event": "shortcut:search-focus",
+      "label": "Search",
+      "description": "Focus search input",
+      "category": "actions"
+    },
+    {
+      "key": "h",
+      "event": "shortcut:help-toggle",
+      "label": "Help",
+      "description": "Show/hide keyboard shortcuts help",
+      "category": "help"
+    },
+    {
+      "key": "?",
+      "shift": true,
+      "event": "shortcut:help-toggle",
+      "label": "Help",
+      "description": "Show/hide keyboard shortcuts help",
+      "category": "help"
+    },
+    {
+      "key": "Escape",
+      "event": "shortcut:escape",
+      "label": "Close",
+      "description": "Close dialogs or exit maximize mode",
+      "category": "navigation"
+    }
+  ],
+  "categories": {
+    "actions": { "label": "Actions", "order": 1 },
+    "view": { "label": "View", "order": 2 },
+    "navigation": { "label": "Navigation", "order": 3 },
+    "help": { "label": "Help", "order": 4 }
+  }
+}

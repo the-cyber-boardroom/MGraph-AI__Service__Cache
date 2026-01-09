@@ -2,9 +2,9 @@ from unittest                                                               impo
 from fastapi                                                                import FastAPI
 from osbot_fast_api.api.Fast_API                                            import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.api.schemas.consts.consts__Fast_API                     import EXPECTED_ROUTES__SET_COOKIE
-from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix  import Safe_Str__Fast_API__Route__Prefix
 from osbot_utils.utils.Env                                                  import get_env
 from starlette.testclient                                                   import TestClient
+from mgraph_ai_service_cache.config                                         import ROUTES_PATHS__WEB_CONSOLE
 from mgraph_ai_service_cache.fast_api.Cache_Service__Fast_API               import Cache_Service__Fast_API
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespaces             import ROUTES_PATHS__NAMESPACES
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Delete      import ROUTES_PATHS__DELETE__DATA
@@ -19,6 +19,7 @@ from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace              impo
 from mgraph_ai_service_cache.fast_api.routes.Routes__Server                 import ROUTES_PATHS__SERVER
 from mgraph_ai_service_cache.fast_api.routes.admin.Routes__Admin__Storage   import ROUTES_PATHS__STORAGE
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Update      import ROUTES_PATHS__UPDATE
+from mgraph_ai_service_cache.fast_api.routes.test_data.Routes__Test_Data    import ROUTES_PATHS__TEST_DATA
 from mgraph_ai_service_cache.fast_api.routes.zip.Routes__Zip                import ROUTES_PATHS__ZIP
 from tests.unit.Service__Cache__Test_Objs                                   import setup__service__cache__test_objs, Service__Cache__Test_Objs, TEST_API_KEY__NAME
 
@@ -62,23 +63,29 @@ class test_Service__Fast_API__client(TestCase):
         assert response__with_auth.json()    == ROUTES_INFO__HEALTH__RETURN_VALUE
 
     def test__config_fast_api_routes(self):
-        routes_paths = []
-        raw_paths    = (ROUTES_PATHS__INFO           +
-                        EXPECTED_ROUTES__SET_COOKIE  +
-                        ROUTES_PATHS__STORE          +
-                        ROUTES_PATHS__RETRIEVE       +
-                        ROUTES_PATHS__EXISTS         +
-                        ROUTES_PATHS__UPDATE         +
-                        ROUTES_PATHS__DELETE         +
-                        ROUTES_PATHS__NAMESPACE      +
-                        ROUTES_PATHS__NAMESPACES     +
-                        ROUTES_PATHS__SERVER         +
-                        ROUTES_PATHS__STORAGE        +
-                        ROUTES_PATHS__STORE__DATA    +
-                        ROUTES_PATHS__RETRIEVE__DATA +
-                        ROUTES_PATHS__DELETE__DATA   +
-                        ROUTES_PATHS__ZIP            )
-        for raw_path in raw_paths:
-            routes_paths.append(Safe_Str__Fast_API__Route__Prefix(raw_path))
-        assert self.fast_api.routes_paths() == sorted(routes_paths)                     # this creates a better diff
+        #routes_paths   = []
+        fast_api_paths = []
+        raw_paths      = (ROUTES_PATHS__INFO           +
+                          EXPECTED_ROUTES__SET_COOKIE  +
+                          ROUTES_PATHS__STORE          +
+                          ROUTES_PATHS__RETRIEVE       +
+                          ROUTES_PATHS__EXISTS         +
+                          ROUTES_PATHS__UPDATE         +
+                          ROUTES_PATHS__DELETE         +
+                          ROUTES_PATHS__NAMESPACE      +
+                          ROUTES_PATHS__NAMESPACES     +
+                          ROUTES_PATHS__SERVER         +
+                          ROUTES_PATHS__STORAGE        +
+                          ROUTES_PATHS__STORE__DATA    +
+                          ROUTES_PATHS__RETRIEVE__DATA +
+                          ROUTES_PATHS__DELETE__DATA   +
+                          ROUTES_PATHS__ZIP            +
+                          ROUTES_PATHS__WEB_CONSOLE    +
+                          ROUTES_PATHS__TEST_DATA      )
+        # for raw_path in raw_paths:
+        #     routes_paths.append(raw_path)
+        for fast_api_path in self.fast_api.routes_paths():
+            fast_api_paths.append(str(fast_api_path))               # cast to str to make it easier compare
+
+        assert sorted(fast_api_paths)       == sorted(raw_paths)                        # this creates a better diff
         assert self.fast_api.routes_paths() == sorted(raw_paths   )                     # but this also works :)
