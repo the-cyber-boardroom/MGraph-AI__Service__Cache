@@ -8,16 +8,16 @@ readme      = "README.md"
 homepage    = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Cache"
 repository  = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Cache"
 
+packages    = [
+    { include = "mgraph_ai_service_cache" },
+    { include = "mgraph_ai_service_cache__web_console" }
+]
+
 [tool.poetry.dependencies]
 python                         = "^3.12"
 memory_fs                      = "*"
 osbot-fast-api-serverless      = "*"
 mgraph-ai-service-cache-client = "*"
-
-packages    = [
-    { include = "mgraph_ai_service_cache" },
-    { include = "mgraph_ai_service_cache__web_console" }
-]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
