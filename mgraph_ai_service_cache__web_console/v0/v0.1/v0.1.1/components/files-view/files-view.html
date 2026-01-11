@@ -1,0 +1,69 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser - Files View
+   v0.1.1 - List cache entries by file_id with detail panel
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="files-view-container">
+    <div class="files-view-split">
+        <!-- File List Panel -->
+        <div class="files-view-list">
+            <div class="files-view-header">
+                <div class="files-search">
+                    <input type="text" 
+                           id="files-filter" 
+                           placeholder="Filter files... (/)" 
+                           autocomplete="off">
+                </div>
+                <span class="files-stats" id="files-stats">0 files</span>
+            </div>
+            
+            <div class="files-list" id="files-list">
+                <!-- Loading State -->
+                <div class="files-list-loading" id="files-loading">
+                    <span class="spinner"></span>
+                    <span>Loading files...</span>
+                </div>
+                
+                <!-- Empty State -->
+                <div class="files-list-empty" id="files-empty" style="display: none;">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">📭</div>
+                    <div>No files found</div>
+                    <div style="font-size: 12px; margin-top: 4px;">
+                        Try a different namespace or filter
+                    </div>
+                </div>
+                
+                <!-- Error State -->
+                <div class="files-list-error" id="files-error" style="display: none;">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">⚠️</div>
+                    <div id="files-error-message">Failed to load files</div>
+                    <button class="btn btn-sm btn-primary" id="files-retry-btn" style="margin-top: 8px;">
+                        Retry
+                    </button>
+                </div>
+                
+                <!-- File Items (populated dynamically) -->
+                <div id="files-items"></div>
+            </div>
+        </div>
+        
+        <!-- Detail Panel -->
+        <div class="files-view-detail" id="files-detail">
+            <!-- Empty State -->
+            <div class="files-detail-empty" id="detail-empty">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--color-text-muted);">
+                    <div style="font-size: 3rem; margin-bottom: 16px;">👈</div>
+                    <div>Select a file to view details</div>
+                    <div style="font-size: 12px; margin-top: 8px;">
+                        <kbd>↑</kbd>/<kbd>↓</kbd> navigate • <kbd>Enter</kbd> select
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detail Content (populated dynamically) -->
+            <div id="detail-content" style="display: none; height: 100%;">
+                <!-- Will contain tabs: Content, Config, Metadata, Refs -->
+            </div>
+        </div>
+    </div>
+</div>

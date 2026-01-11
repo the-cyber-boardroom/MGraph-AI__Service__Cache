@@ -1,6 +1,6 @@
 [tool.poetry]
 name        = "mgraph_ai_service_cache"
-version     = "v0.8.0"
+version     = "v0.8.5"
 description = "MGraph-AI__Service__Cache"
 authors     = ["Dinis Cruz <dinis.cruz@owasp.org>"]
 license     = "Apache 2.0"
@@ -13,6 +13,11 @@ python                         = "^3.12"
 memory_fs                      = "*"
 osbot-fast-api-serverless      = "*"
 mgraph-ai-service-cache-client = "*"
+
+packages    = [
+    { include = "mgraph_ai_service_cache" },
+    { include = "mgraph_ai_service_cache__web_console" }
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

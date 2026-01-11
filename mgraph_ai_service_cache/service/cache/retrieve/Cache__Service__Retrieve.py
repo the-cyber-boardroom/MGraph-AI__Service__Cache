@@ -3,7 +3,7 @@ from memory_fs.schemas.Schema__Memory_FS__File__Metadata                        
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                    import Schema__Memory_FS__File__Config
 from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                      import Safe_UInt
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                     import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                        import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now          import Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id           import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                            import type_safe
@@ -71,7 +71,7 @@ class Cache__Service__Retrieve(Type_Safe):                                      
             return refs_hash
     
     @type_safe
-    def retrieve_by_id(self, cache_id  : Random_Guid,
+    def retrieve_by_id(self, cache_id  : Cache_Id,
                              namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
                         ) -> Optional[Schema__Cache__Retrieve__Success]:                # Retrieve entry by cache ID
 
@@ -87,26 +87,26 @@ class Cache__Service__Retrieve(Type_Safe):                                      
                                                 data_type = self._determine_data_type(result))
 
     @type_safe
-    def retrieve_by_id__config(self, cache_id  : Random_Guid,
+    def retrieve_by_id__config(self, cache_id  : Cache_Id,
                              namespace : Safe_Str__Id = None
                         ) -> Schema__Memory_FS__File__Config:                                   # Retrieve entry by cache ID
 
         return self.cache_service.retrieve_by_id__config(cache_id, namespace)                   #
 
     @type_safe
-    def retrieve_by_id__metadata(self, cache_id  : Random_Guid,
+    def retrieve_by_id__metadata(self, cache_id  : Cache_Id,
                                        namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
                                  ) -> Schema__Memory_FS__File__Metadata:                         # Get contents of the by-id metadata file
         return self.cache_service.retrieve_by_id__metadata(cache_id, namespace)                 #
 
     @type_safe
-    def retrieve_by_id__refs(self, cache_id  : Random_Guid,
+    def retrieve_by_id__refs(self, cache_id  : Cache_Id,
                                    namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
                              ) -> Schema__Cache__File__Refs:                                    # Get contents of the by-id refs file
         return self.cache_service.retrieve_by_id__refs(cache_id, namespace)                     #
 
 
-    def get_entry_details__all(self, cache_id  : Random_Guid,
+    def get_entry_details__all(self, cache_id  : Cache_Id,
                                      namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
                                 ) -> Optional[Dict[str, Any]]:                                # Get detailed information about cache entry
         details  = self.retrieve_by_id__refs(cache_id=cache_id, namespace=namespace)
@@ -127,7 +127,7 @@ class Cache__Service__Retrieve(Type_Safe):                                      
     @type_safe
     def get_not_found_error(self, resource_id : Safe_Str__Id         = None,
                                   cache_hash  : Safe_Str__Cache_Hash = None,
-                                  cache_id    : Random_Guid          = None,
+                                  cache_id    : Cache_Id          = None,
                                   namespace   : Safe_Str__Id         = None
                             ) -> Schema__Cache__Error__Not_Found:                                                          # Build not found error response
         return Schema__Cache__Error__Not_Found(error_type    = "NOT_FOUND"                                           ,     # todo: refactor error_type to Enum
@@ -139,7 +139,7 @@ class Cache__Service__Retrieve(Type_Safe):                                      
                                                namespace     = namespace                                              )
     
     @type_safe
-    def get_expired_error(self, cache_id   : Random_Guid   = None,
+    def get_expired_error(self, cache_id   : Cache_Id   = None,
                                 expired_at : Timestamp_Now = None,
                                 ttl_hours  : Safe_UInt     = None,
                                 namespace  : Safe_Str__Id  = None

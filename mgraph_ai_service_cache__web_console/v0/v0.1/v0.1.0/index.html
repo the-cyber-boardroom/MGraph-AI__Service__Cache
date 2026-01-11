@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser
+   v0.1.0 - Complete Foundation
+   
+   A browser UI for exploring cache entries stored in the MGraph-AI Cache Service.
+   
+   Features:
+   - Dark theme with cyan accents (Trace Visualizers style)
+   - Namespace tabs for switching between cache buckets
+   - File tree browser for navigating cache entries
+   - Multi-format content viewer (JSON, text, HTML, images)
+   - Maximize mode for detailed content inspection
+   - Keyboard shortcuts for power users
+   - Auth error detection
+   
+   IFD Notes:
+   - This is v0.1.0 - complete standalone implementation
+   - Future v0.1.x versions will reference this version's files
+   - v0.2.0 will be a fresh start with no dependencies on v0.1.x
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Browser v0.1.0</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗄️</text></svg>">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/browser.css">
+    
+    <!-- Additional inline styles for layout -->
+    <style>
+        /* Fatal error styles (in case components fail to load) */
+        .fatal-error {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 40px;
+            text-align: center;
+            color: var(--color-text-secondary);
+        }
+        
+        .fatal-error h2 {
+            margin-top: 16px;
+            color: var(--color-error);
+        }
+        
+        .fatal-error p {
+            margin: 16px 0;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+       Application Shell
+       ═══════════════════════════════════════════════════════════════════════════ -->
+    <div class="app">
+        <!-- Header with navigation and namespace tabs -->
+        <header class="app-header">
+            <top-nav></top-nav>
+        </header>
+        
+        <!-- Main content area -->
+        <main class="app-main">
+            <!-- Sidebar: File Tree -->
+            <aside class="sidebar">
+                <file-tree></file-tree>
+            </aside>
+            
+            <!-- Main: Content Viewer -->
+            <section class="main-content">
+                <content-viewer></content-viewer>
+            </section>
+        </main>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+       JavaScript - Order Matters!
+       
+       1. Utilities first (Helpers, ComponentPaths)
+       2. Base classes (BaseComponent)
+       3. Services (API client)
+       4. Components (loaded by BaseComponent via ComponentPaths)
+       5. Orchestrator (browser.js)
+       ═══════════════════════════════════════════════════════════════════════════ -->
+    
+    <!-- 1. Utilities -->
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/utils/component-paths.js"></script>
+    
+    <!-- 2. Base Component Class -->
+    <script src="js/utils/base-component.js"></script>
+    
+    <!-- 3. Services -->
+    <script src="js/services/cache-api-client.js"></script>
+    
+    <!-- 4. Keyboard Shortcuts -->
+    <script src="js/keyboard-shortcuts.js"></script>
+    
+    <!-- Initialize ComponentPaths before loading components -->
+    <script>
+        // Initialize path resolver for v0.1.0
+        ComponentPaths.init('v0.1.0');
+    </script>
+    
+    <!-- 5. Components -->
+    <script src="components/top-nav/top-nav.js"></script>
+    <script src="components/file-tree/file-tree.js"></script>
+    <script src="components/content-viewer/content-viewer.js"></script>
+    
+    <!-- 6. Main Orchestrator -->
+    <script src="js/browser.js"></script>
+</body>
+</html>

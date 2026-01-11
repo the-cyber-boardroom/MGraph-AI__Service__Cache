@@ -1,6 +1,7 @@
 import pytest
 from fastapi                                                                                   import HTTPException, Request, Response
 from unittest                                                                                  import TestCase
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                          import Random_Guid
 from osbot_utils.utils.Misc                                                                    import is_guid
 from memory_fs.path_handlers.Path__Handler__Temporal                                           import Path__Handler__Temporal
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                     import Safe_Str__Fast_API__Route__Prefix
@@ -8,7 +9,7 @@ from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag         
 from osbot_utils.testing.__                                                                    import __, __SKIP__
 from osbot_utils.utils.Objects                                                                 import base_classes
 from osbot_utils.type_safe.Type_Safe                                                           import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                          import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                             import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path              import Safe_Str__File__Path
 from osbot_fast_api.api.routes.Fast_API__Routes                                                import Fast_API__Routes
@@ -97,7 +98,7 @@ class test_Routes__Zip(TestCase):
             cache_hash = result.cache_hash
             assert cache_hash           == 'e3b0c44298fc1c14'
             assert type(result)          is Schema__Cache__Zip__Store__Response
-            assert type(result.cache_id) is Random_Guid
+            assert type(result.cache_id) is Cache_Id
             assert result.namespace      == self.test_namespace
             assert result.file_count     == 0
             assert result.size            > 0
@@ -140,7 +141,7 @@ class test_Routes__Zip(TestCase):
             cache_hash = result.cache_hash
             assert cache_hash           == 'd7e01b9f2e36c1bd'
             assert type(result)          is Schema__Cache__Zip__Store__Response
-            assert type(result.cache_id) is Random_Guid
+            assert type(result.cache_id) is Cache_Id
             assert result.namespace      == self.test_namespace
             assert result.file_count     == 2
             assert result.size           > 0
@@ -161,7 +162,7 @@ class test_Routes__Zip(TestCase):
 
             entry_by_id = self.retrieve_service.retrieve_by_id(cache_id=cache_id, namespace=self.test_namespace)
 
-            assert type(cache_id)    is Random_Guid
+            assert type(cache_id)    is Cache_Id
             assert is_guid(cache_id) is True
             assert type(entry_by_id) is Schema__Cache__Retrieve__Success
             with entry_by_id as _:
@@ -245,7 +246,7 @@ class test_Routes__Zip(TestCase):
         with self.routes as _:
             with pytest.raises(HTTPException) as exc:
                 _.zip_files_list(
-                    cache_id  = Random_Guid(),
+                    cache_id  = Cache_Id(Random_Guid()),
                     namespace = self.test_namespace
                 )
 
@@ -374,9 +375,9 @@ class test_Routes__Zip(TestCase):
                 )
             ]
 
-            request = Schema__Cache__Zip__Batch__Request(cache_id   = Random_Guid(),  # Invalid ID
-                                                        operations = operations,
-                                                        namespace  = self.test_namespace)
+            request = Schema__Cache__Zip__Batch__Request(cache_id   = Cache_Id(Random_Guid()),  # Invalid ID
+                                                         operations = operations,
+                                                         namespace  = self.test_namespace)
 
             result = _.batch_operations(request   = request            ,
                                         cache_id  = request.cache_id   ,
@@ -411,7 +412,7 @@ class test_Routes__Zip(TestCase):
         with self.routes as _:
             with pytest.raises(HTTPException) as exc:
                 _.zip_retrieve(
-                    cache_id  = Random_Guid(),
+                    cache_id  = Cache_Id(Random_Guid()),
                     namespace = self.test_namespace
                 )
 

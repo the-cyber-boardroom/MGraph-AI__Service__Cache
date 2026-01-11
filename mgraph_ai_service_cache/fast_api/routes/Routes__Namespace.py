@@ -18,9 +18,11 @@ class Routes__Namespace(Fast_API__Routes):
     prefix        : Safe_Str__Fast_API__Route__Prefix  =  PREFIX__ROUTES_NAMESPACE
     cache_service : Cache__Service
 
+    # todo: BUG: rename form file_hashes to cache_hashes
     def file_hashes(self, namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE):
         return self.cache_service.get_namespace__file_hashes(namespace=namespace)
 
+    # todo: BUG: rename form file_hashes to cache_hashes
     def file_ids(self, namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE):
         return self.cache_service.get_namespace__file_ids(namespace=namespace)
 

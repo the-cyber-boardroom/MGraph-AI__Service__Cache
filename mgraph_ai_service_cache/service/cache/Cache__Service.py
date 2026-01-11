@@ -3,6 +3,7 @@ import json
 from typing                                                                                      import Dict, Optional, Any, List
 from osbot_utils.helpers.cache.Cache__Hash__Generator                                            import Cache__Hash__Generator
 from osbot_utils.helpers.cache.schemas.Schema__Cache__Hash__Config                               import Schema__Cache__Hash__Config
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                            import Random_Guid
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                   import type_safe
 from memory_fs.schemas.Schema__Memory_FS__File__Metadata                                         import Schema__Memory_FS__File__Metadata
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                           import Schema__Memory_FS__File__Config
@@ -11,7 +12,7 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                  import Safe_Str__Id
 from osbot_utils.utils.Files                                                                     import file_extension, file_name_without_extension
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                            import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                               import Cache_Id
 from osbot_utils.utils.Http                                                                      import url_join_safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash         import Safe_Str__Cache_Hash
 from mgraph_ai_service_cache.schemas.service.cache_service.Schema__Store__Context                import Schema__Store__Context       # todo: review this schema since it is not currently stored in the client project
@@ -43,7 +44,7 @@ class Cache__Service(Type_Safe):                                                
     # todo: this logic is starting to be quite complex to be in a method, I think we can refactor this logic into a separate class and have methods for
     #       each logic step/action
     # todo: refactor to add type safe return type
-    def delete_by_id(self, cache_id: Random_Guid, namespace: Safe_Str__Id = None) -> Dict[str, Any]:
+    def delete_by_id(self, cache_id: Cache_Id, namespace: Safe_Str__Id = None) -> Dict[str, Any]:
         namespace = namespace or Safe_Str__Id("default")
         handler   = self.get_or_create_handler(namespace)
 
@@ -122,7 +123,7 @@ class Cache__Service(Type_Safe):                                                
                  'grand_total_files': sum(ns['total_files'] for ns in all_stats.values()),
                  'storage_mode'     : self.cache_config.storage_mode.value                }     # Include storage mode in stats
 
-
+    # todo: BUG: rename form file_hashes to cache_hashes
     def get_namespace__file_hashes(self, namespace: Safe_Str__Id) -> List[str]:
         file_hashes = []
         handler = self.get_or_create_handler(namespace)
@@ -137,6 +138,7 @@ class Cache__Service(Type_Safe):                                                
                     file_hashes.append(hash_parts[-1])
         return sorted(file_hashes)
 
+    # todo: BUG: rename form file_hashes to cache_ids_hashes
     def get_namespace__file_ids(self, namespace: Safe_Str__Id) -> List[str]:
         file_ids = []
         handler = self.get_or_create_handler(namespace)
@@ -211,7 +213,7 @@ class Cache__Service(Type_Safe):                                                
     def store_with_strategy(self, storage_data     : Any                                                  ,
                                   cache_hash       : Safe_Str__Cache_Hash                                 ,
                                   strategy         : Enum__Cache__Store__Strategy                         ,
-                                  cache_id         : Random_Guid                = None                    ,
+                                  cache_id         : Cache_Id                = None                    ,
                                   cache_key        : Safe_Str__File__Path       = None                    ,
                                   file_id          : Safe_Str__Id               = None                    ,
                                   json_field_path  : Safe_Str__Json__Field_Path = None                    ,
@@ -224,7 +226,7 @@ class Cache__Service(Type_Safe):                                                
             raise ValueError("in Cache__Service.store_with_strategy, the cache_hash must be provided")          # Validate inputs
 
         # todo this logic can be refactored to store_strategy.execute
-        cache_id  = cache_id or Random_Guid()
+        cache_id  = cache_id or Cache_Id(Random_Guid())
         cache_key = Safe_Str__File__Path(cache_key) if cache_key else None
         file_id   = Safe_Str__Id(file_id or cache_id or Random_Guid())
         handler   = self.get_or_create_handler(namespace)
@@ -260,7 +262,7 @@ class Cache__Service(Type_Safe):                                                
         if not latest_id:
             return None
 
-        return self.retrieve_by_id(Random_Guid(latest_id), namespace)           # Delegate to retrieve_by_id which handles the path lookup
+        return self.retrieve_by_id(Cache_Id(latest_id), namespace)           # Delegate to retrieve_by_id which handles the path lookup
 
     # todo: change return to type_safe value
     @type_safe
@@ -279,7 +281,7 @@ class Cache__Service(Type_Safe):                                                
     # todo: same as with the delete method above,  this logic is starting to be too complex to be all in one method
     #       also I think we are doing too much here, with far too many calls to the file system
     #       at least we should just return the data (i.e. we don't need to return the metadata here (since there is an enpoint to get that)
-    def retrieve_by_id(self, cache_id  : Random_Guid,
+    def retrieve_by_id(self, cache_id  : Cache_Id,
                              namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
                         ) -> Optional[Dict[str, Any]]:                     # todo: review this return value, since we had some exceptions here
         handler   = self.get_or_create_handler(namespace)
@@ -339,7 +341,7 @@ class Cache__Service(Type_Safe):                                                
 
         return None
 
-    def retrieve_by_id__config(self, cache_id  : Random_Guid,
+    def retrieve_by_id__config(self, cache_id  : Cache_Id,
                                      namespace : Safe_Str__Id
                                 ) -> Schema__Memory_FS__File__Config:
         file_refs = self.retrieve_by_id__refs(cache_id, namespace)
@@ -357,7 +359,7 @@ class Cache__Service(Type_Safe):                                                
             return Schema__Memory_FS__File__Config.from_json(config_json)
         return None
 
-    def retrieve_by_id__metadata(self, cache_id  : Random_Guid,
+    def retrieve_by_id__metadata(self, cache_id  : Cache_Id,
                                    namespace : Safe_Str__Id
                               ) -> Schema__Memory_FS__File__Metadata:
         file_refs = self.retrieve_by_id__refs(cache_id, namespace)                  # Step 1: Use existing helper to get refs
@@ -375,7 +377,7 @@ class Cache__Service(Type_Safe):                                                
             return Schema__Memory_FS__File__Metadata.from_json(metadata_json)
         return None
 
-    def retrieve_by_id__refs(self, cache_id  : Random_Guid,
+    def retrieve_by_id__refs(self, cache_id  : Cache_Id,
                                    namespace : Safe_Str__Id
                                 ) -> Schema__Cache__File__Refs:                      #   Retrieve by cache ID using direct path from reference
         if cache_id:

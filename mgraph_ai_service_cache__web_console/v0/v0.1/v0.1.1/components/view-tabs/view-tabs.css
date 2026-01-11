@@ -1,0 +1,16 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser - View Tabs Styles
+   v0.1.1
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Styles are in patches.css for this component since it uses shared view-tabs classes */
+
+.view-tabs-namespace {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+}
+
+.view-tabs-namespace::before {
+    content: '📂 ';
+}

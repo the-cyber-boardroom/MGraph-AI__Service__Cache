@@ -1,5 +1,6 @@
 from typing                                                                       import Dict, Any, Optional
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid             import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id   import Safe_Str__Id
 from osbot_utils.utils.Misc                                                       import timestamp_now
@@ -10,7 +11,7 @@ FILE_ID__CACHE__TEST__FIXTURES__MANIFEST = "00000000-0000-0000-0000-000000000001
 
 class Cache__Test__Fixtures(Type_Safe):                                                         # Manages reusable test fixtures for cache service tests
     cache_service     : Cache__Service                    = None                                # Cache service instance for fixture storage
-    manifest_cache_id : Random_Guid                       = None                                # Predictable ID for manifest storage
+    manifest_cache_id : Cache_Id                          = None                                # Predictable ID for manifest storage
     namespace         : Safe_Str__Id                      = CACHE__TEST__FIXTURES__NAMESPACE    # Namespace for fixture isolation
     fixtures          : Dict[str, dict[str, Any]]                                               # Map of fixture names to metadata
     setup_completed   : bool                              = False                               # Prevents redundant setup
@@ -39,7 +40,7 @@ class Cache__Test__Fixtures(Type_Safe):                                         
             self.namespace = Safe_Str__Id("test-fixtures")
 
         if not self.manifest_cache_id:                                                # Use predictable GUID for manifest
-            self.manifest_cache_id = Random_Guid(FILE_ID__CACHE__TEST__FIXTURES__MANIFEST)
+            self.manifest_cache_id = Cache_Id(FILE_ID__CACHE__TEST__FIXTURES__MANIFEST)
 
         if self.load_manifest():                                                      # Try to load existing manifest
             #if self.verify_fixtures():
@@ -65,7 +66,7 @@ class Cache__Test__Fixtures(Type_Safe):                                         
 
     def verify_fixtures(self) -> bool:                                                # Check all fixtures still exist
         for fixture_name, fixture_info in self.fixtures.items():
-            cache_id = Random_Guid(fixture_info.get("cache_id"))
+            cache_id = Cache_Id(fixture_info.get("cache_id"))
             result = self.cache_service.retrieve_by_id(cache_id  = cache_id,
                                                        namespace = self.namespace)
             if not result:
@@ -82,7 +83,7 @@ class Cache__Test__Fixtures(Type_Safe):                                         
                 else:
                     cache_hash = self.cache_service.hash_from_string(str(data))
 
-                cache_id = Random_Guid()
+                cache_id = Cache_Id(Random_Guid())
 
                 self.cache_service.store_with_strategy(storage_data = data        ,   # Store in cache
                                                        cache_hash   = cache_hash  ,
@@ -113,16 +114,16 @@ class Cache__Test__Fixtures(Type_Safe):                                         
     def get_fixture_data(self, name: str) -> Any:                                     # Retrieve actual fixture data
         fixture_info = self.get_fixture(name)
         if fixture_info:
-            cache_id = Random_Guid(fixture_info["cache_id"])
+            cache_id = Cache_Id(fixture_info["cache_id"])
             result = self.cache_service.retrieve_by_id(cache_id  = cache_id,
                                                        namespace = self.namespace)
             return result.get("data") if result else None
         return None
 
-    def get_fixture_id(self, name: str) -> Optional[Random_Guid]:                     # Get cache ID for fixture
+    def get_fixture_id(self, name: str) -> Optional[Cache_Id]:                     # Get cache ID for fixture
         fixture_info = self.get_fixture(name)
         if fixture_info:
-            return Random_Guid(fixture_info["cache_id"])
+            return Cache_Id(fixture_info["cache_id"])
         return None
 
     def get_fixture_hash(self, name: str) -> Optional[str]:                           # Get hash for fixture
@@ -136,7 +137,7 @@ class Cache__Test__Fixtures(Type_Safe):                                         
             return
 
         for fixture_name, fixture_info in self.fixtures.items():
-            cache_id = Random_Guid(fixture_info["cache_id"])
+            cache_id = Cache_Id(fixture_info["cache_id"])
             self.cache_service.delete_by_id(cache_id  = cache_id,
                                            namespace = self.namespace)
 

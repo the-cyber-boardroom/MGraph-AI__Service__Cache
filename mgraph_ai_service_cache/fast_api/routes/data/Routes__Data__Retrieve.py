@@ -7,7 +7,7 @@ from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag         
 from osbot_utils.decorators.methods.cache_on_self                                                 import cache_on_self
 from osbot_utils.type_safe.Type_Safe                                                              import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                 import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                             import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                                import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                   import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                    import type_safe
 from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__Retrieve__Request     import Schema__Cache__Data__Retrieve__Request
@@ -40,7 +40,7 @@ class Routes__Data__Retrieve(Fast_API__Routes):                                 
 
 
     @route_path("/data/json/{data_file_id}")
-    def data__json__with__id(self, cache_id     : Random_Guid          = None                          ,
+    def data__json__with__id(self, cache_id     : Cache_Id             = None                          ,
                                    namespace    : Safe_Str__Id         = FAST_API__PARAM__NAMESPACE    ,
                                    data_file_id : Safe_Str__Id         = None
                              ) -> dict:
@@ -50,7 +50,7 @@ class Routes__Data__Retrieve(Fast_API__Routes):                                 
                                                  data_file_id = data_file_id)
 
     @route_path("/data/json/{data_key:path}/{data_file_id}")
-    def data__json__with__id_and_key(self, cache_id     : Random_Guid          = None                          ,
+    def data__json__with__id_and_key(self, cache_id     : Cache_Id             = None                          ,
                                            namespace    : Safe_Str__Id         = FAST_API__PARAM__NAMESPACE    ,
                                            data_key     : Safe_Str__File__Path = None                          ,
                                            data_file_id : Safe_Str__Id         = None
@@ -66,7 +66,7 @@ class Routes__Data__Retrieve(Fast_API__Routes):                                 
         return self.handle_json_result(result, cache_id=cache_id, data_file_id=data_file_id)
 
     @route_path("/data/string/{data_file_id}")
-    def data__string__with__id(self, cache_id     : Random_Guid          = None                          ,
+    def data__string__with__id(self, cache_id     : Cache_Id             = None                          ,
                                      namespace    : Safe_Str__Id         = FAST_API__PARAM__NAMESPACE    ,
                                      data_file_id : Safe_Str__Id         = None
                                ) -> Response:
@@ -76,7 +76,7 @@ class Routes__Data__Retrieve(Fast_API__Routes):                                 
                                                    data_file_id = data_file_id)
 
     @route_path("/data/string/{data_key:path}/{data_file_id}")
-    def data__string__with__id_and_key(self, cache_id     : Random_Guid          = None                          ,
+    def data__string__with__id_and_key(self, cache_id     : Cache_Id             = None                          ,
                                              namespace    : Safe_Str__Id         = FAST_API__PARAM__NAMESPACE    ,
                                              data_key     : Safe_Str__File__Path = None                          ,
                                              data_file_id : Safe_Str__Id         = None
@@ -92,7 +92,7 @@ class Routes__Data__Retrieve(Fast_API__Routes):                                 
         return self.handle_string_result(result)
 
     @route_path("/data/binary/{data_file_id}")
-    def data__binary__with__id(self, cache_id     : Random_Guid          = None                          ,
+    def data__binary__with__id(self, cache_id     : Cache_Id             = None                          ,
                                      namespace    : Safe_Str__Id         = FAST_API__PARAM__NAMESPACE    ,
                                      data_file_id : Safe_Str__Id         = None
                                ) -> Response:
@@ -102,7 +102,7 @@ class Routes__Data__Retrieve(Fast_API__Routes):                                 
                                                    data_file_id = data_file_id)
 
     @route_path("/data/binary/{data_key:path}/{data_file_id}")
-    def data__binary__with__id_and_key(self, cache_id     : Random_Guid          = None                          ,
+    def data__binary__with__id_and_key(self, cache_id     : Cache_Id             = None                          ,
                                              namespace    : Safe_Str__Id         = FAST_API__PARAM__NAMESPACE    ,
                                              data_key     : Safe_Str__File__Path = None                          ,
                                              data_file_id : Safe_Str__Id         = None
@@ -119,7 +119,7 @@ class Routes__Data__Retrieve(Fast_API__Routes):                                 
 
     @type_safe
     def handle_not_found(self, result        : Union[Type_Safe, Dict] = None,                                  # Base method for 404 handling
-                               cache_id      : Random_Guid            = None,
+                               cache_id      : Cache_Id               = None,
                                data_file_id  : Safe_Str__Id           = None):
         if result is None or (hasattr(result, 'found') and not result.found):
             error_detail = { "error_type"   : "NOT_FOUND"                                                     ,
@@ -130,7 +130,7 @@ class Routes__Data__Retrieve(Fast_API__Routes):                                 
         return result
 
     def handle_json_result(self, result: Schema__Cache__Data__Retrieve__Response,                              # Handle JSON-specific result processing
-                                 cache_id: Random_Guid = None,
+                                 cache_id: Cache_Id    = None,
                                  data_file_id: Safe_Str__Id = None) -> dict:
         self.handle_not_found(result, cache_id=cache_id, data_file_id=data_file_id)
         return result.data

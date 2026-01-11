@@ -7,7 +7,7 @@ from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag         
 from osbot_utils.decorators.methods.cache_on_self                                           import cache_on_self
 from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path           import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                          import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id             import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                              import type_safe
 from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__Store__Request  import Schema__Cache__Data__Store__Request
@@ -44,7 +44,7 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
     @route_path("/data/store/binary")
     def data__store_binary(self, body: bytes         = Body(...)                  ,
-                                 cache_id     : Random_Guid   = None                       ,
+                                 cache_id     : Cache_Id      = None                       ,
                                  namespace    : Safe_Str__Id  = FAST_API__PARAM__NAMESPACE ,
                             ) -> Schema__Cache__Data__Store__Response:
         return self.data__store_binary__with__id_and_key(body         = body        ,
@@ -55,7 +55,7 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
     @route_path("/data/store/binary/{data_file_id}")
     def data__store_binary__with__id(self, body         : bytes         = Body(...)                     ,
-                                           cache_id     : Random_Guid   = None                          ,
+                                           cache_id     : Cache_Id      = None                          ,
                                            namespace    : Safe_Str__Id  = FAST_API__PARAM__NAMESPACE    ,
                                            data_file_id : Safe_Str__Id  = None
                                     ) -> Schema__Cache__Data__Store__Response:
@@ -67,7 +67,7 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
     @route_path("/data/store/binary/{data_key:path}/{data_file_id}")
     def data__store_binary__with__id_and_key(self, body         : bytes                  = Body(..., media_type="application/octet-stream"),
-                                                   cache_id     : Random_Guid            = None                          ,
+                                                   cache_id     : Cache_Id               = None                          ,
                                                    namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,
                                                    data_key     : Safe_Str__File__Path   = None                          ,
                                                    data_file_id : Safe_Str__Id           = None
@@ -85,7 +85,7 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
     @route_path("/data/store/json")
     def data__store_json(self, data         : dict         = Body(...)                  ,
-                               cache_id     : Random_Guid  = None                       ,
+                               cache_id     : Cache_Id     = None                       ,
                                namespace    : Safe_Str__Id = FAST_API__PARAM__NAMESPACE ,
                         ) -> Schema__Cache__Data__Store__Response:
         return self.data__store_json__with__id_and_key(data         = data      ,
@@ -96,7 +96,7 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
     @route_path("/data/store/json/{data_file_id}")
     def data__store_json__with__id(self, data         : dict         = Body(...)                  ,
-                                         cache_id     : Random_Guid  = None                       ,
+                                         cache_id     : Cache_Id     = None                       ,
                                          namespace    : Safe_Str__Id = FAST_API__PARAM__NAMESPACE ,
                                          data_file_id : Safe_Str__Id = None
                                   ) -> Schema__Cache__Data__Store__Response:
@@ -108,7 +108,7 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
     @route_path("/data/store/json/{data_key:path}/{data_file_id}")
     def data__store_json__with__id_and_key(self, data         : dict                   = Body(...)                     ,
-                                                cache_id     : Random_Guid            = None                          ,
+                                                cache_id     : Cache_Id               = None                          ,
                                                 namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,
                                                 data_key     : Safe_Str__File__Path   = None                          ,
                                                 data_file_id : Safe_Str__Id           = None
@@ -124,7 +124,7 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
         return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
 
-    def test_404(self, cache_id     : Random_Guid            = None                          ,
+    def test_404(self, cache_id     : Cache_Id               = None                          ,
                        namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,):
 
         error_detail = { "error_type" : "NOT_FOUND"                                                      ,
@@ -134,7 +134,7 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
     @route_path("/data/store/string")
     def data__store_string(self, data         : str                    = Body(...)                     ,
-                                  cache_id     : Random_Guid            = None                          ,
+                                  cache_id     : Cache_Id               = None                          ,
                                   namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,
                           ) -> Schema__Cache__Data__Store__Response:
 
@@ -146,7 +146,7 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
     @route_path("/data/store/string/{data_file_id}")
     def data__store_string__with__id(self, data         : str                    = Body(...)                     ,
-                                           cache_id     : Random_Guid            = None                          ,
+                                           cache_id     : Cache_Id               = None                          ,
                                            namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,
                                            data_file_id : Safe_Str__Id           = None
                                     ) -> Schema__Cache__Data__Store__Response:
@@ -158,7 +158,7 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
     @route_path("/data/store/string/{data_key:path}/{data_file_id}")
     def data__store_string__with__id_and_key(self, data         : str                    = Body(...)                     ,
-                                           cache_id     : Random_Guid            = None                          ,
+                                           cache_id     : Cache_Id               = None                          ,
                                            namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,
                                            data_key     : Safe_Str__File__Path   = None                          ,
                                            data_file_id : Safe_Str__Id           = None
@@ -176,7 +176,7 @@ class Routes__Data__Store(Fast_API__Routes):                                    
 
     @type_safe
     def handle_not_found(self, result        : Union[Type_Safe, Dict] = None,                                 # Base method for 404 handling
-                               cache_id      : Random_Guid            = None,
+                               cache_id      : Cache_Id               = None,
                                namespace     : Safe_Str__Id           = None):
         if result is None:
             error_detail = { "error_type" : "NOT_FOUND"                                                      ,

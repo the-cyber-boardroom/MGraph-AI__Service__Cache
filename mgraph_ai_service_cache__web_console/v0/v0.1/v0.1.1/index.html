@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser
+   v0.1.1 - Files View, Hashes View, Draggable Sidebar
+   
+   IFD: This version loads v0.1.0 as base, then applies patches/extensions
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Browser v0.1.1</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗄️</text></svg>">
+    
+    <!-- v0.1.0 Base Styles -->
+    <link rel="stylesheet" href="../v0.1.0/css/common.css">
+    <link rel="stylesheet" href="../v0.1.0/css/browser.css">
+    
+    <!-- v0.1.1 Patches -->
+    <link rel="stylesheet" href="css/patches.css">
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+       Application Shell (modified for tabbed views)
+       ═══════════════════════════════════════════════════════════════════════════ -->
+    <div class="app">
+        <!-- Header with navigation and namespace tabs -->
+        <header class="app-header">
+            <top-nav data-version="0.1.1"></top-nav>
+        </header>
+        
+        <!-- Main content area -->
+        <main class="app-main">
+            <!-- Sidebar: File Tree (Raw View) or other views -->
+            <aside class="sidebar" id="sidebar">
+                <file-tree id="raw-tree"></file-tree>
+            </aside>
+            
+            <!-- Resize Handle -->
+            <div class="sidebar-resize-handle" id="sidebar-resize-handle"></div>
+            
+            <!-- Main Content Area -->
+            <section class="main-content">
+                <!-- View Tabs -->
+                <view-tabs></view-tabs>
+                
+                <!-- View Containers -->
+                <div class="view-container" id="view-container">
+                    <!-- Files View -->
+                    <div class="view-panel" id="files-view-panel" style="display: none;">
+                        <files-view></files-view>
+                    </div>
+                    
+                    <!-- Hashes View -->
+                    <div class="view-panel" id="hashes-view-panel" style="display: none;">
+                        <hashes-view></hashes-view>
+                    </div>
+                    
+                    <!-- Raw View (Content Viewer) -->
+                    <div class="view-panel active" id="raw-view-panel">
+                        <content-viewer></content-viewer>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+       JavaScript Loading Order:
+       1. v0.1.0 base (utilities, components, services)
+       2. v0.1.1 patches and new components
+       ═══════════════════════════════════════════════════════════════════════════ -->
+    
+    <!-- v0.1.0 Base -->
+    <script src="../v0.1.0/js/utils/helpers.js"></script>
+    <script src="../v0.1.0/js/utils/component-paths.js"></script>
+    <script src="../v0.1.0/js/utils/base-component.js"></script>
+    <script src="../v0.1.0/js/services/cache-api-client.js"></script>
+    <script src="js/api-extensions.js"></script>
+    <script src="../v0.1.0/js/keyboard-shortcuts.js"></script>
+    
+    <!-- Initialize ComponentPaths for v0.1.1 (will resolve to v0.1.0 for base components) -->
+    <script>
+        ComponentPaths.init('v0.1.1');
+        // Register v0.1.0 components as available from that version
+        ComponentPaths.registerComponent('top-nav', 'v0.1.0');
+        ComponentPaths.registerComponent('file-tree', 'v0.1.0');
+        ComponentPaths.registerComponent('content-viewer', 'v0.1.0');
+        // Register v0.1.1 new components
+        ComponentPaths.registerComponent('view-tabs', 'v0.1.1');
+        ComponentPaths.registerComponent('files-view', 'v0.1.1');
+        ComponentPaths.registerComponent('hashes-view', 'v0.1.1');
+    </script>
+    
+    <!-- v0.1.0 Components -->
+    <script src="../v0.1.0/components/top-nav/top-nav.js"></script>
+    <script src="../v0.1.0/components/file-tree/file-tree.js"></script>
+    <script src="../v0.1.0/components/content-viewer/content-viewer.js"></script>
+    
+    <!-- v0.1.1 New Components -->
+    <script src="components/view-tabs/view-tabs.js"></script>
+    <script src="components/files-view/files-view.js"></script>
+    <script src="components/hashes-view/hashes-view.js"></script>
+    
+    <!-- v0.1.1 Patches (extends base behavior) -->
+    <script src="js/patches.js"></script>
+    
+    <!-- v0.1.0 Orchestrator (with v0.1.1 patches applied) -->
+    <script src="../v0.1.0/js/browser.js"></script>
+    
+    <!-- v0.1.1 Orchestrator Extensions -->
+    <script src="js/browser-extensions.js"></script>
+</body>
+</html>

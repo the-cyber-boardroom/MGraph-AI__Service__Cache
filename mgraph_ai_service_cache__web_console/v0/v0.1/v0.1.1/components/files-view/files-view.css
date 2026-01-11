@@ -1,0 +1,140 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser - Files View Styles
+   v0.1.1
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Most styles are in patches.css, component-specific additions here */
+
+.files-detail-empty {
+    height: 100%;
+}
+
+/* Detail tabs */
+.detail-tabs {
+    display: flex;
+    gap: 2px;
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border-bottom: 1px solid var(--color-border-muted);
+}
+
+.detail-tab {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.detail-tab:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-hover);
+}
+
+.detail-tab.active {
+    color: var(--color-accent-primary);
+    background: var(--color-bg-secondary);
+}
+
+/* Detail header */
+.detail-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.detail-file-id {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.detail-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+/* Detail body */
+.detail-body {
+    flex: 1;
+    overflow: auto;
+    padding: var(--spacing-md);
+}
+
+/* Refs section */
+.refs-section {
+    margin-top: var(--spacing-md);
+}
+
+.refs-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.refs-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.ref-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.ref-item-icon {
+    flex-shrink: 0;
+}
+
+.ref-item-path {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ref-item-link {
+    color: var(--color-accent-primary);
+    cursor: pointer;
+}
+
+.ref-item-link:hover {
+    text-decoration: underline;
+}
+
+/* Key path display (for key_based strategy) */
+.key-path-display {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(63, 185, 80, 0.1);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-success);
+    margin-bottom: var(--spacing-sm);
+}
+
+.key-path-display::before {
+    content: '🔑';
+}

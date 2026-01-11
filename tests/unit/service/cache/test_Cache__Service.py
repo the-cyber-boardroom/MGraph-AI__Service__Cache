@@ -1,4 +1,5 @@
 from unittest                                                                        import TestCase
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                   import Cache_Id
 from memory_fs.path_handlers.Path__Handler__Temporal                                 import Path__Handler__Temporal
 from osbot_utils.testing.__                                                          import __, __SKIP__
 from memory_fs.schemas.Schema__Memory_FS__File__Config                               import Schema__Memory_FS__File__Config
@@ -95,7 +96,7 @@ class test_Cache__Service(TestCase):
         with self.cache_service as _:
             test_data = {"test": "data", "value": 42}
             cache_hash = _.hash_from_json(test_data)
-            cache_id = Random_Guid()
+            cache_id = Cache_Id(Random_Guid())
 
             result = _.store_with_strategy(storage_data = test_data      ,
                                           cache_hash   = cache_hash      ,

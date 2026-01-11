@@ -5,7 +5,7 @@ from osbot_utils.decorators.methods.cache_on_self                               
 from mgraph_ai_service_cache.service.cache.Cache__Service                       import Cache__Service
 
 TAG__ROUTES_NAMESPACES      = 'namespaces'
-PREFIX__ROUTES_NAMESPACES   = '/{namespaces}'
+PREFIX__ROUTES_NAMESPACES   = '/namespaces'
 ROUTES_PATHS__NAMESPACES    = [ PREFIX__ROUTES_NAMESPACES + '/list']
 
 

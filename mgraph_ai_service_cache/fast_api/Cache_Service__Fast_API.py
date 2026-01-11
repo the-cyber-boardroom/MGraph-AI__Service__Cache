@@ -1,13 +1,20 @@
+from osbot_fast_api.api.decorators.route_path import route_path
+from starlette.responses import RedirectResponse
+from starlette.staticfiles import StaticFiles
+
+import mgraph_ai_service_cache__web_console
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespaces             import Routes__Namespaces
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Delete      import Routes__Data__Delete
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Retrieve    import Routes__Data__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store       import Routes__Data__Store
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Update      import Routes__File__Update
+from mgraph_ai_service_cache.fast_api.routes.test_data.Routes__Test_Data import Routes__Test_Data
 from mgraph_ai_service_cache.fast_api.routes.zip.Routes__Zip                import Routes__Zip
 from mgraph_ai_service_cache.service.cache.Cache__Service                   import Cache__Service
 from osbot_fast_api.api.routes.Routes__Set_Cookie                           import Routes__Set_Cookie
 from osbot_fast_api_serverless.fast_api.Serverless__Fast_API                import Serverless__Fast_API
-from mgraph_ai_service_cache.config                                         import FAST_API__TITLE
+from mgraph_ai_service_cache.config import FAST_API__TITLE, CACHE_SERVICE__WEB_CONSOLE__MAJOR__VERSION, CACHE_SERVICE__WEB_CONSOLE__LATEST__VERSION, CACHE_SERVICE__WEB_CONSOLE__ROUTE__START_PAGE, \
+    CACHE_SERVICE__WEB_CONSOLE__PATH
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Delete      import Routes__File__Delete
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Exists      import Routes__File__Exists
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve    import Routes__File__Retrieve
@@ -43,6 +50,8 @@ class Cache_Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__Server        )
         self.add_routes(Routes__Info          )
         self.add_routes(Routes__Set_Cookie    )
+        self.add_routes(Routes__Test_Data     )
+        self.setup_web_console()
 
     def add_routes(self, class_routes):
         kwargs = dict(app=self.app())
@@ -51,10 +60,28 @@ class Cache_Service__Fast_API(Serverless__Fast_API):
         class_routes(**kwargs).setup()
         return self
 
-    # def setup_middlewares(self):
-    #     super().setup_middlewares()
-    #
-    #     return self
+
+    # todo: refactor to separate class (focused on setting up this static route)
+    def setup_web_console(self):
+
+
+        path_static_folder  = mgraph_ai_service_cache__web_console.path
+        path_name           = CACHE_SERVICE__WEB_CONSOLE__PATH
+        path_static         = f"/{path_name}"
+
+        major_version       = CACHE_SERVICE__WEB_CONSOLE__MAJOR__VERSION
+        latest_version      = CACHE_SERVICE__WEB_CONSOLE__LATEST__VERSION
+        start_page          = CACHE_SERVICE__WEB_CONSOLE__ROUTE__START_PAGE
+
+        path_latest_version = f"/{path_name}/{major_version}/{latest_version}/{start_page}.html"
+        self.app().mount(path_static, StaticFiles(directory=path_static_folder), name=path_name)
+
+
+        @route_path(path=f'/{CACHE_SERVICE__WEB_CONSOLE__PATH}')
+        def redirect_to_latest():
+            return RedirectResponse(url=path_latest_version)
+
+        self.add_route_get(redirect_to_latest)
 
 
 # # todo: see if we need to refactor this into Fast_API since the current routes are working ok for this project (for string, bytes and dict)

@@ -1,0 +1,343 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser - File Tree Styles
+   v0.1.0 - Tree view styling for hierarchical file browser
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.file-tree-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Header
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.file-tree-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-border-default);
+    background: var(--color-bg-tertiary);
+}
+
+.file-tree-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.file-tree-actions {
+    display: flex;
+    gap: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Filter/Search
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.file-tree-filter {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-border-muted);
+}
+
+.file-tree-search {
+    flex: 1;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    background: var(--color-bg-tertiary);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-primary);
+    transition: border-color var(--transition-fast);
+}
+
+.file-tree-search:focus {
+    outline: none;
+    border-color: var(--color-accent-primary);
+    background: var(--color-bg-primary);
+}
+
+.file-tree-search::placeholder {
+    color: var(--color-text-muted);
+}
+
+.file-tree-count {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Content Area
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.file-tree-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--spacing-sm) 0;
+}
+
+/* Loading State */
+.file-tree-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xl);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+/* Empty State */
+.file-tree-empty,
+.file-tree-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xl);
+    text-align: center;
+}
+
+.empty-state-icon {
+    font-size: 2rem;
+    opacity: 0.5;
+}
+
+.empty-state-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Tree Nodes
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.tree-root {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
+}
+
+.tree-node {
+    user-select: none;
+}
+
+.tree-node-row {
+    display: flex;
+    align-items: center;
+    padding: 3px var(--spacing-md);
+    cursor: pointer;
+    border-radius: 0;
+    transition: background var(--transition-fast);
+}
+
+.tree-node-row:hover {
+    background: var(--color-bg-tertiary);
+}
+
+.tree-node-row.selected {
+    background: var(--color-bg-active);
+}
+
+.tree-node-row.selected .tree-node-name {
+    color: var(--color-accent-primary);
+}
+
+/* Indentation */
+.tree-node-indent {
+    display: inline-flex;
+    align-items: center;
+}
+
+.tree-indent-guide {
+    width: 16px;
+    height: 100%;
+    border-left: 1px solid var(--color-border-muted);
+    margin-left: 8px;
+}
+
+/* Toggle Arrow */
+.tree-node-toggle {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    font-size: 10px;
+    flex-shrink: 0;
+    transition: transform var(--transition-fast);
+}
+
+.tree-node-toggle.expanded {
+    transform: rotate(90deg);
+}
+
+.tree-node-toggle.hidden {
+    visibility: hidden;
+}
+
+/* Icon */
+.tree-node-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--spacing-xs);
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.tree-node-icon.folder {
+    color: var(--color-accent-primary);
+}
+
+.tree-node-icon.file-json {
+    color: var(--color-accent-secondary);
+}
+
+.tree-node-icon.file-text {
+    color: var(--color-text-secondary);
+}
+
+.tree-node-icon.file-binary {
+    color: var(--color-accent-tertiary);
+}
+
+.tree-node-icon.file-config {
+    color: var(--color-warning);
+}
+
+.tree-node-icon.file-metadata {
+    color: var(--color-accent-pink);
+}
+
+/* Name */
+.tree-node-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text-primary);
+}
+
+.tree-node-name.dimmed {
+    color: var(--color-text-muted);
+}
+
+/* Size */
+.tree-node-size {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin-left: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
+/* Children Container */
+.tree-node-children {
+    display: none;
+}
+
+.tree-node-children.expanded {
+    display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Category Headers (refs, data, etc.)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.tree-category {
+    margin-bottom: var(--spacing-sm);
+}
+
+.tree-category-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    margin: var(--spacing-xs) var(--spacing-sm);
+}
+
+.tree-category-header:hover {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
+}
+
+.tree-category-count {
+    font-weight: 400;
+    color: var(--color-accent-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Footer Stats
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.file-tree-footer {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-top: 1px solid var(--color-border-muted);
+    background: var(--color-bg-tertiary);
+}
+
+.tree-stats {
+    display: flex;
+    gap: var(--spacing-md);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Highlighted Search Match
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.tree-node-name .highlight {
+    background: rgba(0, 217, 255, 0.3);
+    border-radius: 2px;
+    padding: 0 1px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Scrollbar
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.file-tree-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.file-tree-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.file-tree-content::-webkit-scrollbar-thumb {
+    background: var(--color-bg-hover);
+    border-radius: 3px;
+}
+
+.file-tree-content::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-default);
+}

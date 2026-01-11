@@ -3,7 +3,7 @@ from osbot_utils.decorators.methods.cache_on_self                               
 from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path           import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                        import Safe_UInt
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                          import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id             import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                              import type_safe
 from osbot_utils.utils.Http                                                                 import url_join_safe
@@ -91,7 +91,7 @@ class Cache__Service__Data__Retrieve(Type_Safe):                                
                                                        data_type = request.data_type)
 
     @type_safe
-    def list_data_files(self, cache_id  : Random_Guid          ,                                # List all data files
+    def list_data_files(self, cache_id  : Cache_Id             ,                                # List all data files
                               namespace : Safe_Str__Id         ,
                               data_key  : Safe_Str__File__Path = None
                         ) -> Schema__Cache__Data__Files__List:
