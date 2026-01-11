@@ -130,10 +130,9 @@ class test_Routes__Test_Data(TestCase):
             response = _.create__comprehensive()
 
             namespaces_in_entries = set(e['namespace'] for e in response.entries)
-            assert 'default'   in namespaces_in_entries
-            assert 'testing'   in namespaces_in_entries
-            assert 'demo'      in namespaces_in_entries
-            assert 'analytics' in namespaces_in_entries
+            assert 'test-data'   in namespaces_in_entries
+            assert 'test-demo'      in namespaces_in_entries
+            assert 'test-analytics' in namespaces_in_entries
 
     def test_clear__namespace(self):                                                 # Test namespace clearing
         with self.routes_test_data as _:
