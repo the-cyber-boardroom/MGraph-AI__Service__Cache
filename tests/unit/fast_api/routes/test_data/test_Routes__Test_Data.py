@@ -41,10 +41,10 @@ class test_Routes__Test_Data(TestCase):
         assert TAG__ROUTES_TEST_DATA        == 'test-data'
         assert PREFIX__ROUTES_TEST_DATA     == '/test-data'
         assert len(ROUTES_PATHS__TEST_DATA) == 4
-        assert ROUTES_PATHS__TEST_DATA[0]   == '/test-data/create/comprehensive'
-        assert ROUTES_PATHS__TEST_DATA[1]   == '/test-data/create/namespace/{namespace}'
-        assert ROUTES_PATHS__TEST_DATA[2]   == '/test-data/create/minimal'
-        assert ROUTES_PATHS__TEST_DATA[3]   == '/test-data/clear/namespace/{namespace}'
+        assert ROUTES_PATHS__TEST_DATA[0]   == '/test-data/create/in/default-namespaces/comprehensive'
+        assert ROUTES_PATHS__TEST_DATA[1]   == '/test-data/create/in/default-namespaces/minimal'
+        assert ROUTES_PATHS__TEST_DATA[2]   == '/test-data/create/in/new-namespace/{namespace}'
+        assert ROUTES_PATHS__TEST_DATA[3]   == '/test-data/clear/{namespace}'
 
     def test_test_data_service(self):                                                # Test service caching
         with self.routes_test_data as _:
@@ -95,11 +95,10 @@ class test_Routes__Test_Data(TestCase):
             assert type(response)                is Schema__Test_Data__Create__Response
             assert response.success              is True
             assert response.entries_created      > 20
-            assert len(response.namespaces)      == 4
-            assert 'default'                     in response.namespaces
-            assert 'testing'                     in response.namespaces
-            assert 'demo'                        in response.namespaces
-            assert 'analytics'                   in response.namespaces
+            assert len(response.namespaces)      == 3
+            assert 'test-data'                   in response.namespaces
+            assert 'test-demo'                   in response.namespaces
+            assert 'test-analytics'              in response.namespaces
             assert len(response.strategies_used) == 4
             assert response.message              == 'Comprehensive test data created'
 
