@@ -17,6 +17,7 @@ ROUTES_PATHS__STORAGE = [ f'/{TAG__ROUTES_STORAGE}/bucket-name'                 
                           f'/{TAG__ROUTES_STORAGE}/file/exists/{{path:path}}'            ,  # File Exists
                           f'/{TAG__ROUTES_STORAGE}/file/bytes/{{path:path}}'             ,  # File contents (as bytes)
                           f'/{TAG__ROUTES_STORAGE}/file/json/{{path:path}}'              ,  # File contents (as json)
+                          f'/{TAG__ROUTES_STORAGE}/file/html/{{path:path}}'              ,  # File contents (as html)
                           f'/{TAG__ROUTES_STORAGE}/files/in/{{path:path}}'               ,  # Files in Path
                           f'/{TAG__ROUTES_STORAGE}/files/all/{{path:path}}'              ,  # Files all Path
                           f'/{TAG__ROUTES_STORAGE}/folders/{{path:path}}'                ,  # Folders
@@ -65,6 +66,19 @@ class Routes__Admin__Storage(Fast_API__Routes):
         return Response(json_to_str(error_data)                           ,
                         status_code = DEFAULT__HTTP_CODE__FILE_NOT_FOUND  ,          # using 404 to indicate file not found
                         media_type  = 'application/json')
+
+    @route_path("/file/html/{path:path}")
+    def file__html(self, path):
+        file_json = self.storage_fs().file__json(path)
+        if file_json:
+            html = file_json.get('html')
+            return Response(html,
+                            status_code = 200   ,
+                            media_type  = "text/html; charset=utf-8")
+        else:
+            return Response('File not found.', status_code = 404   ,
+                             media_type  = "text/html; charset=utf-8")
+
 
     @route_path("/files/in/{path:path}")
     def files__in(self,                                               # List files in path - optionally recursive
@@ -133,6 +147,7 @@ class Routes__Admin__Storage(Fast_API__Routes):
         self.add_route_get   (self.file__exists )
         self.add_route_get   (self.file__bytes  )
         self.add_route_get   (self.file__json   )
+        self.add_route_get   (self.file__html   )
         self.add_route_get   (self.files__in    )
         self.add_route_get   (self.files__all   )
         self.add_route_get   (self.folders      )
