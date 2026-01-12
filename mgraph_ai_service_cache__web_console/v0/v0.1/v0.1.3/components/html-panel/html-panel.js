@@ -81,8 +81,10 @@ class HtmlPanel extends BaseComponent {
         const size = new Blob([this.htmlContent]).size;
         this.sizeEl.textContent = Helpers.formatBytes(size);
 
-        // Hide empty state, show content
+        // Hide empty state
         this.emptyState.style.display = 'none';
+        
+        // Show correct view based on mode (absolute positioned, so just block/none)
         this.iframe.style.display = this.viewMode === 'preview' ? 'block' : 'none';
         this.sourceView.style.display = this.viewMode === 'source' ? 'block' : 'none';
 
@@ -118,7 +120,7 @@ class HtmlPanel extends BaseComponent {
             btn.classList.toggle('active', btn.dataset.mode === mode);
         });
 
-        // Show/hide views
+        // Show/hide views (absolute positioned, so just block/none)
         if (this.htmlContent) {
             this.iframe.style.display = mode === 'preview' ? 'block' : 'none';
             this.sourceView.style.display = mode === 'source' ? 'block' : 'none';

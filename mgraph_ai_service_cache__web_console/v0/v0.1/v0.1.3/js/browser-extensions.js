@@ -8,7 +8,7 @@
 
 (function() {
     // Configuration
-    const API_BASE_URL = 'http://localhost:10017';
+    const API_BASE_URL = '';
     
     // Wait for content-viewer to be ready
     const checkReady = setInterval(() => {
@@ -138,7 +138,7 @@
         }
         
         const encodedPath = encodeURIComponent(pathString);
-        const apiUrl = `${API_BASE_URL}/admin/storage/file/json/${encodedPath}`;
+        const apiUrl = `${API_BASE_URL}/admin/storage/file/html/${encodedPath}`;
         
         openBtn.href = apiUrl;
         openBtn.title = `Open in Browser:\n${apiUrl}`;

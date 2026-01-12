@@ -22,18 +22,20 @@
         <span class="html-size" id="html-size"></span>
     </div>
     
-    <!-- Body -->
-    <div class="html-panel-body" id="panel-body">
-        <!-- Preview Mode -->
-        <iframe id="preview-iframe" sandbox="allow-same-origin" title="HTML Preview"></iframe>
+    <!-- Body - fills remaining space with absolute children -->
+    <div class="html-panel-body" id="panel-body" style="flex: 1; min-height: 0; position: relative; overflow: hidden;">
+        <!-- Preview Mode - absolute positioned to fill -->
+        <iframe id="preview-iframe" sandbox="allow-same-origin" title="HTML Preview" 
+                style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; border: none; background: white;"></iframe>
         
-        <!-- Source Mode (hidden by default) -->
-        <div class="source-view" id="source-view" style="display: none;">
-            <pre id="source-code"></pre>
+        <!-- Source Mode (hidden by default) - also absolute -->
+        <div class="source-view" id="source-view" 
+             style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: auto; padding: 16px; background: var(--color-bg-primary, #0d1117);">
+            <pre id="source-code" style="margin: 0; white-space: pre-wrap; font-family: monospace; font-size: 13px; line-height: 1.6;"></pre>
         </div>
         
         <!-- Empty State -->
-        <div class="html-panel-empty" id="empty-state" style="display: none;">
+        <div class="html-panel-empty" id="empty-state" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
             <div class="html-panel-empty-icon">🌐</div>
             <div class="html-panel-empty-text">
                 Select a file with HTML content<br>
