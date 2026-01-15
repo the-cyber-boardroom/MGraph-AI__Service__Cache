@@ -281,13 +281,12 @@ class test_Routes__File__Retrieve(TestCase):
         
         with self.routes as _:
             for fixture_name, data_type, fixture_id in fixtures_to_test:
-                with self.subTest(fixture=fixture_name):
-                    if data_type == 'binary':
-                        # Binary returns reference
-                        result = _.retrieve__cache_id(fixture_id, self.fixtures_namespace)
-                        assert type(result) is Schema__Cache__Binary__Reference
-                    else:
-                        # String and JSON return data
-                        result = _.retrieve__cache_id(fixture_id, self.fixtures_namespace)
-                        fixture_data = self.cache_fixtures.get_fixture_data(fixture_name)
-                        assert result.data == fixture_data
+                if data_type == 'binary':
+                    # Binary returns reference
+                    result = _.retrieve__cache_id(fixture_id, self.fixtures_namespace)
+                    assert type(result) is Schema__Cache__Binary__Reference
+                else:
+                    # String and JSON return data
+                    result = _.retrieve__cache_id(fixture_id, self.fixtures_namespace)
+                    fixture_data = self.cache_fixtures.get_fixture_data(fixture_name)
+                    assert result.data == fixture_data

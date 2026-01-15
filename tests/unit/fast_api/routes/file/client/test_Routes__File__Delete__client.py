@@ -108,14 +108,13 @@ class test_Routes__File__Delete__client(TestCase):                              
         strategies = ["direct", "temporal", "temporal_latest", "temporal_versioned"]
 
         for strategy in strategies:
-            with self.subTest(strategy=strategy):
-                cache_id = self._store_for_deletion(f"delete {strategy}", strategy=strategy)
+            cache_id = self._store_for_deletion(f"delete {strategy}", strategy=strategy)
 
-                response = self.client.delete(f'/{self.test_namespace}/delete/{cache_id}')
-                assert response.status_code == 200
-                assert response.json()['status'] == 'success'
+            response = self.client.delete(f'/{self.test_namespace}/delete/{cache_id}')
+            assert response.status_code == 200
+            assert response.json()['status'] == 'success'
 
-                self.created_items = [i for i in self.created_items if i['cache_id'] != cache_id]
+            self.created_items = [i for i in self.created_items if i['cache_id'] != cache_id]
 
     def test__delete__concurrent_operations(self):                                    # Test concurrent delete operations
         skip__if_not__in_github_actions()

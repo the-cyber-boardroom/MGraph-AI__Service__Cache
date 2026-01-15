@@ -5,16 +5,18 @@ from starlette.staticfiles import StaticFiles
 import mgraph_ai_service_cache__web_console
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespaces             import Routes__Namespaces
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Delete      import Routes__Data__Delete
+from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Exists      import Routes__Data__Exists
+from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__List        import Routes__Data__List
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Retrieve    import Routes__Data__Retrieve
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store       import Routes__Data__Store
+from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Update      import Routes__Data__Update
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Update      import Routes__File__Update
-from mgraph_ai_service_cache.fast_api.routes.test_data.Routes__Test_Data import Routes__Test_Data
+from mgraph_ai_service_cache.fast_api.routes.test_data.Routes__Test_Data    import Routes__Test_Data
 from mgraph_ai_service_cache.fast_api.routes.zip.Routes__Zip                import Routes__Zip
 from mgraph_ai_service_cache.service.cache.Cache__Service                   import Cache__Service
 from osbot_fast_api.api.routes.Routes__Set_Cookie                           import Routes__Set_Cookie
 from osbot_fast_api_serverless.fast_api.Serverless__Fast_API                import Serverless__Fast_API
-from mgraph_ai_service_cache.config import FAST_API__TITLE, CACHE_SERVICE__WEB_CONSOLE__MAJOR__VERSION, CACHE_SERVICE__WEB_CONSOLE__LATEST__VERSION, CACHE_SERVICE__WEB_CONSOLE__ROUTE__START_PAGE, \
-    CACHE_SERVICE__WEB_CONSOLE__PATH
+from mgraph_ai_service_cache.config                                         import FAST_API__TITLE, CACHE_SERVICE__WEB_CONSOLE__MAJOR__VERSION, CACHE_SERVICE__WEB_CONSOLE__LATEST__VERSION, CACHE_SERVICE__WEB_CONSOLE__ROUTE__START_PAGE, CACHE_SERVICE__WEB_CONSOLE__PATH
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Delete      import Routes__File__Delete
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Exists      import Routes__File__Exists
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve    import Routes__File__Retrieve
@@ -42,6 +44,9 @@ class Cache_Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__File__Delete  )
         self.add_routes(Routes__Data__Store   )
         self.add_routes(Routes__Data__Retrieve)
+        self.add_routes(Routes__Data__Update  )
+        self.add_routes(Routes__Data__Exists  )
+        self.add_routes(Routes__Data__List    )
         self.add_routes(Routes__Data__Delete  )
         self.add_routes(Routes__Zip           )
         self.add_routes(Routes__Namespace     )

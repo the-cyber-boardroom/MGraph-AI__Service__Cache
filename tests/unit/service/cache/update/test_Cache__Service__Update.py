@@ -308,27 +308,26 @@ class test_Cache__Service__Update(TestCase):
 
         with self.update_service as _:
             for strategy in strategies:
-                with self.subTest(strategy=strategy):
-                    namespace = Safe_Str__Id(f"upd-strat-{strategy.value}")
+                namespace = Safe_Str__Id(f"upd-strat-{strategy.value}")
 
-                    # Create with strategy
-                    create_result = self._create_test_entry(self.test_string_v1,
-                                                          strategy  = strategy  ,
-                                                          namespace = namespace )
-                    cache_id = create_result.cache_id
+                # Create with strategy
+                create_result = self._create_test_entry(self.test_string_v1,
+                                                      strategy  = strategy  ,
+                                                      namespace = namespace )
+                cache_id = create_result.cache_id
 
-                    # Update
-                    update_result = _.update_by_id(cache_id  = cache_id            ,
-                                                  namespace = namespace            ,
-                                                  data      = self.test_string_v2  )
+                # Update
+                update_result = _.update_by_id(cache_id  = cache_id            ,
+                                              namespace = namespace            ,
+                                              data      = self.test_string_v2  )
 
-                    assert update_result.cache_id == cache_id
-                    assert update_result.namespace == namespace
+                assert update_result.cache_id == cache_id
+                assert update_result.namespace == namespace
 
-                    # Verify strategy preserved
-                    refs = self.cache_service.retrieve_by_id__refs(cache_id, namespace)
-                    assert type(refs)   is Schema__Cache__File__Refs
-                    assert refs.strategy == strategy
+                # Verify strategy preserved
+                refs = self.cache_service.retrieve_by_id__refs(cache_id, namespace)
+                assert type(refs)   is Schema__Cache__File__Refs
+                assert refs.strategy == strategy
 
     def test_update_by_id__same_data(self):                                          # Test updating with identical data
         with self.update_service as _:
