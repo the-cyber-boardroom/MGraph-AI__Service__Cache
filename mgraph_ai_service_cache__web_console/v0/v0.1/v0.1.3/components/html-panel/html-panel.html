@@ -1,0 +1,46 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser - HTML Panel Component
+   v0.1.3 - Standalone HTML preview panel (3rd column)
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="html-panel-container">
+    <!-- Header -->
+    <div class="html-panel-header">
+        <span class="html-panel-title" id="panel-title">HTML Preview</span>
+        <div class="html-panel-actions">
+            <button class="btn btn-ghost btn-sm" id="copy-btn" title="Copy HTML">📋</button>
+            <button class="btn btn-ghost btn-sm" id="open-btn" title="Open in New Tab">↗</button>
+            <button class="html-panel-close" id="close-btn" title="Close Panel">✕</button>
+        </div>
+    </div>
+    
+    <!-- Toolbar -->
+    <div class="html-panel-toolbar">
+        <button class="mode-btn active" data-mode="preview">🌐 Preview</button>
+        <button class="mode-btn" data-mode="source">📄 Source</button>
+        <span style="flex: 1;"></span>
+        <span class="html-size" id="html-size"></span>
+    </div>
+    
+    <!-- Body - fills remaining space with absolute children -->
+    <div class="html-panel-body" id="panel-body" style="flex: 1; min-height: 0; position: relative; overflow: hidden;">
+        <!-- Preview Mode - absolute positioned to fill -->
+        <iframe id="preview-iframe" sandbox="allow-same-origin" title="HTML Preview" 
+                style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; border: none; background: white;"></iframe>
+        
+        <!-- Source Mode (hidden by default) - also absolute -->
+        <div class="source-view" id="source-view" 
+             style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: auto; padding: 16px; background: var(--color-bg-primary, #0d1117);">
+            <pre id="source-code" style="margin: 0; white-space: pre-wrap; font-family: monospace; font-size: 13px; line-height: 1.6;"></pre>
+        </div>
+        
+        <!-- Empty State -->
+        <div class="html-panel-empty" id="empty-state" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
+            <div class="html-panel-empty-icon">🌐</div>
+            <div class="html-panel-empty-text">
+                Select a file with HTML content<br>
+                to preview it here
+            </div>
+        </div>
+    </div>
+</div>

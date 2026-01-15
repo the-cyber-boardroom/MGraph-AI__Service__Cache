@@ -196,15 +196,14 @@ class test_Routes__File__Store(TestCase):
         test_data  = "strategy test data"
 
         for strategy in strategies:
-            with self.subTest(strategy=strategy):
-                with self.routes as _:
-                    response = _.store__string(data      = test_data                           ,
-                                              strategy  = strategy                             ,
-                                              namespace = Safe_Str__Id(f"strat-{strategy}")   )
+            with self.routes as _:
+                response = _.store__string(data      = test_data                           ,
+                                          strategy  = strategy                             ,
+                                          namespace = Safe_Str__Id(f"strat-{strategy}")   )
 
-                    assert type(response.cache_id) is Cache_Id
-                    assert response.cache_hash     is not None
-                    assert 'paths' in response.json()
+                assert type(response.cache_id) is Cache_Id
+                assert response.cache_hash     is not None
+                assert 'paths' in response.json()
 
     def test_namespace_default_handling(self):                                                # Test default namespace
         test_data = "default namespace test"

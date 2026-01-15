@@ -172,16 +172,15 @@ class test_Routes__File__Exists__http(TestCase):                                
         all_fixtures = self.cache_fixtures.fixtures.keys()
 
         for fixture_name in all_fixtures:
-            with self.subTest(fixture=fixture_name):
-                fixture_hash = self.cache_fixtures.get_fixture_hash(fixture_name)
-                url          = f"{self.base_url}/{self.fixtures_namespace}/exists/hash/{fixture_hash}"
-                response     = requests.get(url, headers=self.headers)
+            fixture_hash = self.cache_fixtures.get_fixture_hash(fixture_name)
+            url          = f"{self.base_url}/{self.fixtures_namespace}/exists/hash/{fixture_hash}"
+            response     = requests.get(url, headers=self.headers)
 
-                assert response.status_code == 200
-                result = response.json()
-                assert result['exists'    ]  is True
-                assert result['cache_hash'] == fixture_hash
-                assert result['namespace' ] == str(self.fixtures_namespace)
+            assert response.status_code == 200
+            result = response.json()
+            assert result['exists'    ]  is True
+            assert result['cache_hash'] == fixture_hash
+            assert result['namespace' ] == str(self.fixtures_namespace)
 
     def test_12_integration_with_retrieve(self):                                      # Test integration with retrieve using fixtures
         fixture_name = "json_complex"

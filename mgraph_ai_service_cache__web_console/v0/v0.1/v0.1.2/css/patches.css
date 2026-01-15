@@ -1,0 +1,369 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser - v0.1.2 Patches
+   
+   Additions:
+   - HTML Viewer modal and inline styles
+   - Tree focus indicator for keyboard navigation
+   - Scroll isolation fix (sidebar vs content)
+   - JSON truncation removal
+   - Open in Browser link
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CRITICAL FIX: Scroll Isolation
+   Sidebar and main content must scroll independently
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.app-main {
+    display: flex;
+    overflow: hidden !important; /* Prevent app-main from scrolling */
+    height: calc(100vh - 48px); /* Fixed height = viewport minus header */
+}
+
+.sidebar {
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    height: 100%;
+    flex-shrink: 0;
+}
+
+.main-content {
+    overflow: hidden !important; /* Container doesn't scroll */
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+}
+
+.view-container {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.view-panel {
+    overflow: hidden;
+    height: 100%;
+}
+
+.view-panel.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure content-viewer scrolls internally */
+content-viewer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   HTML Viewer Modal (Maximized View)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.html-viewer-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    background: var(--color-bg-primary);
+    display: flex;
+    flex-direction: column;
+}
+
+.html-viewer-modal-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.html-viewer-modal-title {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.html-viewer-modal-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.html-viewer-modal-body {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.html-viewer-modal-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: white;
+}
+
+.html-viewer-modal-body .html-source {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    padding: var(--spacing-md);
+    background: var(--color-bg-primary);
+}
+
+.html-viewer-modal-body .html-source pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Inline HTML Viewer (within content-viewer)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.html-viewer-inline {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.html-viewer-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border-bottom: 1px solid var(--color-border-muted);
+}
+
+.html-viewer-toolbar .view-mode-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.html-viewer-toolbar .view-mode-btn:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-hover);
+}
+
+.html-viewer-toolbar .view-mode-btn.active {
+    color: var(--color-accent-primary);
+    background: var(--color-bg-secondary);
+    border-color: var(--color-accent-primary);
+}
+
+.html-viewer-toolbar .html-info {
+    margin-left: auto;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.html-viewer-content {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.html-viewer-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: white;
+}
+
+.html-viewer-content .html-source-view {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    padding: var(--spacing-md);
+    background: var(--color-bg-primary);
+}
+
+.html-viewer-content .html-source-view pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    line-height: 1.5;
+}
+
+/* HTML syntax highlighting (basic) */
+.html-source-view .tag {
+    color: var(--color-accent-secondary);
+}
+
+.html-source-view .attr-name {
+    color: var(--color-accent-tertiary);
+}
+
+.html-source-view .attr-value {
+    color: var(--color-success);
+}
+
+.html-source-view .comment {
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+/* Badge for HTML content detection */
+.html-detected-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--color-warning);
+    background: rgba(210, 153, 34, 0.15);
+    border-radius: var(--radius-sm);
+}
+
+.html-detected-badge::before {
+    content: '🌐';
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   File Tree Focus Styles (for keyboard navigation)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Make tree focusable */
+.file-tree-container[tabindex] {
+    outline: none;
+}
+
+.file-tree-container[tabindex]:focus {
+    outline: none;
+}
+
+/* Show focus ring around entire tree when focused */
+.file-tree-container[tabindex]:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--color-accent-primary);
+}
+
+/* Focused indicator in header */
+.tree-header .focus-indicator {
+    display: none;
+    font-size: var(--font-size-xs);
+    color: var(--color-accent-primary);
+    margin-left: auto;
+}
+
+.file-tree-container:focus .tree-header .focus-indicator,
+.file-tree-container.keyboard-active .tree-header .focus-indicator {
+    display: inline;
+}
+
+/* Keyboard focus on tree nodes */
+.tree-node.keyboard-focused > .tree-node-content {
+    outline: 2px solid var(--color-accent-primary);
+    outline-offset: -2px;
+    background: rgba(0, 217, 255, 0.1);
+}
+
+/* Visual hint when tree is not focused */
+.tree-keyboard-hint {
+    display: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    background: var(--color-bg-tertiary);
+    text-align: center;
+}
+
+.file-tree-container:not(:focus):not(.keyboard-active) .tree-keyboard-hint {
+    display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Common CSS import for Shadow DOM components
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Note: v0.1.2/css/common.css imports from v0.1.0 */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Open in Browser Button
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.open-in-browser-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: 1px solid var(--color-border-muted);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.open-in-browser-btn:hover {
+    color: var(--color-accent-primary);
+    border-color: var(--color-accent-primary);
+    background: rgba(0, 217, 255, 0.1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   JSON Content - Remove Truncation
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Override any truncation in JSON display */
+.json-content,
+.json-content * {
+    max-height: none !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    -webkit-line-clamp: unset !important;
+}
+
+/* Ensure JSON strings are fully displayed */
+.json-string {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    max-width: 100% !important;
+}
+
+/* JSON viewer panel should scroll */
+.viewer-panel .json-content {
+    overflow: auto !important;
+}
+
+/* Expand all nested JSON by default option */
+.json-expand-hint {
+    display: inline-block;
+    padding: 2px 6px;
+    margin-left: 8px;
+    font-size: 10px;
+    color: var(--color-text-muted);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.json-expand-hint:hover {
+    color: var(--color-accent-primary);
+}

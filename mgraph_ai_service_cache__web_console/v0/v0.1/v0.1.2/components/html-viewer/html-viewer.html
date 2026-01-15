@@ -1,0 +1,41 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   Cache Service Browser - HTML Viewer Component
+   v0.1.2 - Inline HTML preview with source toggle
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="html-viewer-inline">
+    <div class="html-viewer-toolbar">
+        <button class="view-mode-btn active" data-mode="preview" title="Preview HTML">
+            🌐 Preview
+        </button>
+        <button class="view-mode-btn" data-mode="source" title="View Source">
+            📄 Source
+        </button>
+        <button class="view-mode-btn" data-mode="split" title="Split View">
+            ⬜ Split
+        </button>
+        
+        <span class="html-info" id="html-info">
+            <!-- Size info populated dynamically -->
+        </span>
+        
+        <button class="btn btn-ghost btn-sm" id="html-copy-btn" title="Copy HTML">
+            📋 Copy
+        </button>
+        <button class="btn btn-ghost btn-sm" id="html-maximize-btn" title="Maximize (m)">
+            ⛶ Maximize
+        </button>
+    </div>
+    
+    <div class="html-viewer-content" id="html-content">
+        <!-- Preview Mode -->
+        <div class="html-preview-container" id="preview-container">
+            <iframe id="html-iframe" sandbox="allow-same-origin" title="HTML Preview"></iframe>
+        </div>
+        
+        <!-- Source Mode -->
+        <div class="html-source-view" id="source-container" style="display: none;">
+            <pre id="html-source"></pre>
+        </div>
+    </div>
+</div>

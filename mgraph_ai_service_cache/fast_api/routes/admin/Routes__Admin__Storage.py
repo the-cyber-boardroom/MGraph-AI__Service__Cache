@@ -1,11 +1,11 @@
 from fastapi                                                                                                 import Response
-from typing                                                                                                  import List, Dict, Any
+from typing                                                                                                      import List, Dict, Any
 from osbot_fast_api.api.decorators.route_path                                                                import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                                              import Fast_API__Routes
 from osbot_utils.decorators.methods.cache_on_self                                                            import cache_on_self
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                            import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now                             import Timestamp_Now
-from osbot_utils.utils.Json                                                                                  import bytes_to_json, json_to_str
+from osbot_utils.utils.Json                                                                              import bytes_to_json, json_to_str
 from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                                      import DEFAULT__HTTP_CODE__FILE_NOT_FOUND
 from mgraph_ai_service_cache.service.cache.Cache__Service                                                    import Cache__Service
 from mgraph_ai_service_cache_client.schemas.routes.admin.Schema__Routes__Admin__Storage__Files_All__Response import Schema__Routes__Admin__Storage__Files_All__Response
@@ -17,6 +17,7 @@ ROUTES_PATHS__STORAGE = [ f'/{TAG__ROUTES_STORAGE}/bucket-name'                 
                           f'/{TAG__ROUTES_STORAGE}/file/exists/{{path:path}}'            ,  # File Exists
                           f'/{TAG__ROUTES_STORAGE}/file/bytes/{{path:path}}'             ,  # File contents (as bytes)
                           f'/{TAG__ROUTES_STORAGE}/file/json/{{path:path}}'              ,  # File contents (as json)
+                          f'/{TAG__ROUTES_STORAGE}/file/html/{{path:path}}'              ,  # File contents (as html)
                           f'/{TAG__ROUTES_STORAGE}/files/in/{{path:path}}'               ,  # Files in Path
                           f'/{TAG__ROUTES_STORAGE}/files/all/{{path:path}}'              ,  # Files all Path
                           f'/{TAG__ROUTES_STORAGE}/folders/{{path:path}}'                ,  # Folders
@@ -65,6 +66,19 @@ class Routes__Admin__Storage(Fast_API__Routes):
         return Response(json_to_str(error_data)                           ,
                         status_code = DEFAULT__HTTP_CODE__FILE_NOT_FOUND  ,          # using 404 to indicate file not found
                         media_type  = 'application/json')
+
+    @route_path("/file/html/{path:path}")
+    def file__html(self, path):
+        file_json = self.storage_fs().file__json(path)
+        if file_json:
+            html = file_json.get('html')
+            return Response(html,
+                            status_code = 200   ,
+                            media_type  = "text/html; charset=utf-8")
+        else:
+            return Response('File not found.', status_code = 404   ,
+                             media_type  = "text/html; charset=utf-8")
+
 
     @route_path("/files/in/{path:path}")
     def files__in(self,                                               # List files in path - optionally recursive
@@ -133,6 +147,7 @@ class Routes__Admin__Storage(Fast_API__Routes):
         self.add_route_get   (self.file__exists )
         self.add_route_get   (self.file__bytes  )
         self.add_route_get   (self.file__json   )
+        self.add_route_get   (self.file__html   )
         self.add_route_get   (self.files__in    )
         self.add_route_get   (self.files__all   )
         self.add_route_get   (self.folders      )

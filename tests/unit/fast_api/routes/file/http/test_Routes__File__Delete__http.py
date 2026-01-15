@@ -142,18 +142,17 @@ class test_Routes__File__Delete__http(TestCase):                                
         strategies = ["direct", "temporal", "temporal_latest", "temporal_versioned"]
 
         for strategy in strategies:
-            with self.subTest(strategy=strategy):
-                cache_id = self._store_for_deletion(f"delete {strategy}", strategy=strategy)
+            cache_id = self._store_for_deletion(f"delete {strategy}", strategy=strategy)
 
-                delete_url = f"{self.base_url}/{self.test_namespace}/delete/{cache_id}"
-                response   = requests.delete(delete_url, headers=self.headers)
+            delete_url = f"{self.base_url}/{self.test_namespace}/delete/{cache_id}"
+            response   = requests.delete(delete_url, headers=self.headers)
 
-                assert response.status_code         == 200
-                result = response.json()
-                assert result['status']             == 'success'
-                assert result['deleted_count']      > 4                             # All strategies create at least 5 files
+            assert response.status_code         == 200
+            result = response.json()
+            assert result['status']             == 'success'
+            assert result['deleted_count']      > 4                             # All strategies create at least 5 files
 
-                self.created_cache_ids.remove(cache_id)
+            self.created_cache_ids.remove(cache_id)
 
     def test_06_concurrent_deletes(self):                                           # Test concurrent delete operations
         skip__if_not__in_github_actions()

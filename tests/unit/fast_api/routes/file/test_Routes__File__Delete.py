@@ -97,12 +97,11 @@ class test_Routes__File__Delete(TestCase):
             strategies = ["direct", "temporal", "temporal_latest", "temporal_versioned"]
 
             for strategy in strategies:
-                with self.subTest(strategy=strategy):
-                    cache_id = self._create_deletable_item(f"delete test {strategy}", strategy)
+                cache_id = self._create_deletable_item(f"delete test {strategy}", strategy)
 
-                    result = _.delete__cache_id(cache_id, self.test_namespace)
+                result = _.delete__cache_id(cache_id, self.test_namespace)
 
-                    assert result["status"]        == "success"
-                    assert result["deleted_count"] > 0
+                assert result["status"]        == "success"
+                assert result["deleted_count"] > 0
 
-                    self.created_cache_ids.remove(cache_id)
+                self.created_cache_ids.remove(cache_id)

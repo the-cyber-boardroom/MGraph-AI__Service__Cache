@@ -1,7 +1,8 @@
 # for main app
 memory_fs
 osbot-fast-api-serverless
-mgraph-ai-service-cache-client
+#mgraph-ai-service-cache-client
+git+https://github.com/the-cyber-boardroom/MGraph-AI__Service__Cache__Client.git@dev
 
 # for pytest
 pytest

@@ -185,16 +185,15 @@ class test_Cache__Service__Store(TestCase):
 
         with self.store_service as _:
             for strategy in strategies:
-                with self.subTest(strategy=strategy):
-                    namespace = Safe_Str__Id(f"strat-{strategy.value}")
+                namespace = Safe_Str__Id(f"strat-{strategy.value}")
 
-                    result = _.store_string(data      = self.test_string,
-                                           strategy  = strategy         ,
-                                           namespace = namespace        )
-                    self._track_cache_id(result)
+                result = _.store_string(data      = self.test_string,
+                                       strategy  = strategy         ,
+                                       namespace = namespace        )
+                self._track_cache_id(result)
 
-                    assert type(result)          is Schema__Cache__Store__Response
-                    assert type(result.cache_id) is Cache_Id
+                assert type(result)          is Schema__Cache__Store__Response
+                assert type(result.cache_id) is Cache_Id
 
     def test_store_duplicate_data(self):                                             # Test duplicate storage
         skip__if_not__in_github_actions()
@@ -221,21 +220,20 @@ class test_Cache__Service__Store(TestCase):
 
         with self.store_service as _:
             for fixture_name, data_type in fixtures_to_test:
-                with self.subTest(fixture=fixture_name):
-                    data = self.cache_fixtures.get_fixture_data(fixture_name)
+                data = self.cache_fixtures.get_fixture_data(fixture_name)
 
-                    if data_type == 'string':
-                        result = _.store_string(data      = data                ,
-                                               namespace = self.test_namespace  )
-                    elif data_type == 'json':
-                        result = _.store_json(data      = data                 ,
-                                             namespace = self.test_namespace   )
-                    else:  # binary
-                        result = _.store_binary(data      = data               ,
-                                               namespace = self.test_namespace )
+                if data_type == 'string':
+                    result = _.store_string(data      = data                ,
+                                           namespace = self.test_namespace  )
+                elif data_type == 'json':
+                    result = _.store_json(data      = data                 ,
+                                         namespace = self.test_namespace   )
+                else:  # binary
+                    result = _.store_binary(data      = data               ,
+                                           namespace = self.test_namespace )
 
-                    self._track_cache_id(result)
-                    assert type(result) is Schema__Cache__Store__Response
+                self._track_cache_id(result)
+                assert type(result) is Schema__Cache__Store__Response
 
     def test_default_namespace(self):                                                # Test default namespace
         with self.store_service as _:

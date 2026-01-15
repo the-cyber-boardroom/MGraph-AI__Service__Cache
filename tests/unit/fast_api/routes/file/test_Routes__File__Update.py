@@ -309,26 +309,25 @@ class test_Routes__File__Update(TestCase):
 
         with self.routes as _:
             for strategy in strategies:
-                with self.subTest(strategy=strategy):
-                    namespace = Safe_Str__Id(f"route-strat-{strategy.value}")
+                namespace = Safe_Str__Id(f"route-strat-{strategy.value}")
 
-                    # Create with strategy
-                    create_result = self._create_test_entry(self.test_string_v1,
-                                                          strategy  = strategy  ,
-                                                          namespace = namespace )
-                    cache_id = create_result.cache_id
+                # Create with strategy
+                create_result = self._create_test_entry(self.test_string_v1,
+                                                      strategy  = strategy  ,
+                                                      namespace = namespace )
+                cache_id = create_result.cache_id
 
-                    # Update via route
-                    update_result = _.update__string(data      = self.test_string_v2,
-                                                    cache_id  = cache_id            ,
-                                                    namespace = namespace           )
+                # Update via route
+                update_result = _.update__string(data      = self.test_string_v2,
+                                                cache_id  = cache_id            ,
+                                                namespace = namespace           )
 
-                    assert update_result.cache_id   == cache_id
-                    assert update_result.namespace  == namespace
+                assert update_result.cache_id   == cache_id
+                assert update_result.namespace  == namespace
 
-                    # Verify strategy preserved
-                    refs = self.cache_service.retrieve_by_id__refs(cache_id, namespace)
-                    assert refs.strategy == strategy
+                # Verify strategy preserved
+                refs = self.cache_service.retrieve_by_id__refs(cache_id, namespace)
+                assert refs.strategy == strategy
 
     def test_update__with_fixtures(self):                                            # Test updates using fixture data
         skip__if_not__in_github_actions()

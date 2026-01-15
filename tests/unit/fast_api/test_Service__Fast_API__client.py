@@ -2,6 +2,9 @@ from unittest                                                               impo
 from fastapi                                                                import FastAPI
 from osbot_fast_api.api.Fast_API                                            import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.api.schemas.consts.consts__Fast_API                     import EXPECTED_ROUTES__SET_COOKIE
+from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Exists      import ROUTES_PATHS__EXISTS__DATA
+from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__List        import ROUTES_PATHS__LIST__DATA
+from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Update      import ROUTES_PATHS__UPDATE__DATA
 from osbot_utils.utils.Env                                                  import get_env
 from starlette.testclient                                                   import TestClient
 from mgraph_ai_service_cache.config                                         import ROUTES_PATHS__WEB_CONSOLE
@@ -67,6 +70,7 @@ class test_Service__Fast_API__client(TestCase):
         fast_api_paths = []
         raw_paths      = (ROUTES_PATHS__INFO           +
                           EXPECTED_ROUTES__SET_COOKIE  +
+
                           ROUTES_PATHS__STORE          +
                           ROUTES_PATHS__RETRIEVE       +
                           ROUTES_PATHS__EXISTS         +
@@ -76,9 +80,14 @@ class test_Service__Fast_API__client(TestCase):
                           ROUTES_PATHS__NAMESPACES     +
                           ROUTES_PATHS__SERVER         +
                           ROUTES_PATHS__STORAGE        +
-                          ROUTES_PATHS__STORE__DATA    +
-                          ROUTES_PATHS__RETRIEVE__DATA +
+
                           ROUTES_PATHS__DELETE__DATA   +
+                          ROUTES_PATHS__EXISTS__DATA   +
+                          ROUTES_PATHS__LIST__DATA     +
+                          ROUTES_PATHS__RETRIEVE__DATA +
+                          ROUTES_PATHS__STORE__DATA    +
+                          ROUTES_PATHS__UPDATE__DATA   +
+
                           ROUTES_PATHS__ZIP            +
                           ROUTES_PATHS__WEB_CONSOLE    +
                           ROUTES_PATHS__TEST_DATA      )
