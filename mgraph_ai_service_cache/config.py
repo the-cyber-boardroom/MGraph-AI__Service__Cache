@@ -3,7 +3,7 @@ from mgraph_ai_service_cache import package_name
 SERVICE_NAME                             = package_name
 FAST_API__TITLE                          = "MGraph-AI Service Cache"
 FAST_API__DESCRIPTION                    = "Cache Service"
-LAMBDA_DEPENDENCIES__FAST_API_SERVERLESS = ['memory-fs==v0.37.0'                     ,
+LAMBDA_DEPENDENCIES__FAST_API_SERVERLESS = ['memory-fs==v0.39.0'                     ,
                                             'mgraph-ai-service-cache-client==v0.24.0',
                                             'osbot-fast-api-serverless==1.33.0'      ]
 
