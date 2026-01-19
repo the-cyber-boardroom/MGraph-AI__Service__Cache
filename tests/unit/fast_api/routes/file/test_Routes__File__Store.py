@@ -1,27 +1,26 @@
 import gzip
 import json
 import pytest
-from unittest                                                                            import TestCase
-from fastapi                                                                             import Request, HTTPException
-from osbot_fast_api_serverless.utils.testing.skip_tests                                  import skip__if_not__in_github_actions
-from osbot_utils.testing.__                                                              import __, __SKIP__
-from memory_fs.path_handlers.Path__Handler__Temporal                                     import Path__Handler__Temporal
-from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                    import Cache_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from osbot_utils.utils.Objects                                                           import base_classes
-from osbot_fast_api.api.routes.Fast_API__Routes                                          import Fast_API__Routes
-from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Delete                   import Routes__File__Delete
-from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve                 import Routes__File__Retrieve
-from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Store                    import Routes__File__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace                           import Routes__Namespace
-from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                  import DEFAULT_CACHE__NAMESPACE
-from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
-from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Invalid_Input   import Schema__Cache__Error__Invalid_Input
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response         import Schema__Cache__Store__Response
-from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                   import Cache__Service__Store
-from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
+from unittest                                                                                import TestCase
+from fastapi                                                                                 import Request, HTTPException
+from osbot_fast_api_serverless.utils.testing.skip_tests                                      import skip__if_not__in_github_actions
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Hash import Safe_Str__Cache__File__Cache_Hash
+from osbot_utils.testing.__                                                                  import __, __SKIP__
+from memory_fs.path_handlers.Path__Handler__Temporal                                         import Path__Handler__Temporal
+from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                           import Cache_Id
+from osbot_utils.utils.Objects                                                               import base_classes
+from osbot_fast_api.api.routes.Fast_API__Routes                                              import Fast_API__Routes
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Delete                       import Routes__File__Delete
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve                     import Routes__File__Retrieve
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Store                        import Routes__File__Store, TAG__ROUTES_STORE, Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache.fast_api.routes.Routes__Namespace                               import Routes__Namespace
+from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                      import DEFAULT_CACHE__NAMESPACE
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs             import Schema__Cache__File__Refs
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Invalid_Input       import Schema__Cache__Error__Invalid_Input
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response             import Schema__Cache__Store__Response
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                       import Cache__Service__Store
+from tests.unit.Service__Cache__Test_Objs                                                    import setup__service__cache__test_objs
 
 
 class test_Routes__File__Store(TestCase):
@@ -37,7 +36,7 @@ class test_Routes__File__Store(TestCase):
         cls.routes_namespace   = Routes__Namespace       (cache_service    = cls.cache_service   )
         cls.retrieve_service   = cls.routes_retrieve.retrieve_service()
 
-        cls.test_namespace     = Safe_Str__Id("test-store-api")                                 # Test data
+        cls.test_namespace     = "test-store-api"                                                # Test data
         cls.test_string        = "test store string"
         cls.test_json          = {"api": "test", "value": 123}
         cls.path_now           = Path__Handler__Temporal().path_now()                           # Current temporal path
@@ -71,7 +70,7 @@ class test_Routes__File__Store(TestCase):
 
             assert type(_)            is Schema__Cache__Store__Response
             assert type(_.cache_id  ) is Cache_Id
-            assert type(_.cache_hash) is Safe_Str__Cache_Hash
+            assert type(_.cache_hash) is Safe_Str__Cache__File__Cache_Hash
 
     def test_store__json(self):                                                               # Test JSON storage endpoint
         response__store = self.routes.store__json(data      = self.test_json                        ,
@@ -81,7 +80,7 @@ class test_Routes__File__Store(TestCase):
         with response__store as _:
             assert type(_)              is Schema__Cache__Store__Response
             assert type(_.cache_id)     is Cache_Id
-            assert type(_.cache_hash)   is Safe_Str__Cache_Hash
+            assert type(_.cache_hash)   is Safe_Str__Cache__File__Cache_Hash
             assert _.cache_hash         == '96af669d785b90b6'                                       # Consistent hash
 
     def test_store__json__cache_key(self):                                                               # Test JSON storage endpoint
@@ -95,7 +94,7 @@ class test_Routes__File__Store(TestCase):
         with response__store as _:
             assert type(_)              is Schema__Cache__Store__Response
             assert type(_.cache_id)     is Cache_Id
-            assert type(_.cache_hash)   is Safe_Str__Cache_Hash
+            assert type(_.cache_hash)   is Safe_Str__Cache__File__Cache_Hash
             assert _.cache_hash         == '96af669d785b90b6'                                       # Consistent hash
 
     def test_store__json__cache_key__file_id(self):                                                               # Test JSON storage endpoint
@@ -110,7 +109,7 @@ class test_Routes__File__Store(TestCase):
         with response__store as _:
             assert type(_)              is Schema__Cache__Store__Response
             assert type(_.cache_id)     is Cache_Id
-            assert type(_.cache_hash)   is Safe_Str__Cache_Hash
+            assert type(_.cache_hash)   is Safe_Str__Cache__File__Cache_Hash
             assert _.cache_hash         == '96af669d785b90b6'                                       # Consistent hash
 
     def test_store__binary(self):                                                                   # Test binary storage
@@ -184,7 +183,7 @@ class test_Routes__File__Store(TestCase):
 
             assert type(response)            is Schema__Cache__Store__Response
             assert type(response.cache_id  ) is Cache_Id
-            assert type(response.cache_hash) is Safe_Str__Cache_Hash
+            assert type(response.cache_hash) is Safe_Str__Cache__File__Cache_Hash
             assert response.size             == len(binary_data)
 
     def test_all_storage_strategies(self):                                                    # Test all strategies work
@@ -197,9 +196,9 @@ class test_Routes__File__Store(TestCase):
 
         for strategy in strategies:
             with self.routes as _:
-                response = _.store__string(data      = test_data                           ,
-                                          strategy  = strategy                             ,
-                                          namespace = Safe_Str__Id(f"strat-{strategy}")   )
+                response = _.store__string(data      = test_data            ,
+                                          strategy  = strategy              ,
+                                          namespace = f"strat-{strategy}"   )
 
                 assert type(response.cache_id) is Cache_Id
                 assert response.cache_hash     is not None

@@ -1,15 +1,18 @@
 import gzip
 import json
-from typing                                                                                      import Dict, Optional, Any, List
+from typing                                                                                      import Dict, Optional, Any, List, Union
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata             import Schema__Cache__File__Metadata
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Hash     import Safe_Str__Cache__File__Cache_Hash
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Key      import Safe_Str__Cache__File__Cache_Key
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__File_Id        import Safe_Str__Cache__File__File_Id
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__Namespace            import Safe_Str__Cache__Namespace
 from osbot_utils.helpers.cache.Cache__Hash__Generator                                            import Cache__Hash__Generator
 from osbot_utils.helpers.cache.schemas.Schema__Cache__Hash__Config                               import Schema__Cache__Hash__Config
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                            import Random_Guid
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                   import type_safe
-from memory_fs.schemas.Schema__Memory_FS__File__Metadata                                         import Schema__Memory_FS__File__Metadata
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                           import Schema__Memory_FS__File__Config
 from osbot_utils.decorators.methods.cache_on_self                                                import cache_on_self
 from osbot_utils.type_safe.Type_Safe                                                             import Type_Safe
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                  import Safe_Str__Id
 from osbot_utils.utils.Files                                                                     import file_extension, file_name_without_extension
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                               import Cache_Id
@@ -210,16 +213,16 @@ class Cache__Service(Type_Safe):                                                
 
     # todo: see if we can't use the Schema__Store__Context as the main param here
     @type_safe
-    def store_with_strategy(self, storage_data     : Any                                                  ,
+    def store_with_strategy(self, storage_data     : Union[str, Dict, bytes]                              ,
                                   cache_hash       : Safe_Str__Cache_Hash                                 ,
                                   strategy         : Enum__Cache__Store__Strategy                         ,
-                                  cache_id         : Cache_Id                = None                    ,
-                                  cache_key        : Safe_Str__File__Path       = None                    ,
-                                  file_id          : Safe_Str__Id               = None                    ,
-                                  json_field_path  : Safe_Str__Json__Field_Path = None                    ,
-                                  namespace        : Safe_Str__Id               = DEFAULT_CACHE__NAMESPACE,
-                                  content_encoding : Safe_Str__Id               = None                    ,
-                                  metadata         : Dict[str, Any]             = None
+                                  cache_id         : Cache_Id                           = None            ,
+                                  cache_key        : Safe_Str__Cache__File__Cache_Key   = None                    ,
+                                  file_id          : Safe_Str__Cache__File__File_Id     = None                    ,
+                                  json_field_path  : Safe_Str__Json__Field_Path         = None                    ,
+                                  namespace        : Safe_Str__Cache__Namespace         = DEFAULT_CACHE__NAMESPACE,
+                                  content_encoding : Safe_Str__Id                       = None                    ,
+                                  metadata         : Dict[str, Any]                     = None
                             ) -> Schema__Cache__Store__Response:                    # Store data using the specified strategy
 
         if not cache_hash:
@@ -227,20 +230,20 @@ class Cache__Service(Type_Safe):                                                
 
         # todo this logic can be refactored to store_strategy.execute
         cache_id  = cache_id or Cache_Id(Random_Guid())
-        cache_key = Safe_Str__File__Path(cache_key) if cache_key else None
-        file_id   = Safe_Str__Id(file_id or cache_id or Random_Guid())
+        cache_key = Safe_Str__Cache__File__Cache_Key(cache_key if cache_key else None)
+        file_id   = Safe_Str__Cache__File__File_Id  (file_id or cache_id or Random_Guid())
         handler   = self.get_or_create_handler(namespace)
-        context = Schema__Store__Context(storage_data     = storage_data     ,                                  # Build context with all parameters
-                                         cache_hash       = cache_hash       ,
-                                         cache_id         = cache_id         ,
-                                         cache_key        = cache_key        ,
-                                         file_id          = file_id          ,
-                                         json_field_path  = json_field_path  ,
-                                         namespace        = namespace        ,
-                                         strategy         = strategy         ,
-                                         content_encoding = content_encoding ,
-                                         handler          = handler          ,
-                                         metadata         = metadata         )
+        context   = Schema__Store__Context(storage_data     = storage_data     ,                                  # Build context with all parameters
+                                           cache_hash       = cache_hash       ,
+                                           cache_id         = cache_id         ,
+                                           cache_key        = cache_key        ,
+                                           file_id          = file_id          ,
+                                           json_field_path  = json_field_path  ,
+                                           namespace        = namespace        ,
+                                           strategy         = strategy         ,
+                                           content_encoding = content_encoding ,
+                                           handler          = handler          ,
+                                           metadata         = metadata         )
 
         store_strategy = Cache__Service__Store__With_Strategy()
         return store_strategy.execute(context)                                                  # Execute storage strategy
@@ -359,9 +362,11 @@ class Cache__Service(Type_Safe):                                                
             return Schema__Memory_FS__File__Config.from_json(config_json)
         return None
 
+    # todo: this (and similar methods) need to be refactored so that we don't  mix the concerns
+    #       at the moment this method is both finding the find and doing the cast to Schema__Cache__File__Metadata
     def retrieve_by_id__metadata(self, cache_id  : Cache_Id,
                                    namespace : Safe_Str__Id
-                              ) -> Schema__Memory_FS__File__Metadata:
+                              ) -> Schema__Cache__File__Metadata:
         file_refs = self.retrieve_by_id__refs(cache_id, namespace)                  # Step 1: Use existing helper to get refs
         if not file_refs or not file_refs.file_paths.content_files:
             return None
@@ -374,7 +379,7 @@ class Cache__Service(Type_Safe):                                                
             if not metadata_json:
                 return None
 
-            return Schema__Memory_FS__File__Metadata.from_json(metadata_json)
+            return Schema__Cache__File__Metadata.from_json(metadata_json)
         return None
 
     def retrieve_by_id__refs(self, cache_id  : Cache_Id,
@@ -396,18 +401,21 @@ class Cache__Service(Type_Safe):                                                
         else:
             return "string"
 
-    def hash_from_string(self, data: str) -> Safe_Str__Cache_Hash:                       # Calculate hash from string
+    @type_safe
+    def hash_from_string(self, data: str) -> Safe_Str__Cache__File__Cache_Hash:                       # Calculate hash from string
         return self.hash_generator.from_string(data)
 
-    def hash_from_bytes(self, data: bytes) -> Safe_Str__Cache_Hash:                      # Calculate hash from bytes
+    @type_safe
+    def hash_from_bytes(self, data: bytes) -> Safe_Str__Cache__File__Cache_Hash:                      # Calculate hash from bytes
         return self.hash_generator.from_bytes(data)
 
-    def hash_from_json(self, data          : dict        ,                               # Calculate hash from JSON
+    @type_safe
+    def hash_from_json(self, data          : dict        ,                                            # Calculate hash from JSON
                              exclude_fields : List[str] = None
-                        ) -> Safe_Str__Cache_Hash:
+                        ) -> Safe_Str__Cache__File__Cache_Hash:
         return self.hash_generator.from_json(data, exclude_fields)
 
     def hash_from_json_field(self, data      : dict,
                                    json_field: Safe_Str__Json__Field_Path,
-                              ) -> Safe_Str__Cache_Hash:
+                              ) -> Safe_Str__Cache__File__Cache_Hash:
         return self.hash_generator.from_json_field(data, json_field)

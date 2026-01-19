@@ -1,18 +1,16 @@
-from unittest                                                                            import TestCase
-from osbot_fast_api_serverless.utils.testing.skip_tests                                  import skip__if_not__in_github_actions
-from osbot_utils.testing.__                                                              import __, __SKIP__
-from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                    import Cache_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
-from osbot_utils.utils.Objects                                                           import base_classes
-from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                   import Cache__Service__Store
-from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response         import Schema__Cache__Store__Response
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Invalid_Input   import Schema__Cache__Error__Invalid_Input
-from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
+from unittest                                                                                   import TestCase
+from osbot_fast_api_serverless.utils.testing.skip_tests                                         import skip__if_not__in_github_actions
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Hash    import Safe_Str__Cache__File__Cache_Hash
+from osbot_utils.testing.__                                                                     import __, __SKIP__
+from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                              import Cache_Id
+from osbot_utils.utils.Objects                                                                  import base_classes
+from mgraph_ai_service_cache.service.cache.store.Cache__Service__Store                          import Cache__Service__Store
+from mgraph_ai_service_cache.service.cache.Cache__Service                                       import Cache__Service
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy            import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.errors.Schema__Cache__Error__Invalid_Input          import Schema__Cache__Error__Invalid_Input
+from tests.unit.Service__Cache__Test_Objs                                                       import setup__service__cache__test_objs
 
 
 class test_Cache__Service__Store(TestCase):
@@ -27,7 +25,7 @@ class test_Cache__Service__Store(TestCase):
         cls.store_service      = Cache__Service__Store(cache_service = cls.cache_service)
 
         # Use different namespace to avoid conflicts with fixtures
-        cls.test_namespace     = Safe_Str__Id("test-store-service")
+        cls.test_namespace     = "test-store-service"
 
         # Reuse fixture test data
         cls.test_string        = cls.cache_fixtures.get_fixture_data('string_simple')
@@ -72,7 +70,7 @@ class test_Cache__Service__Store(TestCase):
 
             assert type(result)            is Schema__Cache__Store__Response
             assert type(result.cache_id  ) is Cache_Id
-            assert type(result.cache_hash) is Safe_Str__Cache_Hash
+            assert type(result.cache_hash) is Safe_Str__Cache__File__Cache_Hash
             assert result.namespace        == self.test_namespace
             assert result.size              > 0
 
@@ -86,8 +84,8 @@ class test_Cache__Service__Store(TestCase):
 
     def test_store_string__with_cache_key(self):                                     # Test with custom cache key
         with self.store_service as _:
-            cache_key = Safe_Str__File__Path("custom/path/to/file")
-            file_id   = Safe_Str__Id("custom-id")
+            cache_key = "custom/path/to/file"
+            file_id   = "custom-id"
 
             result = _.store_string(data      = self.test_string                       ,
                                     strategy  = Enum__Cache__Store__Strategy.KEY_BASED ,
@@ -110,7 +108,7 @@ class test_Cache__Service__Store(TestCase):
 
             assert type(result)            is Schema__Cache__Store__Response
             assert type(result.cache_id  ) is Cache_Id
-            assert type(result.cache_hash) is Safe_Str__Cache_Hash
+            assert type(result.cache_hash) is Safe_Str__Cache__File__Cache_Hash
             assert result.size             > 0
 
     def test_store_json__empty_object(self):                                         # Test empty JSON
@@ -155,10 +153,10 @@ class test_Cache__Service__Store(TestCase):
 
     def test_get_invalid_input_error(self):                                          # Test error building
         with self.store_service as _:
-            error = _.get_invalid_input_error(field_name    = Safe_Str__Id("data")        ,
-                                              field_value   = ""                          ,
-                                              expected_type = Safe_Str__Id("non-empty string"),
-                                              message       = "Data cannot be empty"      )
+            error = _.get_invalid_input_error(field_name    = "data"                ,
+                                              field_value   = ""                    ,
+                                              expected_type = "non-empty string"    ,
+                                              message       = "Data cannot be empty")
 
             assert type(error)         is Schema__Cache__Error__Invalid_Input
             assert error.error_type    == "INVALID_INPUT"
@@ -185,7 +183,7 @@ class test_Cache__Service__Store(TestCase):
 
         with self.store_service as _:
             for strategy in strategies:
-                namespace = Safe_Str__Id(f"strat-{strategy.value}")
+                namespace = f"strat-{strategy.value}"
 
                 result = _.store_string(data      = self.test_string,
                                        strategy  = strategy         ,

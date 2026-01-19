@@ -4,9 +4,7 @@ from osbot_fast_api_serverless.utils.testing.skip_tests                         
 from osbot_utils.testing.__                                                                  import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                        import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id              import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path            import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                 import Safe_Str__Text
 from osbot_utils.utils.Misc                                                                  import is_guid
 from osbot_utils.utils.Objects                                                               import base_classes
 from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type               import Enum__Cache__Data_Type
@@ -30,8 +28,8 @@ class test_Cache__Service__Data__Store(TestCase):
         cls.service__retrieve   = Cache__Service__Retrieve   (cache_service = cls.service__cache)
         cls.service__store_data = Cache__Service__Data__Store(cache_service = cls.service__cache)
 
-        cls.test_namespace   = Safe_Str__Id("test-data-service")                                # Test data setup
-        cls.test_cache_key   = Safe_Str__File__Path("logs/application")
+        cls.test_namespace   = "test-data-service"                                              # Test data setup
+        cls.test_cache_key   = "logs/application"
         cls.test_string      = "test data string"
         cls.test_json        = {"data": "value", "count": 42}
         cls.test_binary      = b"data binary content \x00\x01\x02"
@@ -41,7 +39,7 @@ class test_Cache__Service__Data__Store(TestCase):
                                                                namespace = cls.test_namespace                    ,
                                                                strategy  = Enum__Cache__Store__Strategy.KEY_BASED,
                                                                cache_key = cls.test_cache_key                    ,
-                                                               file_id   = Safe_Str__Id("parent-001")            )
+                                                               file_id   = "parent-001"                          )
         cls.parent_cache_id  = cls.parent_response.cache_id
 
     def setUp(self):
@@ -72,7 +70,7 @@ class test_Cache__Service__Data__Store(TestCase):
         with self.service__store_data as _:
             with self.request as request:
                 request.data_key     = Safe_Str__File__Path('an/data/folder')
-                request.data_file_id = Safe_Str__Id('an-file')
+                request.data_file_id = 'an-file'
 
                 result = _.store_data(request)
 
@@ -94,8 +92,8 @@ class test_Cache__Service__Data__Store(TestCase):
             with self.request as request:
                 request.data         = self.test_json
                 request.data_type    = Enum__Cache__Data_Type.JSON
-                request.data_key     = Safe_Str__File__Path('configs')
-                request.data_file_id = Safe_Str__Id('config-001')
+                request.data_key     = 'configs'
+                request.data_file_id = 'config-001'
 
                 result = _.store_data(request)
 
@@ -111,8 +109,8 @@ class test_Cache__Service__Data__Store(TestCase):
             with self.request as request:
                 request.data         = self.test_binary
                 request.data_type    = Enum__Cache__Data_Type.BINARY
-                request.data_key     = Safe_Str__File__Path('attachments')
-                request.data_file_id = Safe_Str__Id('binary-001')
+                request.data_key     = 'attachments'
+                request.data_file_id = 'binary-001'
 
                 result = _.store_data(request)
 
@@ -152,8 +150,8 @@ class test_Cache__Service__Data__Store(TestCase):
         with self.service__store_data as _:
             with self.request as request:
                 request.data         = "multi handler test"
-                request.data_key     = Safe_Str__File__Path('multi-handler')
-                request.data_file_id = Safe_Str__Id('multi-001')
+                request.data_key     = 'multi-handler'
+                request.data_file_id = 'multi-001'
 
                 result = _.store_data(request)
 
@@ -169,31 +167,31 @@ class test_Cache__Service__Data__Store(TestCase):
     def test_serialize_data(self):                                                              # Test data serialization
         with self.service__store_data as _:
             # String serialization
-            string_bytes = _.serialize_data("test string", Safe_Str__Text('string'))
+            string_bytes = _.serialize_data("test string", 'string')
             assert string_bytes == b"test string"
 
             # JSON serialization
             json_data  = {"key": "value"}
-            json_bytes = _.serialize_data(json_data, Safe_Str__Text('json'))
+            json_bytes = _.serialize_data(json_data, 'json')
             assert type(json_bytes) is bytes
             assert b'"key"' in json_bytes
 
             # Binary serialization
             binary_data  = b"raw bytes"
-            binary_bytes = _.serialize_data(binary_data, Safe_Str__Text('binary'))
+            binary_bytes = _.serialize_data(binary_data, 'binary')
             assert binary_bytes == binary_data
 
             # Invalid binary data
             with pytest.raises(ValueError) as exc_info:
-                _.serialize_data("not bytes", Safe_Str__Text('binary'))
+                _.serialize_data("not bytes", 'binary')
             assert "Binary data must be bytes" in str(exc_info.value)
 
     def test_store_data__nested_data_key(self):                                                 # Test nested path structure with data_key
         with self.service__store_data as _:
             with self.request as request:
                 request.data         = "nested path test"
-                request.data_key     = Safe_Str__File__Path('2024/12/logs')                    # Nested path
-                request.data_file_id = Safe_Str__Id('log-001')
+                request.data_key     = '2024/12/logs'                    # Nested path
+                request.data_file_id = 'log-001'
 
                 result = _.store_data(request)
 
@@ -206,7 +204,7 @@ class test_Cache__Service__Data__Store(TestCase):
             with self.request as request:
                 request.data         = "no data key"
                 request.data_key     = None                                                     # No data_key
-                request.data_file_id = Safe_Str__Id('direct-file')
+                request.data_file_id = 'direct-file'
 
                 result = _.store_data(request)
 
@@ -222,8 +220,8 @@ class test_Cache__Service__Data__Store(TestCase):
             for i in range(3):
                 with self.request as request:
                     request.data         = f"data file {i}"
-                    request.data_key     = Safe_Str__File__Path('batch')
-                    request.data_file_id = Safe_Str__Id(f'multi-data-{i:03d}')
+                    request.data_key     = 'batch'
+                    request.data_file_id = f'multi-data-{i:03d}'
 
                     result = _.store_data(request)
                     results.append(result)
@@ -245,8 +243,8 @@ class test_Cache__Service__Data__Store(TestCase):
         with self.service__store_data as _:
             with self.request as request:
                 request.data         = "path traversal attempt"
-                request.data_key     = Safe_Str__File__Path('../../../etc')                    # Dangerous path
-                request.data_file_id = Safe_Str__Id('passwd')
+                request.data_key     = '../../../etc'                                           # Dangerous path
+                request.data_file_id = 'passwd'
 
                 result = _.store_data(request)
 

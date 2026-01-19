@@ -1,4 +1,7 @@
 from fastapi                                                                                    import HTTPException, Request, Body
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Key     import Safe_Str__Cache__File__Cache_Key
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__File_Id       import Safe_Str__Cache__File__File_Id
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__Namespace           import Safe_Str__Cache__Namespace
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Json__Field_Path   import Safe_Str__Json__Field_Path
 from mgraph_ai_service_cache.service.cache.Cache__Service                                       import Cache__Service
 from osbot_fast_api.api.decorators.route_path                                                   import route_path
@@ -104,21 +107,22 @@ class Routes__File__Store(Fast_API__Routes):                                    
         return result
 
     @route_path("/store/json/{cache_key:path}")
-    def store__json__cache_key(self, data            : dict                         = Body(...)                     ,
-                                     namespace       : Safe_Str__Id                 = FAST_API__PARAM__NAMESPACE    ,
-                                     strategy        : Enum__Cache__Store__Strategy = DEFAULT_CACHE__STORE__STRATEGY,
-                                     cache_key       : Safe_Str__File__Path         = None                          ,
-                                     file_id         : Safe_Str__Id                 = None                          ,
-                                     json_field_path : Safe_Str__Json__Field_Path   = None
+    def store__json__cache_key(self, #data            : Dict__Cache__File__Data          = Body(...)                     ,   # todo: look at how to use this in a pydantic route
+                                     data            : dict                             = Body(...)                     ,
+                                     namespace       : Safe_Str__Cache__Namespace       = FAST_API__PARAM__NAMESPACE    ,
+                                     strategy        : Enum__Cache__Store__Strategy     = DEFAULT_CACHE__STORE__STRATEGY,
+                                     cache_key       : Safe_Str__Cache__File__Cache_Key = None                          ,
+                                     file_id         : Safe_Str__Cache__File__File_Id   = None                          ,
+                                     json_field_path : Safe_Str__Json__Field_Path       = None
                                 ) -> Schema__Cache__Store__Response:                                                # Store JSON with semantic key
 
         if not cache_key:                                                                                           # todo: check this path, since I think this path can't be reached (due to how FastAPI handles routes)
             error = self.store_service().get_invalid_input_error(field_name    = "cache_key",
-                                                               expected_type = "valid file path",
-                                                               message       = "Cache key is required for this endpoint")
+                                                                 expected_type = "valid file path",
+                                                                  message       = "Cache key is required for this endpoint")
             raise HTTPException(status_code=400, detail=error.json())
 
-        result = self.store_service().store_json(data            = data     ,                                               # Use service layer
+        result = self.store_service().store_json(data            = data         ,                                           # Use service layer
                                                  strategy        = strategy ,                                               # todo: we should we using a Type_Safe class for these params
                                                  namespace       = namespace,
                                                  cache_key       = cache_key,

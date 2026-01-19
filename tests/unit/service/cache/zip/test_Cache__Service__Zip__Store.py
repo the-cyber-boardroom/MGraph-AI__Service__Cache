@@ -1,7 +1,7 @@
-import pytest
 from unittest                                                                                import TestCase
 from osbot_fast_api_serverless.utils.testing.skip_tests                                      import skip__if_not__in_github_actions
 from memory_fs.path_handlers.Path__Handler__Temporal                                         import Path__Handler__Temporal
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Hash import Safe_Str__Cache__File__Cache_Hash
 from osbot_utils.testing.__                                                                  import __, __SKIP__
 from osbot_utils.utils.Objects                                                               import base_classes
 from osbot_utils.utils.Zip                                                                   import zip_bytes_empty, zip_bytes__add_file
@@ -44,8 +44,8 @@ class test_Cache__Service__Zip__Store(TestCase):
 
             result      = _.store_zip(request)
             hash_length = self.cache_service.hash_config.length
-            cache_hash  = zip_bytes__content_hash(zip_bytes   = request.zip_bytes,
-                                                  hash_length = hash_length      )
+            cache_hash  = Safe_Str__Cache__File__Cache_Hash(zip_bytes__content_hash(zip_bytes   = request.zip_bytes,
+                                                                                    hash_length = hash_length      ))
             cache_id    = result.cache_id
 
             # Verify response type and structure
@@ -94,7 +94,7 @@ class test_Cache__Service__Zip__Store(TestCase):
                                       error_message  = 'Invalid zip file: File is not a zip file' ,
                                       success        = False                                      ,
                                       namespace      = 'test-zip'                                 ,
-                                      paths          = __()                                       ,
+                                      paths          = __(data=[], by_hash=[], by_id=[])          ,
                                       size           = 0                                          ,
                                       file_count     = 0                                          ,
                                       stored_at      = __SKIP__                                   )
@@ -112,7 +112,7 @@ class test_Cache__Service__Zip__Store(TestCase):
                                       cache_id      = None                                     ,
                                       cache_hash    = None                                     ,
                                       namespace     = 'test-zip'                               ,
-                                      paths         = __()                                     ,
+                                      paths         = __(data=[], by_hash=[], by_id=[])                                     ,
                                       size          = 0                                        ,
                                       file_count    = 0                                        ,
                                       stored_at     = __SKIP__                            )

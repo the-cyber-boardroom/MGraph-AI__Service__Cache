@@ -1,20 +1,19 @@
-from unittest                                                                            import TestCase
-from fastapi                                                                             import HTTPException
-from osbot_fast_api.api.routes.Fast_API__Routes                                          import Fast_API__Routes
-from osbot_fast_api_serverless.utils.testing.skip_tests                                  import skip__if_not__in_github_actions
-from osbot_utils.testing.__                                                              import __
-from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
-from osbot_utils.utils.Objects                                                           import base_classes
-from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Update                   import Routes__File__Update
-from mgraph_ai_service_cache.service.cache.update.Cache__Service__Update                 import Cache__Service__Update
-from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response         import Schema__Cache__Store__Response
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Update__Response        import Schema__Cache__Update__Response
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
-from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
+from unittest                                                                                import TestCase
+from fastapi                                                                                 import HTTPException
+from osbot_fast_api.api.routes.Fast_API__Routes                                              import Fast_API__Routes
+from osbot_fast_api_serverless.utils.testing.skip_tests                                      import skip__if_not__in_github_actions
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Hash import Safe_Str__Cache__File__Cache_Hash
+from osbot_utils.testing.__                                                                  import __
+from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                        import Random_Guid
+from osbot_utils.utils.Objects                                                               import base_classes
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Update                       import Routes__File__Update
+from mgraph_ai_service_cache.service.cache.update.Cache__Service__Update                     import Cache__Service__Update
+from mgraph_ai_service_cache.service.cache.Cache__Service                                    import Cache__Service
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response             import Schema__Cache__Store__Response
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Update__Response            import Schema__Cache__Update__Response
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy         import Enum__Cache__Store__Strategy
+from tests.unit.Service__Cache__Test_Objs                                                    import setup__service__cache__test_objs
 
 
 class test_Routes__File__Update(TestCase):
@@ -29,7 +28,7 @@ class test_Routes__File__Update(TestCase):
         cls.routes             = Routes__File__Update(cache_service = cls.cache_service)
 
         # Use different namespace to avoid conflicts
-        cls.test_namespace     = Safe_Str__Id("test-routes-update")
+        cls.test_namespace     = "test-routes-update"
 
         # Test data versions
         cls.test_string_v1     = "original string data"
@@ -118,7 +117,7 @@ class test_Routes__File__Update(TestCase):
             assert type(update_result)            is Schema__Cache__Update__Response
             assert update_result.cache_id         == cache_id                              # Same ID
             assert update_result.cache_hash       == original_hash                         # V1: hash unchanged
-            assert type(update_result.cache_hash) is Safe_Str__Cache_Hash
+            assert type(update_result.cache_hash) is Safe_Str__Cache__File__Cache_Hash
             assert update_result.namespace        == self.test_namespace
             assert update_result.updated_content  == True                            # Content updated
             assert update_result.updated_hash     == False                           # V1: hash not updated
@@ -309,7 +308,7 @@ class test_Routes__File__Update(TestCase):
 
         with self.routes as _:
             for strategy in strategies:
-                namespace = Safe_Str__Id(f"route-strat-{strategy.value}")
+                namespace = f"route-strat-{strategy.value}"
 
                 # Create with strategy
                 create_result = self._create_test_entry(self.test_string_v1,

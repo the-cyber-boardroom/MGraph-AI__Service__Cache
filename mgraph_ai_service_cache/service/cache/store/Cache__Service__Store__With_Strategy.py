@@ -16,7 +16,7 @@ class Cache__Service__Store__With_Strategy(Type_Safe):                          
         self.initialize_context   (context)                                                 # Set defaults and initialize tracking
         self.store_data           (context)                                                 # Store the actual data using selected strategy
         self.update_hash_reference(context)                                                 # Update or create hash-to-ID reference
-        self.create_file_refs  (context)                                                 # Create ID-to-hash reference with metadata
+        self.create_file_refs     (context)                                                 # Create ID-to-hash reference with metadata
         return self.build_response(context)                                                 # Build and return the response
 
     def initialize_context(self, context: Schema__Store__Context):                          # Initialize context with defaults and tracking structures
@@ -65,7 +65,7 @@ class Cache__Service__Store__With_Strategy(Type_Safe):                          
                                               file_type        = context.file_type        )
 
     def update_hash_reference(self, context: Schema__Store__Context):                       # Update or create the hash-to-ID reference
-        file_id = Safe_Str__Id(str(context.cache_hash))                                      # Use hash as file ID for reference
+        file_id = Safe_Str__Id(context.cache_hash)                                          # Use hash as file ID for reference
 
         #with context.handler.fs__refs_hash.file__json__single(file_id) as ref_fs:
         with context.handler.fs__refs_hash.file__json__single(file_id) as ref_fs:
@@ -115,10 +115,10 @@ class Cache__Service__Store__With_Strategy(Type_Safe):                          
 
             # Build complete reference with Type_Safe
             id_reference = Schema__Cache__File__Refs(all_paths         = context.all_paths      ,
-                                                     cache_id          = str(context.cache_id)  ,
-                                                     cache_hash        = str(context.cache_hash),
+                                                     cache_id          = context.cache_id       ,
+                                                     cache_hash        = context.cache_hash     ,
                                                      file_paths        = context.file_paths     ,
-                                                     namespace         = str(context.namespace) ,
+                                                     namespace         = context.namespace      ,
                                                      strategy          = context.strategy       ,
                                                      file_type         = context.file_type      ,
                                                      timestamp         = context.timestamp      )
@@ -130,5 +130,5 @@ class Cache__Service__Store__With_Strategy(Type_Safe):                          
         return Schema__Cache__Store__Response(cache_id   = context.cache_id       ,
                                               cache_hash = context.cache_hash     ,
                                               namespace  = context.namespace      ,
-                                              paths      = context.all_paths.json(),           # Convert to dict for response
-                                              size       = context.file_size       )
+                                              paths      = context.all_paths      ,
+                                              size       = context.file_size      )

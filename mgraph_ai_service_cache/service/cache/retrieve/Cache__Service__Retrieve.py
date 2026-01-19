@@ -1,6 +1,6 @@
 from typing                                                                               import Optional, Dict, Any
-from memory_fs.schemas.Schema__Memory_FS__File__Metadata                                  import Schema__Memory_FS__File__Metadata
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                    import Schema__Memory_FS__File__Config
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata      import Schema__Cache__File__Metadata
 from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                      import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                        import Cache_Id
@@ -96,7 +96,7 @@ class Cache__Service__Retrieve(Type_Safe):                                      
     @type_safe
     def retrieve_by_id__metadata(self, cache_id  : Cache_Id,
                                        namespace : Safe_Str__Id = DEFAULT_CACHE__NAMESPACE
-                                 ) -> Schema__Memory_FS__File__Metadata:                         # Get contents of the by-id metadata file
+                                 ) -> Schema__Cache__File__Metadata:                         # Get contents of the by-id metadata file
         return self.cache_service.retrieve_by_id__metadata(cache_id, namespace)                 #
 
     @type_safe
