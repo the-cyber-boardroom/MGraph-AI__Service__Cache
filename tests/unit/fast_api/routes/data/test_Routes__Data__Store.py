@@ -1,14 +1,13 @@
 import pytest
 from unittest                                                                               import TestCase
 from fastapi                                                                                import HTTPException
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__File_Id   import Safe_Str__Cache__File__File_Id
 from osbot_utils.utils.Misc                                                                 import is_guid
 from memory_fs.path_handlers.Path__Handler__Temporal                                        import Path__Handler__Temporal
 from osbot_fast_api.api.routes.Fast_API__Routes                                             import Fast_API__Routes
 from osbot_utils.testing.__                                                                 import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path           import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id             import Safe_Str__Id
 from osbot_utils.utils.Objects                                                              import base_classes
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Store                       import Routes__Data__Store, TAG__ROUTES_STORE__DATA, PREFIX__ROUTES_STORE__DATA, ROUTES_PATHS__STORE__DATA
 from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Retrieve                    import Routes__File__Retrieve
@@ -33,8 +32,8 @@ class test_Routes__Data__Store(TestCase):
         cls.routes_retrieve    = Routes__File__Retrieve(cache_service = cls.cache_service)      # For verification
         cls.routes_data_store  = Routes__Data__Store   (cache_service = cls.cache_service)      # Route under test
 
-        cls.test_namespace     = Safe_Str__Id("test-store-data")                                # Test namespace
-        cls.test_data_key      = Safe_Str__File__Path("configs/app")                            # Hierarchical path
+        cls.test_namespace     = "test-store-data"                                              # Test namespace
+        cls.test_data_key      = "configs/app"                                                  # Hierarchical path
 
         cls.parent_cache_id    = cls._create_parent_cache_entry(cls)                            # Create parent entry once
         cls.path_now           = Path__Handler__Temporal().path_now()
@@ -70,7 +69,7 @@ class test_Routes__Data__Store(TestCase):
                                            namespace    = self.test_namespace  )
             file_id = response.file_id
             assert is_guid(file_id)                 is True
-            assert type(file_id)                    is Safe_Str__Id
+            assert type(file_id)                    is Safe_Str__Cache__File__File_Id
             assert type(response)                   is Schema__Cache__Data__Store__Response
             assert response.cache_id                == self.parent_cache_id
             assert response.data_type               == Enum__Cache__Data_Type.STRING
@@ -92,7 +91,7 @@ class test_Routes__Data__Store(TestCase):
     def test_data__store_string__with__id(self):                                                # Test with specific file ID
         with self.routes_data_store as _:
             test_string = "specific id test"
-            file_id     = Safe_Str__Id("config-v1")
+            file_id     = "config-v1"
 
             response = _.data__store_string__with__id(data         = test_string         ,
                                                       cache_id     = self.parent_cache_id,
@@ -107,7 +106,7 @@ class test_Routes__Data__Store(TestCase):
     def test_data__store_string__with__id_and_key(self):                                        # Test full control path
         with self.routes_data_store as _:
             test_string = "configuration data"
-            file_id     = Safe_Str__Id("config-v1")
+            file_id     = "config-v1"
 
             response = _.data__store_string__with__id_and_key(data         = test_string         ,
                                                               cache_id     = self.parent_cache_id,
@@ -140,7 +139,7 @@ class test_Routes__Data__Store(TestCase):
     def test_data__store_json__with__id(self):                                                  # Test JSON with specific ID
         with self.routes_data_store as _:
             test_json = {"setting": "value", "count": 42}
-            file_id   = Safe_Str__Id("settings")
+            file_id   = "settings"
 
             response = _.data__store_json__with__id(data         = test_json            ,
                                                     cache_id     = self.parent_cache_id,
@@ -153,7 +152,7 @@ class test_Routes__Data__Store(TestCase):
     def test_data__store_json__with__id_and_key(self):                                          # Test JSON with full path
         with self.routes_data_store as _:
             test_json = {"setting": "value", "count": 42}
-            file_id   = Safe_Str__Id("settings")
+            file_id   = "settings"
 
             response = _.data__store_json__with__id_and_key(data         = test_json            ,
                                                             cache_id     = self.parent_cache_id,
@@ -180,7 +179,7 @@ class test_Routes__Data__Store(TestCase):
     def test_data__store_binary__with__id(self):                                                # Test binary with specific ID
         with self.routes_data_store as _:
             test_binary = b'\x89PNG\r\n\x1a\n' + b'\x00' * 50
-            file_id     = Safe_Str__Id("image-thumbnail")
+            file_id     = "image-thumbnail"
 
             response = _.data__store_binary__with__id(body         = test_binary         ,
                                                       cache_id     = self.parent_cache_id,
@@ -192,7 +191,7 @@ class test_Routes__Data__Store(TestCase):
     def test_data__store_binary__with__id_and_key(self):                                        # Test binary with full path
         with self.routes_data_store as _:
             test_binary = b'\x89PNG\r\n\x1a\n' + b'\x00' * 50
-            file_id     = Safe_Str__Id("image-thumbnail")
+            file_id     = "image-thumbnail"
 
             response = _.data__store_binary__with__id_and_key(body         = test_binary         ,
                                                               cache_id     = self.parent_cache_id,
@@ -215,20 +214,20 @@ class test_Routes__Data__Store(TestCase):
 
     def test_store__data__with_hierarchy(self):                                                 # Test hierarchical data organization
         with self.routes_data_store as _:
-            data_key_1 = Safe_Str__File__Path("users/profiles")                                 # Store multiple files in hierarchy
-            data_key_2 = Safe_Str__File__Path("users/settings")
+            data_key_1 = "users/profiles"                                                       # Store multiple files in hierarchy
+            data_key_2 = "users/settings"
 
             response_1 = _.data__store_string__with__id_and_key(data         = "profile data"       ,
-                                                                cache_id     = self.parent_cache_id,
-                                                                namespace    = self.test_namespace ,
-                                                                data_key     = data_key_1          ,
-                                                                data_file_id = Safe_Str__Id("user1"))
+                                                                cache_id     = self.parent_cache_id ,
+                                                                namespace    = self.test_namespace  ,
+                                                                data_key     = data_key_1           ,
+                                                                data_file_id = "user1"              )
 
-            response_2 = _.data__store_json__with__id_and_key  (data         = {"theme": "dark"}     ,
+            response_2 = _.data__store_json__with__id_and_key  (data         = {"theme": "dark"}    ,
                                                                 cache_id     = self.parent_cache_id ,
                                                                 namespace    = self.test_namespace  ,
                                                                 data_key     = data_key_2           ,
-                                                                data_file_id = Safe_Str__Id("user1") )
+                                                                data_file_id = "user1"              )
 
             assert response_1.data_key == data_key_1
             assert response_2.data_key == data_key_2
@@ -253,7 +252,7 @@ class test_Routes__Data__Store(TestCase):
             files_created = []
 
             for i in range(3):                                                                  # Store 3 files
-                file_id  = Safe_Str__Id(f"file-{i}")
+                file_id  = f"file-{i}"
                 response = _.data__store_string__with__id_and_key(data         = f"content {i}"        ,
                                                                   cache_id     = self.parent_cache_id ,
                                                                   namespace    = self.test_namespace  ,

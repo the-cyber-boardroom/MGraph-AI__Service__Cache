@@ -44,6 +44,7 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
                                                          data_type    = data_type   ,
                                                          data_file_id = data_file_id)
 
+    # todo: convert return value to Type_Safe_Class
     @route_path("/data/delete/{data_type}/{data_key:path}/{data_file_id}")
     def delete__data__file__with__id_and_key(self, cache_id     : Cache_Id               = None                          ,
                                                    namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,
@@ -93,7 +94,7 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
         return self.delete__all__data__files__with__key(cache_id  = cache_id ,
                                                         namespace = namespace,
                                                         data_key  = ''       )
-
+    # todo: convert return value to Type_Safe_Class
     @route_path("/data/delete/all/{data_key:path}")
     def delete__all__data__files__with__key(self, cache_id  : Cache_Id             = None                          ,
                                                   namespace : Safe_Str__Id         = FAST_API__PARAM__NAMESPACE    ,
@@ -107,19 +108,19 @@ class Routes__Data__Delete(Fast_API__Routes):                                   
 
         if deleted_count == 0:
             return { "status"        : "success"                                                ,               # todo: refactor to use Type_Safe classes
-                    "message"       : "No data files to delete"                                ,
-                    "cache_id"      : str(cache_id)                                            ,
-                    "deleted_count" : 0                                                        ,
-                    "data_key"      : str(data_key) if data_key else None                      ,
-                    "namespace"     : str(namespace)                                           }
+                     "message"       : "No data files to delete"                                ,
+                     "cache_id"      : str(cache_id)                                            ,
+                     "deleted_count" : 0                                                        ,
+                     "data_key"      : str(data_key) if data_key else None                      ,
+                     "namespace"     : str(namespace)                                           }
 
         return { "status"        : "success"                                                   ,
-                "message"       : f"Deleted {deleted_count} data files"                       ,                 # todo: refactor to use Type_Safe classes
-                "cache_id"      : str(cache_id)                                               ,
-                "deleted_count" : deleted_count                                               ,
-                "deleted_files" : result.deleted_files                                        ,
-                "data_key"      : str(data_key) if data_key else None                         ,
-                "namespace"     : str(namespace)                                              }
+                 "message"       : f"Deleted {deleted_count} data files"                       ,                 # todo: refactor to use Type_Safe classes
+                 "cache_id"      : str(cache_id)                                               ,
+                 "deleted_count" : deleted_count                                               ,
+                 "deleted_files" : result.deleted_files                                        ,
+                 "data_key"      : str(data_key) if data_key else None                         ,
+                 "namespace"     : str(namespace)                                              }
 
     def setup_routes(self):                                                                     # Configure all data deletion routes
 

@@ -4,6 +4,9 @@ from osbot_fast_api.api.decorators.route_path                                   
 from osbot_fast_api.api.routes.Fast_API__Routes                                             import Fast_API__Routes
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                  import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag                     import Safe_Str__Fast_API__Route__Tag
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Data_Key  import Safe_Str__Cache__File__Data_Key
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__File_Id   import Safe_Str__Cache__File__File_Id
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__Namespace       import Safe_Str__Cache__Namespace
 from osbot_utils.decorators.methods.cache_on_self                                           import cache_on_self
 from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path           import Safe_Str__File__Path
@@ -107,11 +110,11 @@ class Routes__Data__Store(Fast_API__Routes):                                    
                                                       data_file_id = data_file_id  )
 
     @route_path("/data/store/json/{data_key:path}/{data_file_id}")
-    def data__store_json__with__id_and_key(self, data         : dict                   = Body(...)                     ,
-                                                cache_id     : Cache_Id               = None                          ,
-                                                namespace    : Safe_Str__Id           = FAST_API__PARAM__NAMESPACE    ,
-                                                data_key     : Safe_Str__File__Path   = None                          ,
-                                                data_file_id : Safe_Str__Id           = None
+    def data__store_json__with__id_and_key(self, data         : dict                            = Body(...)                     ,
+                                                 cache_id     : Cache_Id                        = None                          ,
+                                                 namespace    : Safe_Str__Cache__Namespace      = FAST_API__PARAM__NAMESPACE    ,
+                                                 data_key     : Safe_Str__Cache__File__Data_Key = None                          ,
+                                                 data_file_id : Safe_Str__Cache__File__File_Id  = None
                                          ) -> Schema__Cache__Data__Store__Response:                                     # Store JSON data file under cache entry
         request = Schema__Cache__Data__Store__Request(cache_id     = cache_id              ,
                                                       data         = data                  ,

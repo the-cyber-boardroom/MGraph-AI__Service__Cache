@@ -1,20 +1,19 @@
-from unittest                                                                            import TestCase
-from osbot_utils.testing.__                                                              import __, __SKIP__
-from osbot_utils.testing.__helpers                                                       import obj
-from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
-from osbot_utils.utils.Objects                                                           import base_classes
-from memory_fs.path_handlers.Path__Handler__Temporal                                     import Path__Handler__Temporal
-from mgraph_ai_service_cache.service.cache.update.Cache__Service__Update                 import Cache__Service__Update
-from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response         import Schema__Cache__Store__Response
-from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Update__Response        import Schema__Cache__Update__Response
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy     import Enum__Cache__Store__Strategy
-from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
-from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
+from unittest                                                                                import TestCase
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Hash import Safe_Str__Cache__File__Cache_Hash
+from osbot_utils.testing.__                                                                  import __, __SKIP__
+from osbot_utils.testing.__helpers                                                           import obj
+from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path            import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                        import Random_Guid
+from osbot_utils.utils.Objects                                                               import base_classes
+from memory_fs.path_handlers.Path__Handler__Temporal                                         import Path__Handler__Temporal
+from mgraph_ai_service_cache.service.cache.update.Cache__Service__Update                     import Cache__Service__Update
+from mgraph_ai_service_cache.service.cache.Cache__Service                                    import Cache__Service
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response             import Schema__Cache__Store__Response
+from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Update__Response            import Schema__Cache__Update__Response
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Store__Strategy         import Enum__Cache__Store__Strategy
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs             import Schema__Cache__File__Refs
+from tests.unit.Service__Cache__Test_Objs                                                    import setup__service__cache__test_objs
 
 
 class test_Cache__Service__Update(TestCase):
@@ -29,7 +28,7 @@ class test_Cache__Service__Update(TestCase):
         cls.update_service     = Cache__Service__Update(cache_service = cls.cache_service)
 
         # Use different namespace to avoid conflicts with fixtures
-        cls.test_namespace     = Safe_Str__Id("test-update-service")
+        cls.test_namespace     = "test-update-service"
         cls.path_now           = Path__Handler__Temporal().path_now()
 
         # Reuse fixture test data
@@ -118,7 +117,7 @@ class test_Cache__Service__Update(TestCase):
 
             assert update_result.cache_id         == cache_id                        # Same ID
             assert update_result.cache_hash       == cache_hash                      # Same hash
-            assert type(update_result.cache_hash) is Safe_Str__Cache_Hash
+            assert type(update_result.cache_hash) is Safe_Str__Cache__File__Cache_Hash
             assert update_result.namespace        == self.test_namespace
             assert update_result.size             > 0
 
@@ -233,8 +232,8 @@ class test_Cache__Service__Update(TestCase):
     def test_update_by_id__preserves_strategy(self):                                 # Test that update preserves original strategy
         with self.update_service as _:
             # Create entry with KEY_BASED strategy
-            cache_key     = Safe_Str__File__Path("test/path/to/file")
-            file_id       = Safe_Str__Id("test-file-id")
+            cache_key     = "test/path/to/file"
+            file_id       = "test-file-id"
             create_result = self._create_test_entry(self.test_string_v1         ,
                                                    strategy  = Enum__Cache__Store__Strategy.KEY_BASED,
                                                    cache_key = cache_key         ,
@@ -308,7 +307,7 @@ class test_Cache__Service__Update(TestCase):
 
         with self.update_service as _:
             for strategy in strategies:
-                namespace = Safe_Str__Id(f"upd-strat-{strategy.value}")
+                namespace = f"upd-strat-{strategy.value}"
 
                 # Create with strategy
                 create_result = self._create_test_entry(self.test_string_v1,

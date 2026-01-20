@@ -1,15 +1,16 @@
-from unittest                                                                            import TestCase
-from osbot_fast_api.api.routes.Fast_API__Routes                                          import Fast_API__Routes
-from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__Exists__Response   import Schema__Cache__Exists__Response
-from osbot_utils.testing.__                                                              import __
-from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                       import Cache_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from osbot_utils.utils.Objects                                                           import base_classes
-from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Exists                   import Routes__File__Exists, TAG__ROUTES_EXISTS, PREFIX__ROUTES_EXISTS, BASE_PATH__ROUTES_EXISTS, ROUTES_PATHS__EXISTS
-from mgraph_ai_service_cache.service.cache.Cache__Service                                import Cache__Service
-from tests.unit.Service__Cache__Test_Objs                                                import setup__service__cache__test_objs
+from unittest                                                                                import TestCase
+from osbot_fast_api.api.routes.Fast_API__Routes                                              import Fast_API__Routes
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__Exists__Response       import Schema__Cache__Exists__Response
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Hash import Safe_Str__Cache__File__Cache_Hash
+from osbot_utils.testing.__                                                                  import __
+from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                           import Cache_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id              import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash     import Safe_Str__Cache_Hash
+from osbot_utils.utils.Objects                                                               import base_classes
+from mgraph_ai_service_cache.fast_api.routes.file.Routes__File__Exists                       import Routes__File__Exists, TAG__ROUTES_EXISTS, PREFIX__ROUTES_EXISTS, BASE_PATH__ROUTES_EXISTS, ROUTES_PATHS__EXISTS
+from mgraph_ai_service_cache.service.cache.Cache__Service                                    import Cache__Service
+from tests.unit.Service__Cache__Test_Objs                                                    import setup__service__cache__test_objs
 
 
 class test_Routes__File__Exists(TestCase):
@@ -23,11 +24,11 @@ class test_Routes__File__Exists(TestCase):
         cls.routes             = Routes__File__Exists(cache_service=cls.cache_service)
 
         # Test data
-        cls.test_namespace     = Safe_Str__Id("test-exists")                         # Use different namespace for test-specific data
-        cls.test_hash          = Safe_Str__Cache_Hash("0000000000000000")             # Known non-existent hash
-        cls.test_cache_id      = Cache_Id()                                          # Random non-existent cache_id
+        cls.test_namespace     = "test-exists"                                          # Use different namespace for test-specific data
+        cls.test_hash          = "0000000000000000"                                     # Known non-existent hash
+        cls.test_cache_id      = Cache_Id()                                             # Random non-existent cache_id
 
-    def test__init__(self):                                                           # Test initialization
+    def test__init__(self):                                                             # Test initialization
         with Routes__File__Exists() as _:
             assert type(_)               is Routes__File__Exists
             assert base_classes(_)       == [Fast_API__Routes, Type_Safe, object]
@@ -142,7 +143,7 @@ class test_Routes__File__Exists(TestCase):
     def test_type_enforcement(self):                                                  # Test type safety of parameters
         with self.routes as _:
             # Valid Safe_Str__Cache_Hash
-            valid_hash = Safe_Str__Cache_Hash("abc0123456789def")
+            valid_hash = Safe_Str__Cache__File__Cache_Hash("abc0123456789def")
             result = _.exists__hash__cache_hash(cache_hash = valid_hash        ,
                                                 namespace  = self.test_namespace)
             assert type(result)      is Schema__Cache__Exists__Response

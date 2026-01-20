@@ -1,14 +1,13 @@
-from unittest                                                                         import TestCase
-from osbot_utils.testing.__                                                           import __, __SKIP__
-from osbot_utils.utils.Zip                                                            import zip_bytes_empty, zip_bytes__add_file, zip_bytes__file_list, zip_bytes__file
-from mgraph_ai_service_cache.service.cache.Cache__Service                             import Cache__Service
-from mgraph_ai_service_cache.service.cache.zip.Cache__Service__Zip__Store             import Cache__Service__Zip__Store
-from mgraph_ai_service_cache.service.cache.zip.Cache__Service__Zip__Batch             import Cache__Service__Zip__Batch
-from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Store__Request     import Schema__Cache__Zip__Store__Request
-from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Request     import Schema__Cache__Zip__Batch__Request, Schema__Zip__Batch__Operation
-from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Response    import Schema__Cache__Zip__Batch__Response
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                 import Random_Guid
-
+from unittest                                                                               import TestCase
+from osbot_utils.testing.__                                                                 import __, __SKIP__
+from osbot_utils.utils.Zip                                                                  import zip_bytes_empty, zip_bytes__add_file, zip_bytes__file_list, zip_bytes__file
+from mgraph_ai_service_cache.service.cache.Cache__Service                                   import Cache__Service
+from mgraph_ai_service_cache.service.cache.zip.Cache__Service__Zip__Store                   import Cache__Service__Zip__Store
+from mgraph_ai_service_cache.service.cache.zip.Cache__Service__Zip__Batch                   import Cache__Service__Zip__Batch
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Store__Request    import Schema__Cache__Zip__Store__Request
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Request    import Schema__Cache__Zip__Batch__Request, Schema__Zip__Batch__Operation
+from mgraph_ai_service_cache_client.schemas.cache.zip.Schema__Cache__Zip__Batch__Response   import Schema__Cache__Zip__Batch__Response
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
 
 class test_Cache__Service__Zip__Batch(TestCase):
 
@@ -34,6 +33,7 @@ class test_Cache__Service__Zip__Batch(TestCase):
         self.test_cache_id = store_result.cache_id
 
     def test__init__(self):                                                           # Test service initialization
+
         with Cache__Service__Zip__Batch() as _:
             assert type(_.cache_service) is Cache__Service
             assert _.obj()               == __(cache_service = __(cache_config   = __(storage_mode      = 'memory',

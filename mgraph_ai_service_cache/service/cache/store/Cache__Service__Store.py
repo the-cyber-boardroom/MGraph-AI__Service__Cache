@@ -1,4 +1,7 @@
 import gzip
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Key     import Safe_Str__Cache__File__Cache_Key
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__File_Id       import Safe_Str__Cache__File__File_Id
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__Namespace           import Safe_Str__Cache__Namespace
 from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                    import Safe_Str__Text
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path               import Safe_Str__File__Path
@@ -36,12 +39,12 @@ class Cache__Service__Store(Type_Safe):                                         
                                                       namespace    = namespace  )
 
     @type_safe
-    def store_json(self, data             : dict                         = None                          ,
-                         strategy         : Enum__Cache__Store__Strategy = DEFAULT_CACHE__STORE__STRATEGY,
-                         namespace        : Safe_Str__Id                 = DEFAULT_CACHE__NAMESPACE      ,
-                         cache_key        : Safe_Str__File__Path         = None                          ,
-                         file_id          : Safe_Str__Id                 = None                          ,
-                         json_field_path  : Safe_Str__Json__Field_Path   = None                          ,
+    def store_json(self, data             : dict                             = None                          ,
+                         strategy         : Enum__Cache__Store__Strategy     = DEFAULT_CACHE__STORE__STRATEGY,
+                         namespace        : Safe_Str__Cache__Namespace       = DEFAULT_CACHE__NAMESPACE      ,
+                         cache_key        : Safe_Str__Cache__File__Cache_Key = None                          ,
+                         file_id          : Safe_Str__Cache__File__File_Id   = None                          ,
+                         json_field_path  : Safe_Str__Json__Field_Path       = None                          ,
                     ) -> Schema__Cache__Store__Response:                                                # Store JSON data
 
         if json_field_path:                                                                             # Field-based hashing
@@ -49,7 +52,7 @@ class Cache__Service__Store(Type_Safe):                                         
         else:
             cache_hash = self.cache_service.hash_from_json(data)
 
-        return self.cache_service.store_with_strategy(storage_data    = data           ,        # todo: review refactoring opportunity with store_string since a lot of the code in this method is very similar
+        return self.cache_service.store_with_strategy(storage_data    = data           ,        # todo: review refactoring opportunity with store_string since a lot of the code in this method is very similar (at the moment it raises an exception with class Dict__Cache__File__Data(Dict): )
                                                       cache_hash      = cache_hash     ,
                                                       cache_key       = cache_key      ,
                                                       file_id         = file_id        ,

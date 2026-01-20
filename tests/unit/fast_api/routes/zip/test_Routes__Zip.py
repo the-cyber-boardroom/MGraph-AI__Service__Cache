@@ -10,7 +10,6 @@ from osbot_utils.testing.__                                                     
 from osbot_utils.utils.Objects                                                                 import base_classes
 from osbot_utils.type_safe.Type_Safe                                                           import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                             import Cache_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path              import Safe_Str__File__Path
 from osbot_fast_api.api.routes.Fast_API__Routes                                                import Fast_API__Routes
 from osbot_utils.utils.Zip                                                                     import zip_bytes_empty, zip_bytes__add_file, zip_bytes__file_list, zip_bytes__files
@@ -39,7 +38,7 @@ class test_Routes__Zip(TestCase):
         cls.test_zip         = zip_bytes_empty()
         cls.test_zip         = zip_bytes__add_file(cls.test_zip, "file1.txt", b"content 1")
         cls.test_zip         = zip_bytes__add_file(cls.test_zip, "file2.txt", b"content 2")
-        cls.test_namespace   = Safe_Str__Id("test-routes")
+        cls.test_namespace   = "test-routes"
         cls.path_now         = Path__Handler__Temporal().path_now()                                     # Current temporal path
 
         # Store a test zip for operations

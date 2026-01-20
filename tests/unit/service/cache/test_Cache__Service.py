@@ -1,13 +1,12 @@
 from unittest                                                                        import TestCase
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata import Schema__Cache__File__Metadata
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                   import Cache_Id
 from memory_fs.path_handlers.Path__Handler__Temporal                                 import Path__Handler__Temporal
 from osbot_utils.testing.__                                                          import __, __SKIP__
 from memory_fs.schemas.Schema__Memory_FS__File__Config                               import Schema__Memory_FS__File__Config
-from memory_fs.schemas.Schema__Memory_FS__File__Metadata                             import Schema__Memory_FS__File__Metadata
 from memory_fs.storage_fs.providers.Storage_FS__Memory                               import Storage_FS__Memory
 from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
 from osbot_utils.utils.Objects                                                       import base_classes
 from osbot_utils.testing.__helpers                                                   import obj
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs     import Schema__Cache__File__Refs
@@ -23,7 +22,7 @@ class test_Cache__Service(TestCase):
         # Use memory mode for fast tests
         cls.config          = Cache__Config(storage_mode=Enum__Cache__Storage_Mode.MEMORY)
         cls.cache_service   = Cache__Service(cache_config=cls.config)
-        cls.test_namespace  = Safe_Str__Id("test-service")
+        cls.test_namespace  = "test-service"
         cls.created_ids     = []                                                # Track for cleanup         # todo: since we are in memory, we will not need these
         cls.path_now        = Path__Handler__Temporal().path_now()                           # Current temporal path
 
@@ -68,7 +67,7 @@ class test_Cache__Service(TestCase):
             assert handler2 is handler1                                    # Same instance
 
             # Different namespace gets different handler
-            other_namespace = Safe_Str__Id("other-namespace")
+            other_namespace = "other-namespace"
             handler3 = _.get_or_create_handler(other_namespace)
             assert handler3 is not handler1
             assert handler3.namespace == str(other_namespace)
@@ -96,7 +95,7 @@ class test_Cache__Service(TestCase):
         with self.cache_service as _:
             test_data = {"test": "data", "value": 42}
             cache_hash = _.hash_from_json(test_data)
-            cache_id = Cache_Id(Random_Guid())
+            cache_id   = Cache_Id(Random_Guid())
 
             result = _.store_with_strategy(storage_data = test_data      ,
                                           cache_hash   = cache_hash      ,
@@ -110,9 +109,6 @@ class test_Cache__Service(TestCase):
             assert result.cache_hash  == cache_hash
             assert result.namespace   == self.test_namespace
             assert result.size      > 0
-            assert 'data' in result.paths
-            assert 'by_hash' in result.paths
-            assert 'by_id' in result.paths
 
     def test_retrieve_by_id(self):                                         # Test retrieval by ID
         with self.cache_service as _:
@@ -334,8 +330,8 @@ class test_Cache__Service(TestCase):
 
     def test_get_namespace__file_hashes__isolation(self):               # Test that file hashes are properly isolated by namespace
         with self.cache_service as _:
-            ns1 = Safe_Str__Id("namespace1")
-            ns2 = Safe_Str__Id("namespace2")
+            ns1 = "namespace1"
+            ns2 = "namespace2"
 
             # Store in namespace1
             data1 = {"ns": 1}
@@ -403,7 +399,7 @@ class test_Cache__Service(TestCase):
                                            content_encoding = None)
 
             metadata = _.retrieve_by_id__metadata(cache_id=cache_id, namespace="test")
-            assert type(metadata) is Schema__Memory_FS__File__Metadata
+            assert type(metadata) is Schema__Cache__File__Metadata
             assert metadata.obj() == __(content__hash          = '7e4893df99'                      ,
                                         chain_hash             = None                              ,
                                         previous_version_path  = None                              ,

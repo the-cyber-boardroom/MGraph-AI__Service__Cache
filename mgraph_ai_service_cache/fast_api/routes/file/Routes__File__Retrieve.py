@@ -2,8 +2,8 @@ import base64
 import json
 from typing                                                                              import Union, Dict
 from fastapi                                                                             import HTTPException, Response
-from memory_fs.schemas.Schema__Memory_FS__File__Metadata                                 import Schema__Memory_FS__File__Metadata
 from memory_fs.schemas.Schema__Memory_FS__File__Config                                   import Schema__Memory_FS__File__Config
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata     import Schema__Cache__File__Metadata
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs         import Schema__Cache__File__Refs
@@ -97,7 +97,7 @@ class Routes__File__Retrieve(Fast_API__Routes):                                 
 
     def retrieve__cache_id__metadata(self, cache_id : Cache_Id,
                                            namespace: Safe_Str__Id = FAST_API__PARAM__NAMESPACE
-                                      ) -> Schema__Memory_FS__File__Metadata:                                                       # Get cache entry details
+                                      ) -> Schema__Cache__File__Metadata:                                                       # Get cache entry details
         result = self.retrieve_service().retrieve_by_id__metadata(cache_id, namespace)                                              # todo: this class should return Schema__Cache__File__Refs
         return self.handle_not_found(result, cache_id=cache_id, namespace=namespace)
 
