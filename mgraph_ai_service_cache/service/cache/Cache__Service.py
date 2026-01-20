@@ -127,7 +127,7 @@ class Cache__Service(Type_Safe):                                                
                  'storage_mode'     : self.cache_config.storage_mode.value                }     # Include storage mode in stats
 
     # todo: BUG: rename form file_hashes to cache_hashes
-    def get_namespace__file_hashes(self, namespace: Safe_Str__Id) -> List[str]:
+    def get_namespace__file_hashes(self, namespace: Safe_Str__Cache__Namespace) -> List[str]:
         file_hashes = []
         handler = self.get_or_create_handler(namespace)
 
@@ -210,6 +210,10 @@ class Cache__Service(Type_Safe):                                                
 
     def get_storage_info(self) -> Dict[str, Any]:                                  # Get information about current storage configuration
         return self.cache_config.get_storage_info()
+
+    def hash__from_string(self, value) ->Safe_Str__Cache__File__Cache_Hash:
+        cache_hash = self.hash_generator.from_string(value)
+        return Safe_Str__Cache__File__Cache_Hash(cache_hash)                                  # do this cast because the hash_generator returns an object of type Safe_Str__Cache_Hash
 
     # todo: see if we can't use the Schema__Store__Context as the main param here
     @type_safe
