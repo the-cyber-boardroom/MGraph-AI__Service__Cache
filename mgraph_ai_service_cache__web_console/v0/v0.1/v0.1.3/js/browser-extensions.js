@@ -138,7 +138,7 @@
         }
         
         const encodedPath = encodeURIComponent(pathString);
-        const apiUrl = `${API_BASE_URL}/admin/storage/file/html/${encodedPath}`;
+        const apiUrl = `${API_BASE_URL}/admin/storage/file/content/${encodedPath}`;
         
         openBtn.href = apiUrl;
         openBtn.title = `Open in Browser:\n${apiUrl}`;

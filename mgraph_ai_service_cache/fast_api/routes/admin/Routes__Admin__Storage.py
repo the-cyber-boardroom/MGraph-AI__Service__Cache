@@ -1,11 +1,11 @@
 from fastapi                                                                                                 import Response
-from typing                                                                                                      import List, Dict, Any
+from typing                                                                                                  import List, Dict, Any
 from osbot_fast_api.api.decorators.route_path                                                                import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                                              import Fast_API__Routes
 from osbot_utils.decorators.methods.cache_on_self                                                            import cache_on_self
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                            import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now                             import Timestamp_Now
-from osbot_utils.utils.Json                                                                              import bytes_to_json, json_to_str
+from osbot_utils.utils.Json                                                                                  import bytes_to_json, json_to_str
 from mgraph_ai_service_cache_client.schemas.cache.consts__Cache_Service                                      import DEFAULT__HTTP_CODE__FILE_NOT_FOUND
 from mgraph_ai_service_cache.service.cache.Cache__Service                                                    import Cache__Service
 from mgraph_ai_service_cache_client.schemas.routes.admin.Schema__Routes__Admin__Storage__Files_All__Response import Schema__Routes__Admin__Storage__Files_All__Response
@@ -16,6 +16,7 @@ TAG__ROUTES_STORAGE   = 'admin/storage'
 ROUTES_PATHS__STORAGE = [ f'/{TAG__ROUTES_STORAGE}/bucket-name'                          ,  # Current bucket name
                           f'/{TAG__ROUTES_STORAGE}/file/exists/{{path:path}}'            ,  # File Exists
                           f'/{TAG__ROUTES_STORAGE}/file/bytes/{{path:path}}'             ,  # File contents (as bytes)
+                          f'/{TAG__ROUTES_STORAGE}/file/content/{{path:path}}'           ,  # File contents (auto media-type)
                           f'/{TAG__ROUTES_STORAGE}/file/json/{{path:path}}'              ,  # File contents (as json)
                           f'/{TAG__ROUTES_STORAGE}/file/html/{{path:path}}'              ,  # File contents (as html)
                           f'/{TAG__ROUTES_STORAGE}/files/in/{{path:path}}'               ,  # Files in Path
@@ -51,6 +52,29 @@ class Routes__Admin__Storage(Fast_API__Routes):
     def file__bytes(self, path):
         file_bytes = self.storage_fs().file__bytes(path)
         return Response(file_bytes, media_type='application/octet-stream')
+
+    @route_path("/file/content/{path:path}")
+    def file__content(self, path: Safe_Str__File__Path) -> Response:
+        file_bytes = self.storage_fs().file__bytes(path)
+        if not file_bytes:
+            error_data = dict(error_type = "FILE_NOT_FOUND",
+                              resource   = "file",
+                              message    = "The requested file does not exist in storage",
+                              path       = path)
+            return Response(json_to_str(error_data),
+                            status_code = DEFAULT__HTTP_CODE__FILE_NOT_FOUND,
+                            media_type  = 'application/json')
+
+        if path.endswith('.txt'):
+            media_type = 'text/plain; charset=utf-8'
+        elif path.endswith('.json'):
+            media_type = 'application/json'
+        elif path.endswith('.bin'):
+            media_type = 'application/octet-stream'
+        else:
+            media_type = 'application/octet-stream'  # fallback
+
+        return Response(file_bytes, media_type=media_type)
 
     @route_path("/file/json/{path:path}")
     def file__json(self, path):
@@ -146,6 +170,7 @@ class Routes__Admin__Storage(Fast_API__Routes):
         self.add_route_get   (self.bucket_name  )
         self.add_route_get   (self.file__exists )
         self.add_route_get   (self.file__bytes  )
+        self.add_route_get   (self.file__content)
         self.add_route_get   (self.file__json   )
         self.add_route_get   (self.file__html   )
         self.add_route_get   (self.files__in    )
