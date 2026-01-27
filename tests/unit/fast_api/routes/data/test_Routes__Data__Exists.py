@@ -31,8 +31,8 @@ class test_Routes__Data__Exists(TestCase):
         cls.routes_data_store    = Routes__Data__Store (cache_service = cls.cache_service)      # For test data creation
         cls.routes_data_exists   = Routes__Data__Exists(cache_service = cls.cache_service)      # Route under test
 
-        cls.test_namespace       = Safe_Str__Id("test-exists-data")                             # Test namespace
-        cls.test_data_key        = Safe_Str__File__Path("configs/app")                          # Hierarchical path
+        cls.test_namespace       = "test-exists-data"                                           # Test namespace
+        cls.test_data_key        = "configs/app"                                                # Hierarchical path
 
         cls.parent_cache_id      = cls._create_parent_cache_entry(cls)                          # Create parent entry once
         cls._setup_test_data()                                                                  # Store test data for exists checks
@@ -144,7 +144,7 @@ class test_Routes__Data__Exists(TestCase):
             result = _.data__exists__with__id(cache_id     = self.parent_cache_id               ,
                                               namespace    = self.test_namespace                ,
                                               data_type    = Enum__Cache__Data_Type.STRING      ,
-                                              data_file_id = Safe_Str__Id("non-existent-001")   )
+                                              data_file_id = "non-existent-001"                  )
 
             assert type(result)  is Schema__Cache__Data__Exists__Response
             assert result.exists is False
@@ -154,7 +154,7 @@ class test_Routes__Data__Exists(TestCase):
             result = _.data__exists__with__id(cache_id     = self.parent_cache_id               ,
                                               namespace    = self.test_namespace                ,
                                               data_type    = Enum__Cache__Data_Type.JSON        ,
-                                              data_file_id = Safe_Str__Id("json-exists-001")    )
+                                              data_file_id = "json-exists-001"                  )
 
             assert result.exists    is True
             assert result.data_type == Enum__Cache__Data_Type.JSON
@@ -272,19 +272,19 @@ class test_Routes__Data__Exists(TestCase):
             result = _.data__exists__with__id(cache_id     = non_existent_id                    ,
                                               namespace    = self.test_namespace                ,
                                               data_type    = Enum__Cache__Data_Type.STRING      ,
-                                              data_file_id = Safe_Str__Id("any")                )
+                                              data_file_id = "any"                              )
 
             assert result.exists is False                                                        # Non-existent parent means data doesn't exist
 
     def test_data__exists__namespace_isolation(self):                                           # Test namespace isolation
         with self.routes_data_exists as _:
-            different_namespace = Safe_Str__Id("different-namespace")
+            different_namespace = "different-namespace"
 
             # Data exists in test_namespace but not in different_namespace
             result = _.data__exists__with__id(cache_id     = self.parent_cache_id               ,
                                               namespace    = different_namespace                ,
                                               data_type    = Enum__Cache__Data_Type.STRING      ,
-                                              data_file_id = Safe_Str__Id("string-exists-001")  )
+                                              data_file_id = "string-exists-001")
 
             assert result.exists   is False
             assert result.namespace == different_namespace
@@ -295,13 +295,13 @@ class test_Routes__Data__Exists(TestCase):
             result1 = _.data__exists__with__id(cache_id     = self.parent_cache_id              ,
                                                namespace    = self.test_namespace               ,
                                                data_type    = Enum__Cache__Data_Type.STRING     ,
-                                               data_file_id = Safe_Str__Id("string-exists-001") )
+                                               data_file_id = "string-exists-001"               )
 
             result2 = _.data__exists__with__id_and_key(cache_id     = self.parent_cache_id              ,
                                                        namespace    = self.test_namespace               ,
                                                        data_type    = Enum__Cache__Data_Type.STRING     ,
                                                        data_key     = ''                                ,
-                                                       data_file_id = Safe_Str__Id("string-exists-001") )
+                                                       data_file_id = "string-exists-001"               )
 
             assert result1.exists == result2.exists
 
@@ -316,7 +316,7 @@ class test_Routes__Data__Exists(TestCase):
             pre_check = _.data__exists__with__id(cache_id     = parent.cache_id                 ,
                                                  namespace    = self.test_namespace             ,
                                                  data_type    = Enum__Cache__Data_Type.JSON     ,
-                                                 data_file_id = Safe_Str__Id("integ-check")     )
+                                                 data_file_id = "integ-check"                   )
             assert pre_check.exists is False
 
             # Store data
@@ -331,7 +331,7 @@ class test_Routes__Data__Exists(TestCase):
             post_check = _.data__exists__with__id(cache_id     = parent.cache_id                ,
                                                   namespace    = self.test_namespace            ,
                                                   data_type    = Enum__Cache__Data_Type.JSON    ,
-                                                  data_file_id = Safe_Str__Id("integ-check")    )
+                                                  data_file_id = "integ-check"                  )
             assert post_check.exists is True
 
     def test__all_data_types_exist(self):                                                       # Test all data types can be checked
@@ -340,17 +340,17 @@ class test_Routes__Data__Exists(TestCase):
             string_exists = _.data__exists__with__id(cache_id     = self.parent_cache_id            ,
                                                      namespace    = self.test_namespace             ,
                                                      data_type    = Enum__Cache__Data_Type.STRING   ,
-                                                     data_file_id = Safe_Str__Id("string-exists-001"))
+                                                     data_file_id = "string-exists-001"             )
 
             json_exists = _.data__exists__with__id(cache_id     = self.parent_cache_id              ,
                                                    namespace    = self.test_namespace               ,
                                                    data_type    = Enum__Cache__Data_Type.JSON       ,
-                                                   data_file_id = Safe_Str__Id("json-exists-001")   )
+                                                   data_file_id = "json-exists-001"                 )
 
             binary_exists = _.data__exists__with__id(cache_id     = self.parent_cache_id            ,
                                                      namespace    = self.test_namespace             ,
                                                      data_type    = Enum__Cache__Data_Type.BINARY   ,
-                                                     data_file_id = Safe_Str__Id("binary-exists-001"))
+                                                     data_file_id = "binary-exists-001"             )
 
             assert string_exists.exists is True
             assert json_exists.exists   is True
