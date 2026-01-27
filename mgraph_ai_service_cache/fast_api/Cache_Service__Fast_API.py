@@ -1,7 +1,6 @@
-from osbot_fast_api.api.decorators.route_path import route_path
-from starlette.responses import RedirectResponse
-from starlette.staticfiles import StaticFiles
-
+from osbot_fast_api.api.decorators.route_path                               import route_path
+from starlette.responses                                                    import RedirectResponse
+from starlette.staticfiles                                                  import StaticFiles
 import mgraph_ai_service_cache__web_console
 from mgraph_ai_service_cache.fast_api.routes.Routes__Namespaces             import Routes__Namespaces
 from mgraph_ai_service_cache.fast_api.routes.data.Routes__Data__Delete      import Routes__Data__Delete

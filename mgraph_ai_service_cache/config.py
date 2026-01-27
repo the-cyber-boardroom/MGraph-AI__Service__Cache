@@ -4,7 +4,7 @@ SERVICE_NAME                             = package_name
 FAST_API__TITLE                          = "MGraph-AI Service Cache"
 FAST_API__DESCRIPTION                    = "Cache Service"
 LAMBDA_DEPENDENCIES__FAST_API_SERVERLESS = ['memory-fs==v0.40.0'                     ,
-                                            'mgraph-ai-service-cache-client==v0.27.0',
+                                            'mgraph-ai-service-cache-client==v0.30.0',
                                             'osbot-fast-api-serverless==1.33.0'      ]
 
 CACHE_SERVICE__WEB_CONSOLE__PATH              = 'console'
